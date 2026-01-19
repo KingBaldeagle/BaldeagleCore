@@ -28,6 +28,13 @@ public class CountryStorage extends WorldSavedData {
         return countries;
     }
 
+    // Inside CountryStorage.java
+    private final Map<UUID, Double> playerBalances = new HashMap<>();
+
+    public Map<UUID, Double> getPlayerBalances() {
+        return playerBalances;
+    }
+
     public static CountryStorage get(World world) {
         MapStorage storage = world.getMapStorage();
         CountryStorage instance = (CountryStorage) storage.getOrLoadData(CountryStorage.class, DATA_NAME);
