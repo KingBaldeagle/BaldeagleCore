@@ -1,47 +1,38 @@
 package com.baldeagle.country;
 
-import com.feed_the_beast.ftbu.api.IForgeTeam;
-import com.feed_the_beast.ftbu.api.FTBUApi; // FTBU API
-import net.minecraft.world.World;
-import net.minecraft.world.storage.WorldSavedData;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class CountryManager {
 
-    private static Map<UUID, Country> countries = new HashMap<>();
+    private static final Map<UUID, Country> countries = new HashMap<>();
 
-    // Load all teams as countries
-    public static void registerAllCountries(World world) {
-        // FTBU API provides all teams
-        for (IForgeTeam team : FTBUApi.getTeamManager().getTeams()) {
-            registerCountry(team);
+    // Create a country if the name is available
+    public static Country createCountry(String name, UUID creatorUUID) {
+        if (getCountryByName(name) != null) {
+            throw new IllegalArgumentException("Country name already exists");
         }
+        Country country = new Country(name, creatorUUID);
+        countries.put(country.getId(), country);
+        return country;
     }
 
-    public static Country registerCountry(IForgeTeam team) {
-        UUID teamID = team.getId();
-        if (!countries.containsKey(teamID)) {
-            Country country = new Country(team.getTitle(), teamID);
-            countries.put(teamID, country);
-        }
-        return countries.get(teamID);
+    public static Country getCountry(UUID id) {
+        return countries.get(id);
     }
 
-    public static Country getCountry(UUID teamID) {
-        return countries.get(teamID);
+    public static Country getCountryByName(String name) {
+        return countries.values().stream()
+                .filter(c -> c.getName().equalsIgnoreCase(name))
+                .findFirst().orElse(null);
     }
 
-    public static Country getCountry(String name) {
-        for (Country c : countries.values()) {
-            if (c.getName().equalsIgnoreCase(name)) return c;
-        }
-        return null;
-    }
-
-    public static Map<UUID, Country> getCountries() {
+    public static Map<UUID, Country> getAllCountries() {
         return countries;
+    }
+
+    public static void clear() {
+        countries.clear();
     }
 }

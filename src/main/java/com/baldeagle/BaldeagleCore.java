@@ -1,5 +1,8 @@
 package com.baldeagle;
 
+import com.baldeagle.country.CountryCommand;
+import com.baldeagle.country.CountryJoinCommand;
+import com.baldeagle.country.CountryMoneyCommand;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -33,8 +36,13 @@ public class BaldeagleCore {
         proxy.preInit();
     }
 
+
+
     @Mod.EventHandler
     public void serverLoad(FMLServerStartingEvent event) {
         proxy.serverLoad(event);
+        event.registerServerCommand(new CountryJoinCommand());
+        event.registerServerCommand(new CountryMoneyCommand());
+        event.registerServerCommand(new CountryCommand());
     }
 }
