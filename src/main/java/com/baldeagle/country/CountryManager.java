@@ -1,38 +1,53 @@
 package com.baldeagle.country;
 
-import java.util.HashMap;
+import net.minecraft.world.World;
+
 import java.util.Map;
 import java.util.UUID;
 
 public class CountryManager {
 
-    private static final Map<UUID, Country> countries = new HashMap<>();
+    // --- Get all countries for a world ---
+    public static Map<UUID, Country> getAllCountries(World world) {
+        return CountryStorage.get(world).getCountriesMap();
+    }
 
-    // Create a country if the name is available
-    public static Country createCountry(String name, UUID creatorUUID) {
-        if (getCountryByName(name) != null) {
-            throw new IllegalArgumentException("Country name already exists");
+    // --- Clear all countries in a world ---
+    public static void clear(World world) {
+        getAllCountries(world).clear();
+        CountryStorage.get(world).markDirty();
+    }
+
+    // --- Create a new country in a world ---
+    public static Country createCountry(World world, String name, UUID creatorUUID) {
+        Map<UUID, Country> countries = getAllCountries(world);
+
+        // Check name availability
+        for (Country c : countries.values()) {
+            if (c.getName().equalsIgnoreCase(name)) {
+                throw new IllegalArgumentException("Country name already exists");
+            }
         }
+
         Country country = new Country(name, creatorUUID);
         countries.put(country.getId(), country);
+
+        // Save changes
+        CountryStorage.get(world).markDirty();
+
         return country;
     }
 
-    public static Country getCountry(UUID id) {
-        return countries.get(id);
+    // --- Get country by UUID ---
+    public static Country getCountry(World world, UUID id) {
+        return getAllCountries(world).get(id);
     }
 
-    public static Country getCountryByName(String name) {
-        return countries.values().stream()
-                .filter(c -> c.getName().equalsIgnoreCase(name))
-                .findFirst().orElse(null);
-    }
-
-    public static Map<UUID, Country> getAllCountries() {
-        return countries;
-    }
-
-    public static void clear() {
-        countries.clear();
+    // --- Get country by name ---
+    public static Country getCountryByName(World world, String name) {
+        for (Country c : getAllCountries(world).values()) {
+            if (c.getName().equalsIgnoreCase(name)) return c;
+        }
+        return null;
     }
 }
