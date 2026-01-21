@@ -1,7 +1,9 @@
 package com.baldeagle.client;
 
+import com.baldeagle.bank.ModBlocks;
 import com.baldeagle.country.items.ModItems;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.Mod;
@@ -15,6 +17,7 @@ public class ClientModelRegistry {
         registerItem(ModItems.COIN_1);
         registerItem(ModItems.COIN_5);
         registerItem(ModItems.BILL_10);
+        registerItem(Item.getItemFromBlock(ModBlocks.BANK));
     }
 
     private static void registerItem(net.minecraft.item.Item item) {

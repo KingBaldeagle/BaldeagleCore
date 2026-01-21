@@ -1,59 +1,155 @@
-# Modern, minimal Forge 1.12 template
+# **BaldeagleCore – Minecraft Geopolitics Mod**
 
-It's kinda annoying to set up forge 1.12 workspaces in the year of our lord 2023 and for some reason [noone wants to tell you how to do it](https://www.reddit.com/r/feedthebeast/comments/11wykah/). Here's one, using ForgeGradle 5.1 and Gradle 7.6.1, so, modern stuff. It is fairly minimal and unopinionated.
+**Version:** 1.0 (custom)
+**Minecraft:** 1.12.2
+**Forge:** 14.23.5.x
 
-**The license for this template itself is CC0, public domain.** I don't care what you do with it and no credit is required. I'm not going to include a separate `LICENSE` file because it's an extra thing you have to delete when setting up a mod.
+**Author:** Baldeagle
+**Dependencies:** None required, optional integration with FTB Teams for chunk ownership.
 
-## Usage
+---
 
-1. Clone this repo, delete the `.git` folder to disassociate your clone from this repo, then run `git init`.
-2. "Poke ForgeGradle": run `./gradlew build` or whatever. ForgeGradle will whirr to life and set up the dev environment for you.
-   * Give it time, it takes like six minutes on my PC from an empty ForgeGradle cache. No, it's not stuck.
-3. Open this project in IntelliJ or your code editor of choice.
-4. (optional) Generate "run configurations" by running the appropriate Gradle task, depending on your IDE:
-   * IntelliJ: `genIntelliJRuns` (if you're looking in the "gradle tool window" on the right, it's under the "forgegradle runs" folder)
-   * Eclipse: `genEclipseRuns`
-   * Visual Studio Code: `genVSCodeRuns`
+## **Overview**
 
-Next, make it yours:
+**BaldeagleCore** is a custom Minecraft mod designed for geopolitics-style roleplay servers. It introduces:
 
-1. In `gradle.properties`, replace `group`, `name`, and `version`.
-2. In `src/main/resources/mcmod.info`, replace `modid`, `name`, `description`, `authorList`, and any other properties you feel like filling out.
-3. In `src/main/java/com/example/SampleMod112`, fill out the `MODID`, `NAME`, and `VERSION` strings again, and move the class to your own package (not `com.example`).
-   * Or just delete it and make a new `@Mod` class, I'm not your mom.
+* **Countries**: Player-created nations with presidents and roles.
+* **Economy**: Player and country banking, coins, bills, and interest.
+* **Banks**: Blocks that allow players to deposit currency and interact with the economy.
+* **Persistent storage**: All data (countries, balances, roles) is saved with the world.
 
-Finally, delete this file and replace it with your own `README`. Good luck in your modding endeavour.
+This mod is **self-contained**, handling currency, countries, and roles independently, while optionally integrating with FTB Teams for chunk ownership management.
 
-## Common problems
+---
 
-### `Caused by: java.lang.IllegalStateException: ProjectScopeServices has been closed.` in Gradle setup 
+## **Key Features**
 
-[Goofy ass ForgeGradle bug](https://github.com/MinecraftForge/ForgeGradle/issues/563) that's been around forever. Run `./gradlew stop` in the terminal. Even if you think you didn't start a Gradle daemon, try it anyway - IntelliJ likes to start them on its own when it decides to "sync".
+### **1. Countries**
 
-### `Caused by: java.lang.ClassCastException: class jdk.internal.loader.ClassLoaders$AppClassLoader cannot be cast to class java.net.URLClassLoader` when starting the game
+* Players can **create countries**.
+* Country creation validates **unique names**.
+* Country creator becomes **President**.
+* Roles can be assigned through **roleplay-based voting**.
+* Players can **request to join countries**; presidents or high-authority roles approve requests.
+* Country data is **persistent across world loads**.
 
-The game was launched with Java 9 or later. 1.12 is extremely not compatible with this and explodes instantly.
+### **2. Economy**
 
-If you use the `runClient`/`runServer` Gradle tasks, this shouldn't happen, because the buildscript provisions a Java 8 toolchain for you and [ForgeGradle will use it](https://github.com/MinecraftForge/ForgeGradle/blob/0a2c70fc412a4c461db50bc20d77164fd5ff6bfa/src/common/java/net/minecraftforge/gradle/common/util/runs/RunConfigGenerator.java#L266-L267). If you used something like the `genIntellijRuns` task to create an IDE run config, though, you will need to fix the configs yourself.
+* **Player balances** track individual money.
+* **Country balances** aggregate deposits from members.
+* **Deposits** and **transfers** restricted to players with proper roles.
+* **Coins and bills** as physical items:
 
-For IntelliJ: open the run config dropdown and select `Edit Configurations...`, select a problematic configuration, and in the `JDK or JRE` dropdown, select a Java 8 JDK. (The one Gradle provisioned for you is in `(user home directory)/.gradle/jdks`.)
+   * `ItemCoin` (denominations: 1, 5, etc.)
+   * `ItemBill` (denominations: 10, etc.)
+* Currency can be **deposited into banks**, converted to balance values.
+* **Interest system** adds growth to player and country deposits over time.
 
-(While "opening the game with the `runClient` task" and "opening the game with an IDE run config" *appear* similar on the surface, they're actually wholly separate systems, which is why Gradle can download a Java 8 JDK and ForgeGradle can generate an IDE run config, but you have to plug them together yourself.)
+### **3. Bank Block**
 
-### `Unable to read a class file correctly` / `There was a problem reading the entry module-info.class in the jar (blah blah)` / `probably a corrupt zip` when starting the game
+* Right-click opens a **custom GUI**.
+* Allows deposits to:
 
-Something on the classpath is compiled to a classfile format newer than the one used in Java 8. Because it breaks the loading process, classes in that jar will not be visible to mods, but it's otherwise harmless.
+   * **Player balance**
+   * **Country balance** (if member of a country)
+* Applies **interest over time**.
+* Supports **coin/bill items**.
+* Configurable interest rate (`TileEntityBank` handles periodic interest application).
 
-To me, this happens to a bunch of `asm-6.2`-related jars, but I'm not sure why those are being added to the classpath in the first place when there's also a perfectly fine copy of ASM 5.2!
+### **4. Commands**
 
-### Resources (including `mcmod.info`) are not loading
+* `/countrymoney balance` — shows **player or country balance**.
+* `/country list` — lists **all created countries**.
+* `/country joinrequests` — shows **pending requests** to join a country.
+* `/country create <name>` — creates a new country.
+* `/countrymoney deposit <amount>` — deposits currency into bank.
+* Role restrictions enforced: only authorized players can deposit, transfer, or manage funds.
 
-If you google for this you will find a number of really silly solutions, including "downgrading to super ancient versions of Gradle" or "selecting 'Build and Run with IntelliJ IDEA'". The problem is that Forge 1.12 requires the resources to end up in the same directory as the classes, but by default Gradle puts classes in `./build/classes/java/main` and resources in `./build/resources/main`. The solution is simply telling Gradle to share the resources and classes directory:
+### **5. Creative Tab**
 
-```groovy
-sourceSets.all { it.output.resourcesDir = it.output.classesDirs.getFiles().iterator().next() }
-```
+* Custom **“Economy” creative tab**:
 
-This line is included at the bottom of the sample buildscript, so it shouldn't be an issue.
+   * Groups all coins, bills, and bank blocks.
+   * Icon set to `coin_1`.
+   * Tab shows items in inventory and creative mode cleanly.
 
-(Snippets of the form `output.resourcesDir = output.classesDir` are floating around online; those work in Gradle 4, but stopped working after Gradle replaced `classesDir` with the more powerful `classesDirs`.)
+### **6. Persistence**
+
+* All data (countries, player balances, country balances) is stored **in the world**.
+* Data survives world reloads and server restarts.
+* Uses:
+
+   * `CountryStorage` for world-level country data.
+   * Player capabilities for individual balances.
+
+---
+
+## **Items Added**
+
+| Item    | Description      | Creative Tab |
+| ------- | ---------------- | ------------ |
+| Coin_1  | Single unit coin | Economy      |
+| Coin_5  | 5-unit coin      | Economy      |
+| Bill_10 | 10-unit bill     | Economy      |
+
+---
+
+## **Blocks Added**
+
+| Block | Description                                                | GUI Available |
+| ----- | ---------------------------------------------------------- | ------------- |
+| Bank  | Deposit coins/bills, add money to balances, apply interest | Yes           |
+
+---
+
+## **Mod Architecture**
+
+* **Core**
+
+   * `CountryManager` — manages countries, members, roles.
+   * `CountryStorage` — persistent storage of country data.
+* **Economy**
+
+   * `ItemCoin`, `ItemBill` — currency items.
+   * Player balances tracked via **capabilities**.
+* **Bank**
+
+   * `BlockBank` — physical bank block.
+   * `TileEntityBank` — handles interest and server ticks.
+   * `GuiBank` / `ContainerBank` — GUI and container logic.
+* **Client**
+
+   * `ClientModelRegistry` — handles item/block model registration.
+   * Custom **creative tab** for economy items.
+
+---
+
+## **Optional Integration**
+
+* **FTB Utilities / FTB Teams**
+
+   * Chunk ownership can be delegated to countries automatically.
+   * This mod handles only economy, roles, and country data.
+
+---
+
+## **Mod Dependencies**
+
+* **Forge 1.12.2**
+* Optional: **FTBU / FTBLib** (if chunk ownership integration desired)
+
+No other mods are required.
+
+---
+
+## **Future Features (Planned / Possible)**
+
+* **Central bank** mechanics
+* **Inflation / dynamic currency values**
+* **Vaults for physical storage**
+* **Wire transfers between players/countries**
+* **Taxes and upkeep**
+* **OpenComputers / scripting integration**
+
+
+

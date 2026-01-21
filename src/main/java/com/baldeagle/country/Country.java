@@ -27,6 +27,10 @@ public class Country {
         this.members.put(creator, Role.PRESIDENT);
     }
 
+    public void applyInterest(double rate) {
+        balance += balance * rate;
+    }
+
     // --- Empty constructor for loading from NBT ---
     public Country(String name) {
         this.name = name;
@@ -113,7 +117,9 @@ public class Country {
         // Join requests
         NBTTagList requestsList = new NBTTagList();
         for (UUID u : joinRequests) {
-            requestsList.appendTag(new NBTTagCompound() {{ setString("uuid", u.toString()); }});
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("uuid", u.toString());
+            requestsList.appendTag(tag);
         }
         nbt.setTag("joinRequests", requestsList);
 

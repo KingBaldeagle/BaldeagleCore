@@ -1,14 +1,16 @@
 package com.baldeagle.economy;
 
-import java.util.UUID;
-import java.util.HashMap;
-import java.util.Map;
+import com.baldeagle.country.Country;
+import com.baldeagle.country.CountryStorage;
 import net.minecraft.world.World;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class EconomyManager {
 
-    private static final Map<UUID, Long> playerBalances = new HashMap<>();
-    private static final Map<String, Long> countryBalances = new HashMap<>();
+    private EconomyManager() {
+    }
 
     private static EconomyData getData(World world) {
         return EconomyData.get(world);
@@ -37,7 +39,6 @@ public class EconomyManager {
         return false;
     }
 
-    // Country methods
     public static long getCountryBalance(World world, String country) {
         return getData(world).getCountryBalances().getOrDefault(country, 0L);
     }
@@ -61,4 +62,53 @@ public class EconomyManager {
         return false;
     }
 
+    public static void applyInterest(World world, double rate) {
+        EconomyData data = getData(world);
+        boolean dataChanged = false;
+
+        Map<UUID, Long> playerBalances = data.getPlayerBalances();
+        for (Map.Entry<UUID, Long> entry : playerBalances.entrySet()) {
+            long current = entry.getValue();
+            if (current <= 0) {
+                continue;
+            }
+            long interest = Math.round(current * rate);
+            if (interest > 0) {
+                entry.setValue(current + interest);
+                dataChanged = true;
+            }
+        }
+
+        Map<String, Long> countryBalances = data.getCountryBalances();
+        for (Map.Entry<String, Long> entry : countryBalances.entrySet()) {
+            long current = entry.getValue();
+            if (current <= 0) {
+                continue;
+            }
+            long interest = Math.round(current * rate);
+            if (interest > 0) {
+                entry.setValue(current + interest);
+                dataChanged = true;
+            }
+        }
+
+        if (dataChanged) {
+            data.markDirty();
+        }
+
+        CountryStorage storage = CountryStorage.get(world);
+        boolean storageChanged = false;
+        for (Country country : storage.getCountriesMap().values()) {
+            double balance = country.getBalance();
+            if (balance <= 0) {
+                continue;
+            }
+            country.setBalance(balance + (balance * rate));
+            storageChanged = true;
+        }
+
+        if (storageChanged) {
+            storage.markDirty();
+        }
+    }
 }

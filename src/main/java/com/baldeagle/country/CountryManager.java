@@ -50,4 +50,14 @@ public class CountryManager {
         }
         return null;
     }
+
+    // --- Get the country a player belongs to ---
+    public static Country getCountryForPlayer(World world, UUID playerUUID) {
+        for (Country country : getAllCountries(world).values()) {
+            if (country.isMember(playerUUID)) {
+                return country;
+            }
+        }
+        return null;
+    }
 }
