@@ -3,6 +3,7 @@ package com.baldeagle.bank;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
 import com.baldeagle.country.CountryStorage;
+import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.economy.EconomyManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -18,7 +19,7 @@ public class ContainerBank extends Container {
 
     private enum DepositTarget {
         PLAYER,
-        COUNTRY
+        COUNTRY,
     }
 
     private final TileEntityBank tileBank;
@@ -29,23 +30,49 @@ public class ContainerBank extends Container {
     private int displayedPlayerBalance = 0;
     private int displayedCountryBalance = 0;
 
-    public ContainerBank(InventoryPlayer playerInventory, TileEntityBank tileBank) {
+    public ContainerBank(
+        InventoryPlayer playerInventory,
+        TileEntityBank tileBank
+    ) {
         this.tileBank = tileBank;
         this.player = playerInventory.player;
 
         tileBank.openInventory(player);
 
-        this.addSlotToContainer(new CurrencySlot(tileBank, TileEntityBank.SLOT_PLAYER_DEPOSIT, 44, 36));
-        this.addSlotToContainer(new CurrencySlot(tileBank, TileEntityBank.SLOT_COUNTRY_DEPOSIT, 116, 36));
+        this.addSlotToContainer(
+            new CurrencySlot(
+                tileBank,
+                TileEntityBank.SLOT_PLAYER_DEPOSIT,
+                44,
+                36
+            )
+        );
+        this.addSlotToContainer(
+            new CurrencySlot(
+                tileBank,
+                TileEntityBank.SLOT_COUNTRY_DEPOSIT,
+                116,
+                36
+            )
+        );
 
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
-                this.addSlotToContainer(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+                this.addSlotToContainer(
+                    new Slot(
+                        playerInventory,
+                        col + row * 9 + 9,
+                        8 + col * 18,
+                        84 + row * 18
+                    )
+                );
             }
         }
 
         for (int hotbar = 0; hotbar < 9; ++hotbar) {
-            this.addSlotToContainer(new Slot(playerInventory, hotbar, 8 + hotbar * 18, 142));
+            this.addSlotToContainer(
+                new Slot(playerInventory, hotbar, 8 + hotbar * 18, 142)
+            );
         }
     }
 
@@ -54,7 +81,11 @@ public class ContainerBank extends Container {
         super.addListener(listener);
         if (!player.world.isRemote) {
             listener.sendWindowProperty(this, 0, getPlayerBalanceInt());
-            listener.sendWindowProperty(this, 1, getCountryBalanceInt());
+            listener.sendWindowProperty(
+                this,
+                1,
+                Math.max(0, getCountryBalanceInt())
+            );
         }
     }
 
@@ -63,11 +94,17 @@ public class ContainerBank extends Container {
         super.detectAndSendChanges();
 
         if (!player.world.isRemote) {
-            handleDeposit(TileEntityBank.SLOT_PLAYER_DEPOSIT, DepositTarget.PLAYER);
-            handleDeposit(TileEntityBank.SLOT_COUNTRY_DEPOSIT, DepositTarget.COUNTRY);
+            handleDeposit(
+                TileEntityBank.SLOT_PLAYER_DEPOSIT,
+                DepositTarget.PLAYER
+            );
+            handleDeposit(
+                TileEntityBank.SLOT_COUNTRY_DEPOSIT,
+                DepositTarget.COUNTRY
+            );
 
             int currentPlayerBalance = getPlayerBalanceInt();
-            int currentCountryBalance = getCountryBalanceInt();
+            int currentCountryBalance = Math.max(0, getCountryBalanceInt());
 
             if (currentPlayerBalance != cachedPlayerBalance) {
                 cachedPlayerBalance = currentPlayerBalance;
@@ -91,39 +128,101 @@ public class ContainerBank extends Container {
             return;
         }
 
-        long value = TileEntityBank.getCurrencyValue(stack);
-        if (value <= 0) {
+        double monetaryValue = TileEntityBank.getCurrencyMonetaryValue(
+            tileBank,
+            stack
+        );
+        if (monetaryValue <= 0) {
             returnStackToPlayer(stack);
-        } else if (target == DepositTarget.PLAYER) {
-            EconomyManager.depositPlayer(player.world, player.getUniqueID(), value);
-            player.sendStatusMessage(new TextComponentString("Deposited " + value + " to your personal balance."), true);
-            tileBank.markDirty();
-        } else {
-            Country country = CountryManager.getCountryForPlayer(player.world, player.getUniqueID());
-            if (country == null) {
-                returnStackToPlayer(stack);
-                player.sendStatusMessage(new TextComponentString("Join a country to deposit into its balance."), true);
-                return;
-            }
-            if (!country.isAuthorized(player.getUniqueID())) {
-                returnStackToPlayer(stack);
-                player.sendStatusMessage(new TextComponentString("You are not authorized to deposit to " + country.getName() + "."), true);
-                return;
-            }
-
-            try {
-                country.deposit(player.getUniqueID(), value);
-            } catch (IllegalArgumentException e) {
-                returnStackToPlayer(stack);
-                player.sendStatusMessage(new TextComponentString(e.getMessage()), true);
-                return;
-            }
-
-            CountryStorage.get(player.world).markDirty();
-            EconomyManager.depositCountry(player.world, country.getName(), value);
-            player.sendStatusMessage(new TextComponentString("Deposited " + value + " to " + country.getName() + "."), true);
-            tileBank.markDirty();
+            return;
         }
+
+        long roundedValue = Math.round(monetaryValue);
+        if (roundedValue <= 0) {
+            returnStackToPlayer(stack);
+            return;
+        }
+
+        if (target == DepositTarget.PLAYER) {
+            CurrencyItemHelper.removeFromCirculation(player.world, stack);
+            EconomyManager.depositPlayer(
+                player.world,
+                player.getUniqueID(),
+                roundedValue
+            );
+            player.sendStatusMessage(
+                new TextComponentString(
+                    "Deposited " + roundedValue + " to your personal balance."
+                ),
+                true
+            );
+            tileBank.markDirty();
+            return;
+        }
+
+        Country country = CountryManager.getCountryForPlayer(
+            player.world,
+            player.getUniqueID()
+        );
+        if (country == null) {
+            returnStackToPlayer(stack);
+            player.sendStatusMessage(
+                new TextComponentString(
+                    "Join a country to deposit into its balance."
+                ),
+                true
+            );
+            return;
+        }
+        if (!country.isAuthorized(player.getUniqueID())) {
+            returnStackToPlayer(stack);
+            player.sendStatusMessage(
+                new TextComponentString(
+                    "You are not authorized to deposit to " +
+                        country.getName() +
+                        "."
+                ),
+                true
+            );
+            return;
+        }
+        if (
+            !CurrencyItemHelper.enforceCountryMatch(
+                player.world,
+                stack,
+                country,
+                player
+            )
+        ) {
+            returnStackToPlayer(stack);
+            return;
+        }
+
+        try {
+            country.deposit(player.getUniqueID(), roundedValue);
+            CountryStorage.get(player.world).markDirty();
+            CurrencyItemHelper.removeFromCirculation(player.world, stack);
+        } catch (IllegalArgumentException e) {
+            returnStackToPlayer(stack);
+            player.sendStatusMessage(
+                new TextComponentString(e.getMessage()),
+                true
+            );
+            return;
+        }
+
+        EconomyManager.depositCountry(
+            player.world,
+            country.getName(),
+            roundedValue
+        );
+        player.sendStatusMessage(
+            new TextComponentString(
+                "Deposited " + roundedValue + " to " + country.getName() + "."
+            ),
+            true
+        );
+        tileBank.markDirty();
     }
 
     private void returnStackToPlayer(ItemStack stack) {
@@ -137,12 +236,18 @@ public class ContainerBank extends Container {
     }
 
     private int getPlayerBalanceInt() {
-        long balance = EconomyManager.getPlayerBalance(player.world, player.getUniqueID());
+        long balance = EconomyManager.getPlayerBalance(
+            player.world,
+            player.getUniqueID()
+        );
         return (int) Math.min(Integer.MAX_VALUE, balance);
     }
 
     private int getCountryBalanceInt() {
-        Country country = CountryManager.getCountryForPlayer(player.world, player.getUniqueID());
+        Country country = CountryManager.getCountryForPlayer(
+            player.world,
+            player.getUniqueID()
+        );
         if (country == null) {
             return -1;
         }
@@ -169,8 +274,14 @@ public class ContainerBank extends Container {
         tileBank.closeInventory(playerIn);
 
         if (!playerIn.world.isRemote) {
-            returnStackToPlayer(tileBank.removeStackFromSlot(TileEntityBank.SLOT_PLAYER_DEPOSIT));
-            returnStackToPlayer(tileBank.removeStackFromSlot(TileEntityBank.SLOT_COUNTRY_DEPOSIT));
+            returnStackToPlayer(
+                tileBank.removeStackFromSlot(TileEntityBank.SLOT_PLAYER_DEPOSIT)
+            );
+            returnStackToPlayer(
+                tileBank.removeStackFromSlot(
+                    TileEntityBank.SLOT_COUNTRY_DEPOSIT
+                )
+            );
         }
     }
 
@@ -180,7 +291,7 @@ public class ContainerBank extends Container {
         if (id == 0) {
             displayedPlayerBalance = data;
         } else if (id == 1) {
-            displayedCountryBalance = data;
+            displayedCountryBalance = Math.max(0, data);
         }
     }
 
@@ -194,11 +305,20 @@ public class ContainerBank extends Container {
             itemstack = stack.copy();
 
             if (index < TileEntityBank.SLOT_COUNT) {
-                if (!mergeItemStack(stack, TileEntityBank.SLOT_COUNT, inventorySlots.size(), true)) {
+                if (
+                    !mergeItemStack(
+                        stack,
+                        TileEntityBank.SLOT_COUNT,
+                        inventorySlots.size(),
+                        true
+                    )
+                ) {
                     return ItemStack.EMPTY;
                 }
             } else if (TileEntityBank.isCurrency(stack)) {
-                if (!mergeItemStack(stack, 0, TileEntityBank.SLOT_COUNT, false)) {
+                if (
+                    !mergeItemStack(stack, 0, TileEntityBank.SLOT_COUNT, false)
+                ) {
                     return ItemStack.EMPTY;
                 }
             } else {
@@ -216,7 +336,13 @@ public class ContainerBank extends Container {
     }
 
     private static class CurrencySlot extends Slot {
-        public CurrencySlot(TileEntityBank tile, int index, int xPosition, int yPosition) {
+
+        public CurrencySlot(
+            TileEntityBank tile,
+            int index,
+            int xPosition,
+            int yPosition
+        ) {
             super(tile, index, xPosition, yPosition);
         }
 

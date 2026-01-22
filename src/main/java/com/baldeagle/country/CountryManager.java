@@ -1,49 +1,65 @@
 package com.baldeagle.country;
 
-import net.minecraft.world.World;
-
+import com.baldeagle.bank.ModBlocks;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 public class CountryManager {
 
-    // --- Get all countries for a world ---
     public static Map<UUID, Country> getAllCountries(World world) {
         return CountryStorage.get(world).getCountriesMap();
     }
 
-    // --- Clear all countries in a world ---
     public static void clear(World world) {
         getAllCountries(world).clear();
         CountryStorage.get(world).markDirty();
     }
 
-    // --- Create a new country in a world ---
-    public static Country createCountry(World world, String name, UUID creatorUUID) {
+    public static Country createCountry(
+        World world,
+        String name,
+        UUID creatorUUID
+    ) {
         Map<UUID, Country> countries = getAllCountries(world);
 
-        // Check name availability
         for (Country c : countries.values()) {
             if (c.getName().equalsIgnoreCase(name)) {
-                throw new IllegalArgumentException("Country name already exists");
+                throw new IllegalArgumentException(
+                    "Country name already exists"
+                );
             }
         }
 
         Country country = new Country(name, creatorUUID);
         countries.put(country.getId(), country);
-
-        // Save changes
         CountryStorage.get(world).markDirty();
+
+        if (!world.isRemote) {
+            EntityPlayerMP creator = world
+                .getMinecraftServer()
+                .getPlayerList()
+                .getPlayerByUUID(creatorUUID);
+            if (creator != null) {
+                ItemStack mintBlock = new ItemStack(
+                    Item.getItemFromBlock(ModBlocks.MINT)
+                );
+                if (!creator.inventory.addItemStackToInventory(mintBlock)) {
+                    creator.dropItem(mintBlock, false);
+                }
+            }
+        }
 
         return country;
     }
 
-    // --- Get country by UUID ---
     public static Country getCountry(World world, UUID id) {
         return getAllCountries(world).get(id);
     }
 
-    // --- Get country by name ---
     public static Country getCountryByName(World world, String name) {
         for (Country c : getAllCountries(world).values()) {
             if (c.getName().equalsIgnoreCase(name)) return c;
@@ -51,7 +67,6 @@ public class CountryManager {
         return null;
     }
 
-    // --- Get the country a player belongs to ---
     public static Country getCountryForPlayer(World world, UUID playerUUID) {
         for (Country country : getAllCountries(world).values()) {
             if (country.isMember(playerUUID)) {
