@@ -28,21 +28,21 @@ public class ModItems {
         CurrencyDenomination.COIN_10
     )
         .setRegistryName("baldeaglecore", "coin_10")
-        .setTranslationKey("currency_coin")
+        .setTranslationKey("baldeaglecore.coin_10")
         .setCreativeTab(EconomyTab.INSTANCE);
 
     public static final ItemBill BILL_50 = (ItemBill) new ItemBill(
         CurrencyDenomination.BILL_50
     )
         .setRegistryName("baldeaglecore", "bill_50")
-        .setTranslationKey("currency_bill")
+        .setTranslationKey("baldeaglecore.bill_50")
         .setCreativeTab(EconomyTab.INSTANCE);
 
     public static final ItemBill BILL_100 = (ItemBill) new ItemBill(
         CurrencyDenomination.BILL_100
     )
         .setRegistryName("baldeaglecore", "bill_100")
-        .setTranslationKey("currency_bill")
+        .setTranslationKey("baldeaglecore.bill_100")
         .setCreativeTab(EconomyTab.INSTANCE);
 
     public static Item getCurrencyItem(CurrencyDenomination denomination) {

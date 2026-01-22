@@ -74,6 +74,7 @@ public class ItemCoin extends Item {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public String getItemStackDisplayName(ItemStack stack) {
         CurrencyDenomination denomination = CurrencyItemHelper.getDenomination(
             stack
@@ -94,7 +95,7 @@ public class ItemCoin extends Item {
             } catch (IllegalArgumentException ignored) {}
         }
         return I18n.format(
-            "item.baldeaglecore.currency_coin.name",
+            "item.baldeaglecore.currency_coin",
             denominationText,
             countryName,
             type.getNbtKey()
