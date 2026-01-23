@@ -75,4 +75,30 @@ public enum CurrencyDenomination {
             (index + (forward ? 1 : -1) + sorted.size()) % sorted.size();
         return sorted.get(nextIndex);
     }
+
+    public static CurrencyDenomination nextAny(
+        CurrencyDenomination current,
+        boolean forward
+    ) {
+        List<CurrencyDenomination> sorted = Arrays.stream(values())
+            .sorted(
+                Comparator.comparingInt(
+                    CurrencyDenomination::getValue
+                ).thenComparingInt(a -> a.type.ordinal())
+            )
+            .collect(Collectors.toList());
+
+        if (sorted.isEmpty()) {
+            return current;
+        }
+
+        int index = sorted.indexOf(current);
+        if (index < 0) {
+            return sorted.get(0);
+        }
+
+        int nextIndex =
+            (index + (forward ? 1 : -1) + sorted.size()) % sorted.size();
+        return sorted.get(nextIndex);
+    }
 }

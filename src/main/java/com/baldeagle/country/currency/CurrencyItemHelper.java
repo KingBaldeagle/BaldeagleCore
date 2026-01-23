@@ -16,7 +16,10 @@ import net.minecraft.world.World;
 
 public final class CurrencyItemHelper {
 
+    // Legacy UUID-based identifier (kept for backwards compatibility)
     public static final String NBT_COUNTRY = "country_id";
+    // New identifier: country name
+    public static final String NBT_COUNTRY_NAME = "country_name";
     public static final String NBT_DENOMINATION = "denomination";
     public static final String NBT_TYPE = "type";
 
@@ -48,16 +51,16 @@ public final class CurrencyItemHelper {
         }
         ItemStack stack = new ItemStack(item, amount);
 
-        applyCurrencyData(stack, country.getId(), denomination);
+        applyCurrencyData(stack, country, denomination);
         return stack;
     }
 
     public static void applyCurrencyData(
         ItemStack stack,
-        UUID countryId,
+        Country country,
         CurrencyDenomination denomination
     ) {
-        if (stack.isEmpty() || countryId == null || denomination == null) {
+        if (stack.isEmpty() || country == null || denomination == null) {
             return;
         }
         NBTTagCompound tag = stack.getTagCompound();
@@ -65,7 +68,7 @@ public final class CurrencyItemHelper {
             tag = new NBTTagCompound();
             stack.setTagCompound(tag);
         }
-        tag.setString(NBT_COUNTRY, countryId.toString());
+        tag.setString(NBT_COUNTRY_NAME, country.getName());
         tag.setString(NBT_DENOMINATION, denomination.getId());
         tag.setString(NBT_TYPE, denomination.getType().getNbtKey());
     }
@@ -87,7 +90,36 @@ public final class CurrencyItemHelper {
         }
     }
 
+    public static String getCountryName(ItemStack stack) {
+        if (
+            stack.isEmpty() ||
+            stack.getTagCompound() == null ||
+            !stack.getTagCompound().hasKey(NBT_COUNTRY_NAME)
+        ) {
+            return null;
+        }
+        String name = stack.getTagCompound().getString(NBT_COUNTRY_NAME);
+        return name != null && !name.trim().isEmpty() ? name : null;
+    }
+
     public static Country getCountry(World world, ItemStack stack) {
+        if (world == null) {
+            return null;
+        }
+
+        String name = getCountryName(stack);
+        if (name != null) {
+            for (Country country : CountryStorage.get(world)
+                .getCountriesMap()
+                .values()) {
+                if (
+                    country != null && name.equalsIgnoreCase(country.getName())
+                ) {
+                    return country;
+                }
+            }
+        }
+
         UUID id = getCountryId(stack);
         return id == null ? null : CountryManager.getCountry(world, id);
     }

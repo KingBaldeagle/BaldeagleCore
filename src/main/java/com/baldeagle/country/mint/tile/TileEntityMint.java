@@ -117,18 +117,19 @@ public class TileEntityMint
     }
 
     public void toggleType(EntityPlayer player) {
-        selectedType =
-            selectedType == CurrencyType.COIN
+        CurrencyType nextType =
+            selectedDenomination.getType() == CurrencyType.COIN
                 ? CurrencyType.BILL
                 : CurrencyType.COIN;
-        selectedDenomination = CurrencyDenomination.firstOfType(selectedType);
+        selectedDenomination = CurrencyDenomination.firstOfType(nextType);
+        selectedType = selectedDenomination.getType();
         clampAmount();
         recalc();
         syncToClient(player);
     }
 
     public void cycleDenomination(boolean forward, EntityPlayer player) {
-        selectedDenomination = CurrencyDenomination.next(
+        selectedDenomination = CurrencyDenomination.nextAny(
             selectedDenomination,
             forward
         );
@@ -146,7 +147,11 @@ public class TileEntityMint
     }
 
     private void clampAmount() {
-        int max = selectedType == CurrencyType.COIN ? 64 : 16;
+        CurrencyType type =
+            selectedDenomination != null
+                ? selectedDenomination.getType()
+                : CurrencyType.COIN;
+        int max = type == CurrencyType.COIN ? 64 : 16;
         if (amount < 1) amount = 1;
         if (amount > max) amount = max;
     }
@@ -309,8 +314,9 @@ public class TileEntityMint
         double inflation,
         long circulation
     ) {
-        this.selectedType = type;
         this.selectedDenomination = denomination;
+        this.selectedType =
+            denomination != null ? denomination.getType() : CurrencyType.COIN;
         this.amount = amount;
         this.projectedInflation = inflation;
         this.projectedCirculation = circulation;
@@ -466,13 +472,12 @@ public class TileEntityMint
                 countryId = null;
             }
         }
-        CurrencyType type = CurrencyType.fromNbt(compound.getString("type"));
-        selectedType = type != null ? type : CurrencyType.COIN;
         CurrencyDenomination denom = CurrencyDenomination.fromId(
             compound.getString("denom")
         );
         selectedDenomination =
             denom != null ? denom : CurrencyDenomination.COIN_1;
+        selectedType = selectedDenomination.getType();
         amount = Math.max(1, compound.getInteger("amount"));
         projectedInflation = compound.getDouble("inflation");
         projectedCirculation = compound.getLong("circulation");

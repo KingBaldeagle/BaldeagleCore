@@ -86,7 +86,12 @@ public class ItemCoin extends Item {
                 ? Integer.toString(denomination.getValue())
                 : "?";
         String countryName = "Generic";
-        if (tag != null && tag.hasKey(CurrencyItemHelper.NBT_COUNTRY)) {
+        if (tag != null && tag.hasKey(CurrencyItemHelper.NBT_COUNTRY_NAME)) {
+            String name = tag.getString(CurrencyItemHelper.NBT_COUNTRY_NAME);
+            if (name != null && !name.trim().isEmpty()) {
+                countryName = name;
+            }
+        } else if (tag != null && tag.hasKey(CurrencyItemHelper.NBT_COUNTRY)) {
             try {
                 UUID id = UUID.fromString(
                     tag.getString(CurrencyItemHelper.NBT_COUNTRY)

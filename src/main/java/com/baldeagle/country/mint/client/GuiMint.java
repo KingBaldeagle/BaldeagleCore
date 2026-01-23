@@ -1,7 +1,6 @@
 package com.baldeagle.country.mint.client;
 
 import com.baldeagle.country.currency.CurrencyDenomination;
-import com.baldeagle.country.currency.CurrencyType;
 import com.baldeagle.country.mint.container.ContainerMint;
 import com.baldeagle.country.mint.tile.TileEntityMint;
 import com.baldeagle.network.NetworkHandler;
@@ -22,7 +21,6 @@ public class GuiMint extends GuiContainer {
     private final ContainerMint container;
     private final TileEntityMint tile;
 
-    private GuiButton typeButton;
     private GuiButton prevDenom;
     private GuiButton nextDenom;
     private GuiButton minusAmount;
@@ -44,21 +42,13 @@ public class GuiMint extends GuiContainer {
         int y = (height - ySize) / 2;
 
         buttonList.clear();
-        typeButton = addButton(
-            new GuiButton(0, x + 10, y + 20, 60, 20, getTypeLabel())
-        );
-        prevDenom = addButton(new GuiButton(1, x + 10, y + 50, 20, 20, "<"));
-        nextDenom = addButton(new GuiButton(2, x + 80, y + 50, 20, 20, ">"));
-        minusAmount = addButton(new GuiButton(3, x + 10, y + 80, 20, 20, "-"));
-        plusAmount = addButton(new GuiButton(4, x + 80, y + 80, 20, 20, "+"));
+        prevDenom = addButton(new GuiButton(0, x + 10, y + 50, 20, 20, "<"));
+        nextDenom = addButton(new GuiButton(1, x + 80, y + 50, 20, 20, ">"));
+        minusAmount = addButton(new GuiButton(2, x + 10, y + 80, 20, 20, "-"));
+        plusAmount = addButton(new GuiButton(3, x + 80, y + 80, 20, 20, "+"));
         mintButton = addButton(
-            new GuiButton(5, x + 110, y + 110, 56, 20, "Mint")
+            new GuiButton(4, x + 110, y + 110, 56, 20, "Mint")
         );
-    }
-
-    private String getTypeLabel() {
-        CurrencyType type = tile.getSelectedType();
-        return type == CurrencyType.COIN ? "Coin" : "Bill";
     }
 
     private String getDenomLabel() {
@@ -69,15 +59,7 @@ public class GuiMint extends GuiContainer {
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         super.actionPerformed(button);
-        if (button == typeButton) {
-            NetworkHandler.INSTANCE.sendToServer(
-                new MintActionMessage(
-                    tile.getPos(),
-                    MintActionMessage.Action.TOGGLE_TYPE,
-                    0
-                )
-            );
-        } else if (button == prevDenom) {
+        if (button == prevDenom) {
             NetworkHandler.INSTANCE.sendToServer(
                 new MintActionMessage(
                     tile.getPos(),
@@ -123,14 +105,13 @@ public class GuiMint extends GuiContainer {
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         fontRenderer.drawString("National Mint", 8, 6, 0x404040);
-        fontRenderer.drawString("Type: " + getTypeLabel(), 8, 30, 0x404040);
         fontRenderer.drawString(
             "Denomination: " + getDenomLabel(),
             8,
-            60,
+            30,
             0x404040
         );
-        fontRenderer.drawString("Amount: " + tile.getAmount(), 8, 90, 0x404040);
+        fontRenderer.drawString("Amount: " + tile.getAmount(), 8, 60, 0x404040);
 
         fontRenderer.drawString(
             String.format(
@@ -138,13 +119,13 @@ public class GuiMint extends GuiContainer {
                 tile.getProjectedInflation()
             ),
             8,
-            120,
+            90,
             0x7F0000
         );
         fontRenderer.drawString(
             "New Circulation: " + tile.getProjectedCirculation(),
             8,
-            135,
+            105,
             0x404040
         );
     }
@@ -165,6 +146,5 @@ public class GuiMint extends GuiContainer {
     @Override
     public void updateScreen() {
         super.updateScreen();
-        if (typeButton != null) typeButton.displayString = getTypeLabel();
     }
 }
