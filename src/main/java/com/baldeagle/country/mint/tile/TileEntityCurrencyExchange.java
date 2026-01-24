@@ -145,7 +145,15 @@ public class TileEntityCurrencyExchange
             return;
         }
 
-        long grossTargetFaceValue = (long) Math.floor(faceValue * rate);
+        double liquidityMultiplier = CurrencyMath.computeLiquidityMultiplier(
+            sourceCountry,
+            faceValue
+        );
+        double pressuredRate = rate * liquidityMultiplier;
+
+        long grossTargetFaceValue = (long) Math.floor(
+            faceValue * pressuredRate
+        );
         if (grossTargetFaceValue <= 0) {
             player.sendStatusMessage(
                 new net.minecraft.util.text.TextComponentString(
@@ -190,6 +198,7 @@ public class TileEntityCurrencyExchange
         markDirty();
 
         sourceCountry.removeFromCirculation(faceValue);
+        sourceCountry.applyExchangePressure(faceValue);
         targetCountry.applyMinting(
             targetFaceValue,
             MintingConstants.EXCHANGE_INFLATION_FACTOR
@@ -250,7 +259,7 @@ public class TileEntityCurrencyExchange
         player.sendStatusMessage(
             new net.minecraft.util.text.TextComponentString(
                 "Exchange completed at rate " +
-                    String.format("%.3f", rate * feeMultiplier)
+                    String.format("%.3f", pressuredRate * feeMultiplier)
             ),
             true
         );
@@ -341,9 +350,13 @@ public class TileEntityCurrencyExchange
         }
 
         long faceValue = CurrencyItemHelper.getFaceValue(input);
+        double liquidityMultiplier = CurrencyMath.computeLiquidityMultiplier(
+            sourceCountry,
+            faceValue
+        );
         double fee = sourceCountry.getExchangeFee();
         double feeMultiplier = 1.0D - Math.max(0.0D, Math.min(0.99D, fee));
-        double finalRate = rate * feeMultiplier;
+        double finalRate = rate * liquidityMultiplier * feeMultiplier;
         projectedRate = finalRate;
         projectedOutput = (int) Math.max(0, Math.floor(faceValue * finalRate));
     }

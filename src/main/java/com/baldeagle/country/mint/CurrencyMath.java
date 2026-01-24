@@ -30,4 +30,19 @@ public final class CurrencyMath {
 
         return realA / realB;
     }
+
+    public static double computeLiquidityMultiplier(
+        Country source,
+        long inputFaceValue
+    ) {
+        if (source == null || inputFaceValue <= 0) {
+            return 1.0D;
+        }
+        long supply = Math.max(1, source.getMoneyInCirculation());
+        double fraction = inputFaceValue / (double) supply;
+        return (
+            1.0D /
+            (1.0D + (fraction * MintingConstants.EXCHANGE_LIQUIDITY_FACTOR))
+        );
+    }
 }
