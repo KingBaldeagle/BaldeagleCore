@@ -22,6 +22,7 @@ public class Country {
     private long moneyInCirculation;
     private double inflation;
     private double baseValue;
+    private double exchangeFee = 0.03D;
 
     private final Map<UUID, Role> members = new HashMap<>();
     private final Set<UUID> joinRequests = new HashSet<>();
@@ -34,6 +35,7 @@ public class Country {
         this.moneyInCirculation = 1;
         this.inflation = 1.0D;
         this.baseValue = 1.0D;
+        this.exchangeFee = 0.03D;
         this.members.put(creator, Role.PRESIDENT);
     }
 
@@ -45,6 +47,7 @@ public class Country {
         this.moneyInCirculation = 1;
         this.inflation = 1.0D;
         this.baseValue = 1.0D;
+        this.exchangeFee = 0.03D;
     }
 
     public UUID getId() {
@@ -186,6 +189,17 @@ public class Country {
         return getExchangeValue() / otherValue;
     }
 
+    public double getExchangeFee() {
+        return exchangeFee;
+    }
+
+    public void setExchangeFee(double exchangeFee) {
+        if (Double.isNaN(exchangeFee) || Double.isInfinite(exchangeFee)) {
+            return;
+        }
+        this.exchangeFee = Math.max(0.0D, Math.min(0.25D, exchangeFee));
+    }
+
     private double clampInflation(double value) {
         return Math.max(MIN_INFLATION, Math.min(MAX_INFLATION, value));
     }
@@ -264,6 +278,7 @@ public class Country {
         nbt.setLong("circulation", moneyInCirculation);
         nbt.setDouble("inflation", inflation);
         nbt.setDouble("baseValue", baseValue);
+        nbt.setDouble("exchangeFee", exchangeFee);
 
         NBTTagList memberList = new NBTTagList();
         for (Map.Entry<UUID, Role> entry : members.entrySet()) {
@@ -293,6 +308,9 @@ public class Country {
         long circulation = nbt.getLong("circulation");
         double inflation = nbt.getDouble("inflation");
         double baseValue = nbt.getDouble("baseValue");
+        double exchangeFee = nbt.hasKey("exchangeFee")
+            ? nbt.getDouble("exchangeFee")
+            : 0.03D;
 
         Country c = new Country(name);
         c.setId(id);
@@ -301,6 +319,7 @@ public class Country {
         c.moneyInCirculation = Math.max(1, circulation);
         c.inflation = inflation <= 0 ? 1.0D : c.clampInflation(inflation);
         c.baseValue = baseValue;
+        c.setExchangeFee(exchangeFee);
 
         NBTTagList membersList = nbt.getTagList("members", 10);
         for (int i = 0; i < membersList.tagCount(); i++) {

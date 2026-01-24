@@ -7,6 +7,7 @@ import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.country.mint.CurrencyMath;
 import com.baldeagle.country.mint.MintingConstants;
+import com.baldeagle.economy.EconomyManager;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.network.message.ExchangeSyncMessage;
 import java.util.*;
@@ -144,12 +145,26 @@ public class TileEntityCurrencyExchange
             return;
         }
 
-        double targetValue = faceValue * rate;
-        long targetFaceValue = (long) Math.floor(targetValue);
-        if (targetFaceValue <= 0) {
+        long grossTargetFaceValue = (long) Math.floor(faceValue * rate);
+        if (grossTargetFaceValue <= 0) {
             player.sendStatusMessage(
                 new net.minecraft.util.text.TextComponentString(
                     "No value after conversion."
+                ),
+                true
+            );
+            return;
+        }
+
+        double fee = sourceCountry.getExchangeFee();
+        long feeFaceValue = (long) Math.floor(
+            grossTargetFaceValue * Math.max(0.0D, Math.min(0.99D, fee))
+        );
+        long targetFaceValue = Math.max(0, grossTargetFaceValue - feeFaceValue);
+        if (targetFaceValue <= 0) {
+            player.sendStatusMessage(
+                new net.minecraft.util.text.TextComponentString(
+                    "No value after fee."
                 ),
                 true
             );
@@ -179,6 +194,14 @@ public class TileEntityCurrencyExchange
             targetFaceValue,
             MintingConstants.EXCHANGE_INFLATION_FACTOR
         );
+        if (feeFaceValue > 0) {
+            EconomyManager.depositCountry(
+                world,
+                targetCountry.getName(),
+                feeFaceValue
+            );
+            targetCountry.setBalance(targetCountry.getBalance() + feeFaceValue);
+        }
         CountryStorage.get(world).markDirty();
 
         long remaining = targetFaceValue;
@@ -223,9 +246,11 @@ public class TileEntityCurrencyExchange
 
         recalc();
         sync();
+        double feeMultiplier = 1.0D - Math.max(0.0D, Math.min(0.99D, fee));
         player.sendStatusMessage(
             new net.minecraft.util.text.TextComponentString(
-                "Exchange completed at rate " + String.format("%.3f", rate)
+                "Exchange completed at rate " +
+                    String.format("%.3f", rate * feeMultiplier)
             ),
             true
         );
@@ -315,9 +340,12 @@ public class TileEntityCurrencyExchange
             return;
         }
 
-        double targetValue = CurrencyItemHelper.getFaceValue(input) * rate;
-        projectedRate = rate;
-        projectedOutput = (int) Math.max(0, Math.floor(targetValue));
+        long faceValue = CurrencyItemHelper.getFaceValue(input);
+        double fee = sourceCountry.getExchangeFee();
+        double feeMultiplier = 1.0D - Math.max(0.0D, Math.min(0.99D, fee));
+        double finalRate = rate * feeMultiplier;
+        projectedRate = finalRate;
+        projectedOutput = (int) Math.max(0, Math.floor(faceValue * finalRate));
     }
 
     private void sync() {

@@ -9,8 +9,8 @@ import net.minecraft.util.ResourceLocation;
 public class GuiVault extends GuiContainer {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(
-        "minecraft",
-        "textures/gui/container/generic_54.png"
+        "baldeaglecore",
+        "textures/gui/vault.png"
     );
 
     private final ContainerVault container;
@@ -46,6 +46,5 @@ public class GuiVault extends GuiContainer {
         int x = (width - xSize) / 2;
         int y = (height - ySize) / 2;
         drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
-        drawTexturedModalRect(x, y + 69, 0, 126, xSize, 96);
     }
 }
