@@ -1,0 +1,65 @@
+package com.baldeagle.network;
+
+import com.baldeagle.BaldeagleCore;
+import com.baldeagle.network.message.ExchangeActionMessage;
+import com.baldeagle.network.message.ExchangeSyncMessage;
+import com.baldeagle.network.message.MintActionMessage;
+import com.baldeagle.network.message.MintSyncMessage;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
+
+public final class NetworkHandler {
+
+    public static final SimpleNetworkWrapper INSTANCE =
+        NetworkRegistry.INSTANCE.newSimpleChannel(BaldeagleCore.MODID);
+
+    private NetworkHandler() {}
+
+    public static void register() {
+        int id = 0;
+        INSTANCE.registerMessage(
+            MintActionMessage.Handler.class,
+            MintActionMessage.class,
+            id++,
+            Side.SERVER
+        );
+        INSTANCE.registerMessage(
+            MintSyncMessage.Handler.class,
+            MintSyncMessage.class,
+            id++,
+            Side.CLIENT
+        );
+        INSTANCE.registerMessage(
+            ExchangeActionMessage.Handler.class,
+            ExchangeActionMessage.class,
+            id++,
+            Side.SERVER
+        );
+        INSTANCE.registerMessage(
+            ExchangeSyncMessage.Handler.class,
+            ExchangeSyncMessage.class,
+            id++,
+            Side.CLIENT
+        );
+    }
+
+    public static void sendToAllAround(
+        IMessage message,
+        int dimension,
+        BlockPos pos
+    ) {
+        INSTANCE.sendToAllAround(
+            message,
+            new NetworkRegistry.TargetPoint(
+                dimension,
+                pos.getX(),
+                pos.getY(),
+                pos.getZ(),
+                64
+            )
+        );
+    }
+}

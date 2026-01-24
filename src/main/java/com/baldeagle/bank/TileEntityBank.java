@@ -1,5 +1,9 @@
 package com.baldeagle.bank;
 
+import com.baldeagle.country.Country;
+import com.baldeagle.country.CountryManager;
+import com.baldeagle.country.CountryStorage;
+import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.country.items.ItemBill;
 import com.baldeagle.country.items.ItemCoin;
 import com.baldeagle.economy.EconomyManager;
@@ -14,17 +18,22 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 
-public class TileEntityBank extends TileEntity implements ITickable, IInventory {
+public class TileEntityBank
+    extends TileEntity
+    implements ITickable, IInventory
+{
 
     public static final int SLOT_PLAYER_DEPOSIT = 0;
     public static final int SLOT_COUNTRY_DEPOSIT = 1;
     public static final int SLOT_COUNT = 2;
 
-    private static final double INTEREST_RATE = 0.01; // 1%
+    private static final double INTEREST_RATE = 0.01;
 
-    private final NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> items = NonNullList.withSize(
+        SLOT_COUNT,
+        ItemStack.EMPTY
+    );
     private int tickCounter = 0;
-    private int playersUsing = 0;
 
     @Override
     public void update() {
@@ -33,27 +42,31 @@ public class TileEntityBank extends TileEntity implements ITickable, IInventory 
         }
 
         tickCounter++;
-        if (tickCounter >= 20 * 60) { // every minute
+        if (tickCounter >= 20 * 60) {
             EconomyManager.applyInterest(world, INTEREST_RATE);
             tickCounter = 0;
         }
     }
 
     public static boolean isCurrency(ItemStack stack) {
-        return !stack.isEmpty() && (stack.getItem() instanceof ItemCoin || stack.getItem() instanceof ItemBill);
+        return CurrencyItemHelper.isCurrency(stack);
     }
 
     public static long getCurrencyValue(ItemStack stack) {
         if (stack.isEmpty()) {
             return 0;
         }
-        if (stack.getItem() instanceof ItemCoin) {
-            return (long) stack.getCount() * ((ItemCoin) stack.getItem()).getValue();
+        return CurrencyItemHelper.getFaceValue(stack);
+    }
+
+    public static double getCurrencyMonetaryValue(
+        TileEntityBank bank,
+        ItemStack stack
+    ) {
+        if (bank == null || bank.world == null) {
+            return 0;
         }
-        if (stack.getItem() instanceof ItemBill) {
-            return (long) stack.getCount() * ((ItemBill) stack.getItem()).getValue();
-        }
-        return 0;
+        return CurrencyItemHelper.getStackMonetaryValue(bank.world, stack);
     }
 
     @Override
@@ -113,21 +126,14 @@ public class TileEntityBank extends TileEntity implements ITickable, IInventory 
         if (world == null || world.getTileEntity(pos) != this) {
             return false;
         }
-        return player.getDistanceSq(
+        return (
+            player.getDistanceSq(
                 pos.getX() + 0.5D,
                 pos.getY() + 0.5D,
                 pos.getZ() + 0.5D
-        ) <= 64.0D;
-    }
-
-    @Override
-    public void openInventory(EntityPlayer player) {
-        playersUsing++;
-    }
-
-    @Override
-    public void closeInventory(EntityPlayer player) {
-        playersUsing = Math.max(0, playersUsing - 1);
+            ) <=
+            64.0D
+        );
     }
 
     @Override
@@ -136,13 +142,22 @@ public class TileEntityBank extends TileEntity implements ITickable, IInventory 
     }
 
     @Override
+    public void openInventory(EntityPlayer player) {
+        // No-op; kept for interface compatibility
+    }
+
+    @Override
+    public void closeInventory(EntityPlayer player) {
+        // No-op; kept for interface compatibility
+    }
+
+    @Override
     public int getField(int id) {
         return 0;
     }
 
     @Override
-    public void setField(int id, int value) {
-    }
+    public void setField(int id, int value) {}
 
     @Override
     public int getFieldCount() {

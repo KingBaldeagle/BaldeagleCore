@@ -1,7 +1,11 @@
-item.coin_1.name=Coin 1
-item.coin_5.name=Coin 5
-item.bill_10.name=Bill 10
-
 tile.baldeaglecore.bank.name=Bank
-
+tile.baldeaglecore.mint.name=Mint
+tile.baldeaglecore.vault.name=Vault
+tile.baldeaglecore.currency_exchange.name=Currency Exchange
 itemGroup.economy=Economy
+tooltip.baldeaglecore.denomination=Denomination: %s
+tooltip.baldeaglecore.inflation=Inflation: %s
+tooltip.baldeaglecore.unbound=Unminted currency
+
+item.baldeaglecore.currency_bill=%s Bill (%s)
+item.baldeaglecore.currency_coin=%s Coin (%s)

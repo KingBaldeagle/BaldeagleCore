@@ -2,8 +2,10 @@ package com.baldeagle;
 
 import com.baldeagle.bank.GuiHandler;
 import com.baldeagle.bank.TileEntityBank;
-import com.baldeagle.country.CountryCommand;
-import com.baldeagle.country.CountryStorage;
+import com.baldeagle.country.mint.tile.TileEntityCurrencyExchange;
+import com.baldeagle.country.mint.tile.TileEntityMint;
+import com.baldeagle.country.vault.tile.TileEntityVault;
+import com.baldeagle.network.NetworkHandler;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -14,10 +16,10 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 @Mod(
-        modid = BaldeagleCore.MODID,
-        name = BaldeagleCore.NAME,
-        version = BaldeagleCore.VERSION,
-        acceptableRemoteVersions = "*"
+    modid = BaldeagleCore.MODID,
+    name = BaldeagleCore.NAME,
+    version = BaldeagleCore.VERSION,
+    acceptableRemoteVersions = "*"
 )
 public class BaldeagleCore {
 
@@ -28,22 +30,40 @@ public class BaldeagleCore {
     @Mod.Instance
     public static BaldeagleCore instance;
 
-    @SidedProxy(clientSide = "com.baldeagle.ClientProxy",
-            serverSide = "com.baldeagle.ServerProxy")
+    @SidedProxy(
+        clientSide = "com.baldeagle.ClientProxy",
+        serverSide = "com.baldeagle.ServerProxy"
+    )
     public static ServerProxy proxy;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
-        GameRegistry.registerTileEntity(TileEntityBank.class, new ResourceLocation(MODID, "bank"));
+        NetworkHandler.register();
+        GameRegistry.registerTileEntity(
+            TileEntityBank.class,
+            new ResourceLocation(MODID, "bank")
+        );
+        GameRegistry.registerTileEntity(
+            TileEntityMint.class,
+            new ResourceLocation(MODID, "mint")
+        );
+        GameRegistry.registerTileEntity(
+            TileEntityCurrencyExchange.class,
+            new ResourceLocation(MODID, "currency_exchange")
+        );
+        GameRegistry.registerTileEntity(
+            TileEntityVault.class,
+            new ResourceLocation(MODID, "vault")
+        );
         proxy.preInit();
     }
 
     @Mod.EventHandler
     public void serverLoad(FMLServerStartingEvent event) {
-        event.registerServerCommand(new CountryCommand());
-        CountryStorage.get(event.getServer().getWorld(0));
+        event.registerServerCommand(new com.baldeagle.country.CountryCommand());
+        com.baldeagle.country.CountryStorage.get(event.getServer().getWorld(0));
         proxy.serverLoad(event);
     }
 }

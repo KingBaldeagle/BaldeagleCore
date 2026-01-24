@@ -6,7 +6,10 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiBank extends GuiContainer {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation("baldeaglecore", "textures/gui/bank.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        "baldeaglecore",
+        "textures/gui/bank.png"
+    );
     private final ContainerBank container;
 
     public GuiBank(ContainerBank container) {
@@ -15,8 +18,6 @@ public class GuiBank extends GuiContainer {
         this.xSize = 203;
         this.ySize = 166;
     }
-
-
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
@@ -28,14 +29,20 @@ public class GuiBank extends GuiContainer {
         GlStateManager.pushMatrix();
         GlStateManager.scale(0.50F, 0.50F, 1.0F);
 
-        fontRenderer.drawString("Player Balance: " + container.getDisplayedPlayerBalance(), 60, 50, 0x404040);
+        fontRenderer.drawString(
+            "Player Balance: " + container.getDisplayedPlayerBalance(),
+            60,
+            50,
+            0x404040
+        );
 
         int countryBalance = container.getDisplayedCountryBalance();
-        if (countryBalance >= 0) {
-            fontRenderer.drawString("Player Balance: " + container.getDisplayedPlayerBalance(), 75, 50, 0x404040);
-        } else {
-            fontRenderer.drawString("Country Balance: " + countryBalance, 190, 50, 0x404040);
-        }
+        fontRenderer.drawString(
+            "Country Balance: " + countryBalance,
+            200,
+            50,
+            0x404040
+        );
         GlStateManager.popMatrix();
 
         GlStateManager.pushMatrix();
@@ -46,7 +53,11 @@ public class GuiBank extends GuiContainer {
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(
+        float partialTicks,
+        int mouseX,
+        int mouseY
+    ) {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(TEXTURE);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);

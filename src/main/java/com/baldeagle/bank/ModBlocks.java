@@ -12,18 +12,28 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public final class ModBlocks {
 
     public static final Block BANK = new BlockBank();
+    public static final Block MINT = new BlockMint();
+    public static final Block CURRENCY_EXCHANGE = new BlockCurrencyExchange();
+    public static final Block VAULT = new BlockVault();
 
     private ModBlocks() {}
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        event.getRegistry().register(BANK);
+        event.getRegistry().registerAll(BANK, MINT, CURRENCY_EXCHANGE, VAULT);
     }
 
     @SubscribeEvent
     public static void registerItemBlocks(RegistryEvent.Register<Item> event) {
-        event.getRegistry().register(
-                new ItemBlock(BANK).setRegistryName(BANK.getRegistryName())
-        );
+        event
+            .getRegistry()
+            .registerAll(
+                new ItemBlock(BANK).setRegistryName(BANK.getRegistryName()),
+                new ItemBlock(MINT).setRegistryName(MINT.getRegistryName()),
+                new ItemBlock(CURRENCY_EXCHANGE).setRegistryName(
+                    CURRENCY_EXCHANGE.getRegistryName()
+                ),
+                new ItemBlock(VAULT).setRegistryName(VAULT.getRegistryName())
+            );
     }
 }
