@@ -42,12 +42,12 @@ public class GuiMint extends GuiContainer {
         int y = (height - ySize) / 2;
 
         buttonList.clear();
-        prevDenom = addButton(new GuiButton(0, x + 10, y + 50, 20, 20, "<"));
-        nextDenom = addButton(new GuiButton(1, x + 80, y + 50, 20, 20, ">"));
-        minusAmount = addButton(new GuiButton(2, x + 10, y + 80, 20, 20, "-"));
-        plusAmount = addButton(new GuiButton(3, x + 80, y + 80, 20, 20, "+"));
+        prevDenom = addButton(new GuiButton(0, x + 10, y + 30, 20, 20, "<"));
+        nextDenom = addButton(new GuiButton(1, x + 80, y + 30, 20, 20, ">"));
+        minusAmount = addButton(new GuiButton(2, x + 10, y + 60, 20, 20, "-"));
+        plusAmount = addButton(new GuiButton(3, x + 80, y + 60, 20, 20, "+"));
         mintButton = addButton(
-            new GuiButton(4, x + 110, y + 110, 56, 20, "Mint")
+            new GuiButton(4, x + 110, y + 60, 56, 20, "Mint")
         );
     }
 
@@ -105,13 +105,8 @@ public class GuiMint extends GuiContainer {
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         fontRenderer.drawString("National Mint", 8, 6, 0x404040);
-        fontRenderer.drawString(
-            "Denomination: " + getDenomLabel(),
-            8,
-            30,
-            0x404040
-        );
-        fontRenderer.drawString("Amount: " + tile.getAmount(), 8, 60, 0x404040);
+        fontRenderer.drawString("D " + getDenomLabel(), 45, 35, 0x404040);
+        fontRenderer.drawString("A " + tile.getAmount(), 45, 65, 0x404040);
 
         fontRenderer.drawString(
             String.format(
@@ -119,14 +114,8 @@ public class GuiMint extends GuiContainer {
                 tile.getProjectedInflation()
             ),
             8,
-            90,
+            20,
             0x7F0000
-        );
-        fontRenderer.drawString(
-            "New Circulation: " + tile.getProjectedCirculation(),
-            8,
-            105,
-            0x404040
         );
     }
 

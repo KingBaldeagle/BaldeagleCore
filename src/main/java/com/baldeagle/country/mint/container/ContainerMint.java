@@ -18,7 +18,7 @@ public class ContainerMint extends Container {
         this.player = inventory.player;
 
         this.addSlotToContainer(
-            new Slot(tile, 0, 80, 35) {
+            new Slot(tile, 0, 128, 33) {
                 @Override
                 public boolean isItemValid(ItemStack stack) {
                     return (
