@@ -128,17 +128,8 @@ public class ContainerBank extends Container {
             return;
         }
 
-        double monetaryValue = TileEntityBank.getCurrencyMonetaryValue(
-            tileBank,
-            stack
-        );
-        if (monetaryValue <= 0) {
-            returnStackToPlayer(stack);
-            return;
-        }
-
-        long roundedValue = Math.round(monetaryValue);
-        if (roundedValue <= 0) {
+        long faceValue = TileEntityBank.getCurrencyValue(stack);
+        if (faceValue <= 0) {
             returnStackToPlayer(stack);
             return;
         }
@@ -148,11 +139,11 @@ public class ContainerBank extends Container {
             EconomyManager.depositPlayer(
                 player.world,
                 player.getUniqueID(),
-                roundedValue
+                faceValue
             );
             player.sendStatusMessage(
                 new TextComponentString(
-                    "Deposited " + roundedValue + " to your personal balance."
+                    "Deposited " + faceValue + " to your personal balance."
                 ),
                 true
             );
@@ -199,7 +190,7 @@ public class ContainerBank extends Container {
         }
 
         try {
-            country.deposit(player.getUniqueID(), roundedValue);
+            country.deposit(player.getUniqueID(), faceValue);
             CountryStorage.get(player.world).markDirty();
             CurrencyItemHelper.removeFromCirculation(player.world, stack);
         } catch (IllegalArgumentException e) {
@@ -214,11 +205,11 @@ public class ContainerBank extends Container {
         EconomyManager.depositCountry(
             player.world,
             country.getName(),
-            roundedValue
+            faceValue
         );
         player.sendStatusMessage(
             new TextComponentString(
-                "Deposited " + roundedValue + " to " + country.getName() + "."
+                "Deposited " + faceValue + " to " + country.getName() + "."
             ),
             true
         );

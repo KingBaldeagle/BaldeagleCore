@@ -6,6 +6,9 @@ import com.baldeagle.country.mint.container.ContainerCurrencyExchange;
 import com.baldeagle.country.mint.container.ContainerMint;
 import com.baldeagle.country.mint.tile.TileEntityCurrencyExchange;
 import com.baldeagle.country.mint.tile.TileEntityMint;
+import com.baldeagle.country.vault.client.GuiVault;
+import com.baldeagle.country.vault.container.ContainerVault;
+import com.baldeagle.country.vault.tile.TileEntityVault;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -17,6 +20,7 @@ public class GuiHandler implements IGuiHandler {
     public static final int BANK_GUI_ID = 1;
     public static final int MINT_GUI_ID = 2;
     public static final int CURRENCY_EXCHANGE_GUI_ID = 3;
+    public static final int VAULT_GUI_ID = 4;
 
     @Override
     public Object getServerGuiElement(
@@ -51,6 +55,14 @@ public class GuiHandler implements IGuiHandler {
                     return new ContainerCurrencyExchange(
                         player.inventory,
                         (TileEntityCurrencyExchange) tile
+                    );
+                }
+                break;
+            case VAULT_GUI_ID:
+                if (tile instanceof TileEntityVault) {
+                    return new ContainerVault(
+                        player.inventory,
+                        (TileEntityVault) tile
                     );
                 }
                 break;
@@ -96,6 +108,16 @@ public class GuiHandler implements IGuiHandler {
                         new ContainerCurrencyExchange(
                             player.inventory,
                             (TileEntityCurrencyExchange) tile
+                        )
+                    );
+                }
+                break;
+            case VAULT_GUI_ID:
+                if (tile instanceof TileEntityVault) {
+                    return new GuiVault(
+                        new ContainerVault(
+                            player.inventory,
+                            (TileEntityVault) tile
                         )
                     );
                 }

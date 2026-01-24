@@ -7,6 +7,7 @@ import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.country.currency.CurrencyType;
 import com.baldeagle.country.mint.MintingConstants;
+import com.baldeagle.country.vault.VaultManager;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.network.message.MintSyncMessage;
 import java.util.UUID;
@@ -164,12 +165,10 @@ public class TileEntityMint
             return;
         }
         long mintedValue = (long) selectedDenomination.getValue() * amount;
-        long projectedTreasury = country.getTreasury() + mintedValue;
-        projectedInflation =
-            projectedTreasury <= 0
-                ? 0
-                : (mintedValue / (double) projectedTreasury) *
-                  MintingConstants.MINT_INFLATION_FACTOR;
+        projectedInflation = country.calculateInflationImpact(
+            mintedValue,
+            MintingConstants.MINT_INFLATION_FACTOR
+        );
         projectedCirculation = country.getMoneyInCirculation() + mintedValue;
     }
 
@@ -200,20 +199,36 @@ public class TileEntityMint
         if (mintedValue <= 0) {
             return;
         }
+        int needed = amount;
         ItemStack gold = items.get(SLOT_GOLD);
-        if (gold.isEmpty() || gold.getItem() != Items.GOLD_INGOT) {
-            player.sendStatusMessage(
-                new net.minecraft.util.text.TextComponentString(
-                    "Insert gold ingots first."
-                ),
-                true
+        int inSlot =
+            !gold.isEmpty() && gold.getItem() == Items.GOLD_INGOT
+                ? gold.getCount()
+                : 0;
+        int fromVault = Math.max(0, needed - inSlot);
+
+        if (fromVault > 0) {
+            int availableFromVault = VaultManager.getAvailableGold(
+                world,
+                country.getId()
             );
-            return;
-        }
-        if (gold.getCount() < amount) {
+            if (availableFromVault < fromVault) {
+                player.sendStatusMessage(
+                    new net.minecraft.util.text.TextComponentString(
+                        "Not enough gold ingots. Need " +
+                            needed +
+                            " (missing " +
+                            (fromVault - availableFromVault) +
+                            ")."
+                    ),
+                    true
+                );
+                return;
+            }
+        } else if (inSlot < needed) {
             player.sendStatusMessage(
                 new net.minecraft.util.text.TextComponentString(
-                    "Not enough gold ingots. Need " + amount + "."
+                    "Not enough gold ingots. Need " + needed + "."
                 ),
                 true
             );
@@ -235,11 +250,16 @@ public class TileEntityMint
             return;
         }
 
-        gold.shrink(amount);
-        if (gold.isEmpty()) {
-            items.set(SLOT_GOLD, ItemStack.EMPTY);
+        int toConsumeFromSlot = Math.min(needed, inSlot);
+        if (toConsumeFromSlot > 0) {
+            gold.shrink(toConsumeFromSlot);
+            if (gold.isEmpty()) {
+                items.set(SLOT_GOLD, ItemStack.EMPTY);
+            }
         }
-        country.addTreasury(mintedValue);
+        if (fromVault > 0) {
+            VaultManager.consumeGold(world, country.getId(), fromVault);
+        }
         country.applyMinting(
             mintedValue,
             MintingConstants.MINT_INFLATION_FACTOR

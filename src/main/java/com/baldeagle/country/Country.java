@@ -94,6 +94,18 @@ public class Country {
         return true;
     }
 
+    public void adjustTreasury(long delta) {
+        if (delta == 0) {
+            return;
+        }
+        if (delta > 0) {
+            addTreasury(delta);
+            return;
+        }
+        treasury = Math.max(0, treasury + delta);
+        recalculateBaseValue();
+    }
+
     public long getMoneyInCirculation() {
         return Math.max(1, moneyInCirculation);
     }

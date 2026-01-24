@@ -14,12 +14,13 @@ public final class ModBlocks {
     public static final Block BANK = new BlockBank();
     public static final Block MINT = new BlockMint();
     public static final Block CURRENCY_EXCHANGE = new BlockCurrencyExchange();
+    public static final Block VAULT = new BlockVault();
 
     private ModBlocks() {}
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        event.getRegistry().registerAll(BANK, MINT, CURRENCY_EXCHANGE);
+        event.getRegistry().registerAll(BANK, MINT, CURRENCY_EXCHANGE, VAULT);
     }
 
     @SubscribeEvent
@@ -31,7 +32,8 @@ public final class ModBlocks {
                 new ItemBlock(MINT).setRegistryName(MINT.getRegistryName()),
                 new ItemBlock(CURRENCY_EXCHANGE).setRegistryName(
                     CURRENCY_EXCHANGE.getRegistryName()
-                )
+                ),
+                new ItemBlock(VAULT).setRegistryName(VAULT.getRegistryName())
             );
     }
 }

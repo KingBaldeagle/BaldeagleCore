@@ -25,6 +25,7 @@ public class ClientModelRegistry {
         registerItem(Item.getItemFromBlock(ModBlocks.BANK));
         registerItem(Item.getItemFromBlock(ModBlocks.MINT));
         registerItem(Item.getItemFromBlock(ModBlocks.CURRENCY_EXCHANGE));
+        registerItem(Item.getItemFromBlock(ModBlocks.VAULT));
     }
 
     private static void registerItem(Item item) {
