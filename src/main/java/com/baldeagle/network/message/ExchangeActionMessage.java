@@ -12,8 +12,6 @@ public class ExchangeActionMessage implements IMessage {
     public enum Action {
         PREV_COUNTRY,
         NEXT_COUNTRY,
-        PREV_DENOMINATION,
-        NEXT_DENOMINATION,
         EXECUTE,
     }
 
@@ -64,12 +62,6 @@ public class ExchangeActionMessage implements IMessage {
                             break;
                         case NEXT_COUNTRY:
                             exchange.handleCycleTarget(true);
-                            break;
-                        case PREV_DENOMINATION:
-                            exchange.handleCycleDenomination(false);
-                            break;
-                        case NEXT_DENOMINATION:
-                            exchange.handleCycleDenomination(true);
                             break;
                         case EXECUTE:
                             exchange.executeExchange(player);

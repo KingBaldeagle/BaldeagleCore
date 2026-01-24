@@ -22,7 +22,7 @@ public class ContainerCurrencyExchange extends Container {
         this.player = playerInventory.player;
 
         this.addSlotToContainer(
-            new Slot(tile, 0, 80, 35) {
+            new Slot(tile, 0, 80, 40) {
                 @Override
                 public boolean isItemValid(ItemStack stack) {
                     return CurrencyItemHelper.isCurrency(stack);

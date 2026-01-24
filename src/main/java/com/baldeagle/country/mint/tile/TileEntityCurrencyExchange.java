@@ -5,7 +5,6 @@ import com.baldeagle.country.CountryManager;
 import com.baldeagle.country.CountryStorage;
 import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
-import com.baldeagle.country.currency.CurrencyType;
 import com.baldeagle.country.mint.CurrencyMath;
 import com.baldeagle.country.mint.MintingConstants;
 import com.baldeagle.network.NetworkHandler;
@@ -35,8 +34,7 @@ public class TileEntityCurrencyExchange
     );
 
     private UUID targetCountryId;
-    private CurrencyDenomination targetDenomination =
-        CurrencyDenomination.COIN_1;
+    private String targetCountryName;
     private double projectedRate = 0;
     private int projectedOutput = 0;
 
@@ -51,6 +49,8 @@ public class TileEntityCurrencyExchange
         List<Country> countries = getCountriesSorted();
         if (countries.isEmpty()) {
             targetCountryId = null;
+            targetCountryName = null;
+            sync();
             return;
         }
         if (targetCountryId == null) {
@@ -72,15 +72,6 @@ public class TileEntityCurrencyExchange
                 targetCountryId = countries.get(nextIndex).getId();
             }
         }
-        recalc();
-        sync();
-    }
-
-    public void handleCycleDenomination(boolean forward) {
-        targetDenomination = CurrencyDenomination.next(
-            targetDenomination,
-            forward
-        );
         recalc();
         sync();
     }
@@ -154,13 +145,11 @@ public class TileEntityCurrencyExchange
         }
 
         double targetValue = faceValue * rate;
-        int targetCount = (int) Math.floor(
-            targetValue / targetDenomination.getValue()
-        );
-        if (targetCount <= 0) {
+        long targetFaceValue = (long) Math.floor(targetValue);
+        if (targetFaceValue <= 0) {
             player.sendStatusMessage(
                 new net.minecraft.util.text.TextComponentString(
-                    "Value too small for selected denomination."
+                    "No value after conversion."
                 ),
                 true
             );
@@ -168,7 +157,7 @@ public class TileEntityCurrencyExchange
         }
 
         double inflationImpact = targetCountry.calculateInflationImpact(
-            targetCount * targetDenomination.getValue(),
+            targetFaceValue,
             MintingConstants.EXCHANGE_INFLATION_FACTOR
         );
 
@@ -187,23 +176,49 @@ public class TileEntityCurrencyExchange
 
         sourceCountry.removeFromCirculation(faceValue);
         targetCountry.applyMinting(
-            targetCount * targetDenomination.getValue(),
+            targetFaceValue,
             MintingConstants.EXCHANGE_INFLATION_FACTOR
         );
         CountryStorage.get(world).markDirty();
 
-        ItemStack output = CurrencyItemHelper.createCurrencyStack(
-            targetCountry,
-            targetDenomination,
-            Math.min(
-                targetCount,
-                targetDenomination.getType() == CurrencyType.COIN ? 64 : 16
+        long remaining = targetFaceValue;
+        List<CurrencyDenomination> denominations = Arrays.stream(
+            CurrencyDenomination.values()
+        )
+            .sorted(
+                Comparator.comparingInt(
+                    CurrencyDenomination::getValue
+                ).reversed()
             )
-        );
-        if (!output.isEmpty()) {
-            if (!player.inventory.addItemStackToInventory(output)) {
-                player.dropItem(output, false);
+            .collect(Collectors.toList());
+
+        for (CurrencyDenomination denom : denominations) {
+            if (denom == null) continue;
+            long count = remaining / denom.getValue();
+            if (count <= 0) continue;
+
+            int maxStack =
+                denom.getType() ==
+                com.baldeagle.country.currency.CurrencyType.COIN
+                    ? 64
+                    : 16;
+            while (count > 0) {
+                int give = (int) Math.min(count, (long) maxStack);
+                ItemStack output = CurrencyItemHelper.createCurrencyStack(
+                    targetCountry,
+                    denom,
+                    give
+                );
+                if (!output.isEmpty()) {
+                    if (!player.inventory.addItemStackToInventory(output)) {
+                        player.dropItem(output, false);
+                    }
+                }
+                count -= give;
             }
+
+            remaining = remaining % denom.getValue();
+            if (remaining <= 0) break;
         }
 
         recalc();
@@ -248,22 +263,22 @@ public class TileEntityCurrencyExchange
         return projectedOutput;
     }
 
-    public CurrencyDenomination getTargetDenomination() {
-        return targetDenomination;
-    }
-
     public UUID getTargetCountryId() {
         return targetCountryId;
     }
 
+    public String getTargetCountryName() {
+        return targetCountryName;
+    }
+
     public void applySync(
         UUID countryId,
-        CurrencyDenomination denom,
+        String countryName,
         double rate,
         int output
     ) {
         this.targetCountryId = countryId;
-        this.targetDenomination = denom;
+        this.targetCountryName = countryName;
         this.projectedRate = rate;
         this.projectedOutput = output;
     }
@@ -302,9 +317,7 @@ public class TileEntityCurrencyExchange
 
         double targetValue = CurrencyItemHelper.getFaceValue(input) * rate;
         projectedRate = rate;
-        projectedOutput = (int) Math.floor(
-            targetValue / targetDenomination.getValue()
-        );
+        projectedOutput = (int) Math.max(0, Math.floor(targetValue));
     }
 
     private void sync() {
@@ -317,11 +330,12 @@ public class TileEntityCurrencyExchange
             world.getBlockState(pos),
             3
         );
+        Country targetCountry = getTargetCountry();
         NetworkHandler.sendToAllAround(
             new ExchangeSyncMessage(
                 pos,
                 targetCountryId,
-                targetDenomination,
+                targetCountry != null ? targetCountry.getName() : null,
                 projectedRate,
                 projectedOutput
             ),
@@ -455,7 +469,6 @@ public class TileEntityCurrencyExchange
         if (targetCountryId != null) {
             compound.setString("target", targetCountryId.toString());
         }
-        compound.setString("denomination", targetDenomination.getId());
         compound.setDouble("rate", projectedRate);
         compound.setInteger("output", projectedOutput);
         return compound;
@@ -472,11 +485,6 @@ public class TileEntityCurrencyExchange
                 targetCountryId = null;
             }
         }
-        CurrencyDenomination denom = CurrencyDenomination.fromId(
-            compound.getString("denomination")
-        );
-        targetDenomination =
-            denom != null ? denom : CurrencyDenomination.COIN_1;
         projectedRate = compound.getDouble("rate");
         projectedOutput = compound.getInteger("output");
     }

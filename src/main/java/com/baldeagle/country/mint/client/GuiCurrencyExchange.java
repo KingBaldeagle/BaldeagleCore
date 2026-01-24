@@ -2,7 +2,6 @@ package com.baldeagle.country.mint.client;
 
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryStorage;
-import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.mint.container.ContainerCurrencyExchange;
 import com.baldeagle.country.mint.tile.TileEntityCurrencyExchange;
 import com.baldeagle.network.NetworkHandler;
@@ -26,8 +25,6 @@ public class GuiCurrencyExchange extends GuiContainer {
 
     private GuiButton cycleTargetLeft;
     private GuiButton cycleTargetRight;
-    private GuiButton prevDenom;
-    private GuiButton nextDenom;
     private GuiButton exchangeButton;
 
     public GuiCurrencyExchange(ContainerCurrencyExchange container) {
@@ -51,14 +48,17 @@ public class GuiCurrencyExchange extends GuiContainer {
         cycleTargetRight = addButton(
             new GuiButton(1, x + 146, y + 20, 20, 20, ">")
         );
-        prevDenom = addButton(new GuiButton(2, x + 10, y + 70, 20, 20, "<"));
-        nextDenom = addButton(new GuiButton(3, x + 146, y + 70, 20, 20, ">"));
         exchangeButton = addButton(
-            new GuiButton(4, x + 55, y + 110, 66, 20, "Exchange")
+            new GuiButton(2, x + 110, y + 50, 56, 20, "Exchange")
         );
     }
 
     private String getTargetCountryName() {
+        String name = tile.getTargetCountryName();
+        if (name != null && !name.trim().isEmpty()) {
+            return name;
+        }
+
         UUID id = tile.getTargetCountryId();
         if (id == null || tile.getWorld() == null) {
             return "None";
@@ -67,11 +67,6 @@ public class GuiCurrencyExchange extends GuiContainer {
             .getCountriesMap()
             .get(id);
         return country != null ? country.getName() : "None";
-    }
-
-    private String getTargetDenominationLabel() {
-        CurrencyDenomination denom = tile.getTargetDenomination();
-        return denom != null ? Integer.toString(denom.getValue()) : "?";
     }
 
     @Override
@@ -89,20 +84,6 @@ public class GuiCurrencyExchange extends GuiContainer {
                 new ExchangeActionMessage(
                     tile.getPos(),
                     ExchangeActionMessage.Action.NEXT_COUNTRY
-                )
-            );
-        } else if (button == prevDenom) {
-            NetworkHandler.INSTANCE.sendToServer(
-                new ExchangeActionMessage(
-                    tile.getPos(),
-                    ExchangeActionMessage.Action.PREV_DENOMINATION
-                )
-            );
-        } else if (button == nextDenom) {
-            NetworkHandler.INSTANCE.sendToServer(
-                new ExchangeActionMessage(
-                    tile.getPos(),
-                    ExchangeActionMessage.Action.NEXT_DENOMINATION
                 )
             );
         } else if (button == exchangeButton) {
@@ -124,30 +105,18 @@ public class GuiCurrencyExchange extends GuiContainer {
             26,
             0x404040
         );
-        fontRenderer.drawString(
-            "Denomination: " + getTargetDenominationLabel(),
-            40,
-            76,
-            0x404040
-        );
 
         fontRenderer.drawString(
             String.format("Rate: %.4f", tile.getProjectedRate()),
             8,
-            96,
+            46,
             0x404040
         );
         fontRenderer.drawString(
-            "Projected Output: " + tile.getProjectedOutput(),
+            "Proj. Value: " + tile.getProjectedOutput(),
             8,
-            108,
+            60,
             0x404040
-        );
-        fontRenderer.drawString(
-            "Insert source currency above",
-            8,
-            52,
-            0x999999
         );
     }
 
