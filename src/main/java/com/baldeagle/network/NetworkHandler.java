@@ -7,6 +7,7 @@ import com.baldeagle.network.message.ExchangeActionMessage;
 import com.baldeagle.network.message.ExchangeSyncMessage;
 import com.baldeagle.network.message.MintActionMessage;
 import com.baldeagle.network.message.MintSyncMessage;
+import com.baldeagle.network.message.ShopActionMessage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -57,6 +58,12 @@ public final class NetworkHandler {
             AtmSyncMessage.class,
             id++,
             Side.CLIENT
+        );
+        INSTANCE.registerMessage(
+            ShopActionMessage.Handler.class,
+            ShopActionMessage.class,
+            id++,
+            Side.SERVER
         );
     }
 

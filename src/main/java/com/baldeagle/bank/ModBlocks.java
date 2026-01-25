@@ -16,6 +16,7 @@ public final class ModBlocks {
     public static Block CURRENCY_EXCHANGE;
     public static Block VAULT;
     public static Block ATM;
+    public static Block SHOP;
 
     private ModBlocks() {}
 
@@ -27,10 +28,11 @@ public final class ModBlocks {
         CURRENCY_EXCHANGE = new BlockCurrencyExchange();
         VAULT = new BlockVault();
         ATM = new BlockAtm();
+        SHOP = new com.baldeagle.shop.BlockShop();
 
         event
             .getRegistry()
-            .registerAll(BANK, MINT, CURRENCY_EXCHANGE, VAULT, ATM);
+            .registerAll(BANK, MINT, CURRENCY_EXCHANGE, VAULT, ATM, SHOP);
     }
 
     @SubscribeEvent
@@ -44,7 +46,8 @@ public final class ModBlocks {
                     CURRENCY_EXCHANGE.getRegistryName()
                 ),
                 new ItemBlock(VAULT).setRegistryName(VAULT.getRegistryName()),
-                new ItemBlock(ATM).setRegistryName(ATM.getRegistryName())
+                new ItemBlock(ATM).setRegistryName(ATM.getRegistryName()),
+                new ItemBlock(SHOP).setRegistryName(SHOP.getRegistryName())
             );
     }
 }
