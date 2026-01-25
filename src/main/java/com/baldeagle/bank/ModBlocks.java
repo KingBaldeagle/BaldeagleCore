@@ -15,6 +15,7 @@ public final class ModBlocks {
     public static Block MINT;
     public static Block CURRENCY_EXCHANGE;
     public static Block VAULT;
+    public static Block ATM;
 
     private ModBlocks() {}
 
@@ -25,8 +26,11 @@ public final class ModBlocks {
         MINT = new BlockMint();
         CURRENCY_EXCHANGE = new BlockCurrencyExchange();
         VAULT = new BlockVault();
+        ATM = new BlockAtm();
 
-        event.getRegistry().registerAll(BANK, MINT, CURRENCY_EXCHANGE, VAULT);
+        event
+            .getRegistry()
+            .registerAll(BANK, MINT, CURRENCY_EXCHANGE, VAULT, ATM);
     }
 
     @SubscribeEvent
@@ -39,7 +43,8 @@ public final class ModBlocks {
                 new ItemBlock(CURRENCY_EXCHANGE).setRegistryName(
                     CURRENCY_EXCHANGE.getRegistryName()
                 ),
-                new ItemBlock(VAULT).setRegistryName(VAULT.getRegistryName())
+                new ItemBlock(VAULT).setRegistryName(VAULT.getRegistryName()),
+                new ItemBlock(ATM).setRegistryName(ATM.getRegistryName())
             );
     }
 }

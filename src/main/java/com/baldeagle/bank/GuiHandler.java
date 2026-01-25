@@ -9,6 +9,9 @@ import com.baldeagle.country.mint.tile.TileEntityMint;
 import com.baldeagle.country.vault.client.GuiVault;
 import com.baldeagle.country.vault.container.ContainerVault;
 import com.baldeagle.country.vault.tile.TileEntityVault;
+import com.baldeagle.economy.atm.ContainerAtm;
+import com.baldeagle.economy.atm.GuiAtm;
+import com.baldeagle.economy.atm.TileEntityAtm;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -21,6 +24,7 @@ public class GuiHandler implements IGuiHandler {
     public static final int MINT_GUI_ID = 2;
     public static final int CURRENCY_EXCHANGE_GUI_ID = 3;
     public static final int VAULT_GUI_ID = 4;
+    public static final int ATM_GUI_ID = 5;
 
     @Override
     public Object getServerGuiElement(
@@ -63,6 +67,14 @@ public class GuiHandler implements IGuiHandler {
                     return new ContainerVault(
                         player.inventory,
                         (TileEntityVault) tile
+                    );
+                }
+                break;
+            case ATM_GUI_ID:
+                if (tile instanceof TileEntityAtm) {
+                    return new ContainerAtm(
+                        player.inventory,
+                        (TileEntityAtm) tile
                     );
                 }
                 break;
@@ -119,6 +131,13 @@ public class GuiHandler implements IGuiHandler {
                             player.inventory,
                             (TileEntityVault) tile
                         )
+                    );
+                }
+                break;
+            case ATM_GUI_ID:
+                if (tile instanceof TileEntityAtm) {
+                    return new GuiAtm(
+                        new ContainerAtm(player.inventory, (TileEntityAtm) tile)
                     );
                 }
                 break;

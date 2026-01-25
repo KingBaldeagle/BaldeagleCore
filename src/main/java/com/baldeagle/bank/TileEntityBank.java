@@ -1,11 +1,6 @@
 package com.baldeagle.bank;
 
-import com.baldeagle.country.Country;
-import com.baldeagle.country.CountryManager;
-import com.baldeagle.country.CountryStorage;
 import com.baldeagle.country.currency.CurrencyItemHelper;
-import com.baldeagle.country.items.ItemBill;
-import com.baldeagle.country.items.ItemCoin;
 import com.baldeagle.economy.EconomyManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

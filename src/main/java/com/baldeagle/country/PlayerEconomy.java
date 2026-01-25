@@ -1,7 +1,5 @@
 package com.baldeagle.country;
 
-import net.minecraft.world.World;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -24,13 +22,17 @@ public class PlayerEconomy {
 
     public void subtractBalance(UUID player, double amount) {
         double current = getBalance(player);
-        if (amount > current) throw new IllegalArgumentException("Insufficient funds");
+        if (amount > current) throw new IllegalArgumentException(
+            "Insufficient funds"
+        );
         balances.put(player, current - amount);
     }
 
     // Save/load to CountryStorage
     public void readFromNBT(CountryStorage storage) {
-        for (Map.Entry<UUID, Double> entry : storage.getPlayerBalances().entrySet()) {
+        for (Map.Entry<UUID, Double> entry : storage
+            .getPlayerBalances()
+            .entrySet()) {
             balances.put(entry.getKey(), entry.getValue());
         }
     }
