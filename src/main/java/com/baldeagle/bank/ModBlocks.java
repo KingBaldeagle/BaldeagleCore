@@ -11,15 +11,21 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Mod.EventBusSubscriber(modid = BaldeagleCore.MODID)
 public final class ModBlocks {
 
-    public static final Block BANK = new BlockBank();
-    public static final Block MINT = new BlockMint();
-    public static final Block CURRENCY_EXCHANGE = new BlockCurrencyExchange();
-    public static final Block VAULT = new BlockVault();
+    public static Block BANK;
+    public static Block MINT;
+    public static Block CURRENCY_EXCHANGE;
+    public static Block VAULT;
 
     private ModBlocks() {}
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
+        // Initialize blocks here, after Forge is ready
+        BANK = new BlockBank();
+        MINT = new BlockMint();
+        CURRENCY_EXCHANGE = new BlockCurrencyExchange();
+        VAULT = new BlockVault();
+
         event.getRegistry().registerAll(BANK, MINT, CURRENCY_EXCHANGE, VAULT);
     }
 
