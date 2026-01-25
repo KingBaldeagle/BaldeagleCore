@@ -1,6 +1,12 @@
 {
-  "parent": "block/cube_all",
+  "parent": "block/cube",
   "textures": {
-    "all": "minecraft:blocks/iron_block"
+    "particle": "baldeaglecore:blocks/vault_front",
+    "down": "baldeaglecore:blocks/vault_rest",
+    "up": "baldeaglecore:blocks/vault_rest",
+    "north": "baldeaglecore:blocks/vault_front",
+    "south": "baldeaglecore:blocks/vault_rest",
+    "west": "baldeaglecore:blocks/vault_rest",
+    "east": "baldeaglecore:blocks/vault_rest"
   }
 }

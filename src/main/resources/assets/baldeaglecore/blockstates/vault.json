@@ -1,5 +1,8 @@
 {
   "variants": {
-    "normal": { "model": "baldeaglecore:vault" }
+    "facing=north": { "model": "baldeaglecore:vault", "y": 0 },
+    "facing=east": { "model": "baldeaglecore:vault", "y": 90 },
+    "facing=south": { "model": "baldeaglecore:vault", "y": 180 },
+    "facing=west": { "model": "baldeaglecore:vault", "y": 270 }
   }
 }

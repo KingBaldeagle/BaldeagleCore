@@ -1,6 +1,12 @@
 {
-  "parent": "block/cube_all",
+  "parent": "block/cube",
   "textures": {
-    "all": "minecraft:blocks/iron_block"
+    "particle": "baldeaglecore:blocks/exchange_all",
+    "down": "baldeaglecore:blocks/exchange_top",
+    "up": "baldeaglecore:blocks/exchange_top",
+    "north": "baldeaglecore:blocks/exchange_all",
+    "south": "baldeaglecore:blocks/exchange_all",
+    "west": "baldeaglecore:blocks/exchange_all",
+    "east": "baldeaglecore:blocks/exchange_all"
   }
 }

@@ -1,6 +1,12 @@
 {
-  "parent": "block/cube_all",
+  "parent": "block/cube",
   "textures": {
-    "all": "minecraft:blocks/iron_block"
+    "particle": "baldeaglecore:blocks/bank_front",
+    "down": "baldeaglecore:blocks/bank_top",
+    "up": "baldeaglecore:blocks/bank_top",
+    "north": "baldeaglecore:blocks/bank_front",
+    "south": "baldeaglecore:blocks/bank_sides",
+    "west": "baldeaglecore:blocks/bank_sides",
+    "east": "baldeaglecore:blocks/bank_sides"
   }
 }

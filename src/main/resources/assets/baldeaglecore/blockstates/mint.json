@@ -1,5 +1,8 @@
 {
   "variants": {
-    "normal": { "model": "baldeaglecore:mint" }
+    "facing=north": { "model": "baldeaglecore:mint", "y": 0 },
+    "facing=east": { "model": "baldeaglecore:mint", "y": 90 },
+    "facing=south": { "model": "baldeaglecore:mint", "y": 180 },
+    "facing=west": { "model": "baldeaglecore:mint", "y": 270 }
   }
 }

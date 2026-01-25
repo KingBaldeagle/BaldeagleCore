@@ -1,5 +1,8 @@
 {
   "variants": {
-    "normal": { "model": "baldeaglecore:bank" }
+    "facing=north": { "model": "baldeaglecore:bank", "y": 0 },
+    "facing=east": { "model": "baldeaglecore:bank", "y": 90 },
+    "facing=south": { "model": "baldeaglecore:bank", "y": 180 },
+    "facing=west": { "model": "baldeaglecore:bank", "y": 270 }
   }
 }

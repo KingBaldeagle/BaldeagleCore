@@ -1,5 +1,6 @@
 package com.baldeagle.country;
 
+import com.baldeagle.country.mint.MintingConstants;
 import java.util.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -12,7 +13,7 @@ public class Country {
         MEMBER,
     }
 
-    private static final double MIN_INFLATION = 0.1D;
+    private static final double MIN_INFLATION = 1.0D;
     private static final double MAX_INFLATION = 25.0D;
 
     private String name;
@@ -84,7 +85,9 @@ public class Country {
 
     public void addTreasury(long amount) {
         if (amount <= 0) return;
+        long beforeTreasury = treasury;
         treasury += amount;
+        applyReservePressure(amount, beforeTreasury);
         recalculateBaseValue();
     }
 
@@ -92,7 +95,9 @@ public class Country {
         if (amount <= 0 || amount > treasury) {
             return false;
         }
+        long beforeTreasury = treasury;
         treasury -= amount;
+        applyReservePressure(-amount, beforeTreasury);
         recalculateBaseValue();
         return true;
     }
@@ -101,11 +106,13 @@ public class Country {
         if (delta == 0) {
             return;
         }
+        long beforeTreasury = treasury;
         if (delta > 0) {
             addTreasury(delta);
             return;
         }
         treasury = Math.max(0, treasury + delta);
+        applyReservePressure(delta, beforeTreasury);
         recalculateBaseValue();
     }
 
@@ -123,6 +130,7 @@ public class Country {
         if (amount <= 0) return;
         moneyInCirculation = Math.max(1, moneyInCirculation - amount);
         recalculateBaseValue();
+        applyMoneyBurn(amount);
     }
 
     public double getInflation() {
@@ -202,6 +210,52 @@ public class Country {
 
     private double clampInflation(double value) {
         return Math.max(MIN_INFLATION, Math.min(MAX_INFLATION, value));
+    }
+
+    private void applyReservePressure(long deltaReserves, long treasuryBefore) {
+        if (deltaReserves == 0) {
+            return;
+        }
+        long denom = Math.max(1, treasuryBefore);
+        double magnitude =
+            (Math.abs(deltaReserves) / (double) denom) *
+            MintingConstants.RESERVE_INFLATION_FACTOR;
+        if (magnitude <= 0) {
+            return;
+        }
+        if (deltaReserves > 0) {
+            setInflation(inflation - magnitude);
+        } else {
+            setInflation(inflation + magnitude);
+        }
+    }
+
+    private void applyMoneyBurn(long burnedAmount) {
+        if (burnedAmount <= 0) {
+            return;
+        }
+        long denom = Math.max(1, treasury);
+        double magnitude =
+            (burnedAmount / (double) denom) *
+            MintingConstants.BURN_INFLATION_FACTOR;
+        if (magnitude <= 0) {
+            return;
+        }
+        setInflation(inflation - magnitude);
+    }
+
+    public void applyExchangePressure(long exchangedFaceValue) {
+        if (exchangedFaceValue <= 0) {
+            return;
+        }
+        long denom = Math.max(1, treasury);
+        double magnitude =
+            (exchangedFaceValue / (double) denom) *
+            MintingConstants.EXCHANGE_PRESSURE_INFLATION_FACTOR;
+        if (magnitude <= 0) {
+            return;
+        }
+        setInflation(inflation + magnitude);
     }
 
     public void applyInterest(double rate) {
