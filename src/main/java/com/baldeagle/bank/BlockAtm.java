@@ -1,9 +1,8 @@
 package com.baldeagle.bank;
 
 import com.baldeagle.BaldeagleCore;
-import com.baldeagle.country.Country;
-import com.baldeagle.country.CountryManager;
-import com.baldeagle.country.mint.tile.TileEntityMint;
+import com.baldeagle.country.creativetab.EconomyTab;
+import com.baldeagle.economy.atm.TileEntityAtm;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
@@ -11,26 +10,27 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
-public class BlockMint extends Block {
+public class BlockAtm extends Block {
 
     public static final PropertyDirection FACING = PropertyDirection.create(
         "facing",
         EnumFacing.Plane.HORIZONTAL
     );
 
-    public BlockMint() {
+    public BlockAtm() {
         super(Material.IRON);
-        setRegistryName(BaldeagleCore.MODID, "mint");
-        setTranslationKey("baldeaglecore.mint");
-        setHardness(4.5F);
-        setCreativeTab(com.baldeagle.country.creativetab.EconomyTab.INSTANCE);
+        setRegistryName(BaldeagleCore.MODID, "atm");
+        setTranslationKey("baldeaglecore.atm");
+        setHardness(4.0F);
+        setCreativeTab(EconomyTab.INSTANCE);
         this.setDefaultState(
             this.blockState.getBaseState().withProperty(
                 FACING,
@@ -96,31 +96,7 @@ public class BlockMint extends Block {
 
     @Override
     public TileEntity createTileEntity(World world, IBlockState state) {
-        return new TileEntityMint();
-    }
-
-    @Override
-    public void onBlockPlacedBy(
-        World world,
-        BlockPos pos,
-        IBlockState state,
-        EntityLivingBase placer,
-        ItemStack stack
-    ) {
-        if (world.isRemote || !(placer instanceof EntityPlayer)) {
-            return;
-        }
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if (tileEntity instanceof TileEntityMint) {
-            EntityPlayer player = (EntityPlayer) placer;
-            Country country = CountryManager.getCountryForPlayer(
-                world,
-                player.getUniqueID()
-            );
-            if (country != null) {
-                ((TileEntityMint) tileEntity).setCountryId(country.getId());
-            }
-        }
+        return new TileEntityAtm();
     }
 
     @Override
@@ -139,27 +115,12 @@ public class BlockMint extends Block {
             return true;
         }
         TileEntity tileEntity = world.getTileEntity(pos);
-        if (!(tileEntity instanceof TileEntityMint)) {
+        if (!(tileEntity instanceof TileEntityAtm)) {
             return false;
         }
-
-        TileEntityMint mint = (TileEntityMint) tileEntity;
-        if (!mint.ensureCountry(world, player)) {
-            return false;
-        }
-        if (!mint.isAuthorized(player)) {
-            player.sendStatusMessage(
-                new TextComponentString(
-                    "You are not authorized to use this mint."
-                ),
-                true
-            );
-            return false;
-        }
-
         player.openGui(
             BaldeagleCore.instance,
-            GuiHandler.MINT_GUI_ID,
+            GuiHandler.ATM_GUI_ID,
             world,
             pos.getX(),
             pos.getY(),

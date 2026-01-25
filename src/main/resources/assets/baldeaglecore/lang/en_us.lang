@@ -1,6 +1,7 @@
 tile.baldeaglecore.bank.name=Bank
 tile.baldeaglecore.mint.name=Mint
 tile.baldeaglecore.vault.name=Vault
+tile.baldeaglecore.atm.name=Atm
 tile.baldeaglecore.currency_exchange.name=Currency Exchange
 itemGroup.economy=Economy
 tooltip.baldeaglecore.denomination=Denomination: %s

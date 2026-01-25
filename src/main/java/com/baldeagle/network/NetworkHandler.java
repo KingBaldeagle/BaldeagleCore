@@ -1,6 +1,8 @@
 package com.baldeagle.network;
 
 import com.baldeagle.BaldeagleCore;
+import com.baldeagle.network.message.AtmSyncMessage;
+import com.baldeagle.network.message.AtmWithdrawMessage;
 import com.baldeagle.network.message.ExchangeActionMessage;
 import com.baldeagle.network.message.ExchangeSyncMessage;
 import com.baldeagle.network.message.MintActionMessage;
@@ -41,6 +43,18 @@ public final class NetworkHandler {
         INSTANCE.registerMessage(
             ExchangeSyncMessage.Handler.class,
             ExchangeSyncMessage.class,
+            id++,
+            Side.CLIENT
+        );
+        INSTANCE.registerMessage(
+            AtmWithdrawMessage.Handler.class,
+            AtmWithdrawMessage.class,
+            id++,
+            Side.SERVER
+        );
+        INSTANCE.registerMessage(
+            AtmSyncMessage.Handler.class,
+            AtmSyncMessage.class,
             id++,
             Side.CLIENT
         );

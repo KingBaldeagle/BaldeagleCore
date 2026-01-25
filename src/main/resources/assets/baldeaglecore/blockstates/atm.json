@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "baldeaglecore:atm", "y": 0 },
+    "facing=east": { "model": "baldeaglecore:atm", "y": 90 },
+    "facing=south": { "model": "baldeaglecore:atm", "y": 180 },
+    "facing=west": { "model": "baldeaglecore:atm", "y": 270 }
+  }
+}
