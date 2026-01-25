@@ -1,5 +1,8 @@
 {
   "variants": {
-    "normal": { "model": "baldeaglecore:currency_exchange" }
+    "facing=north": { "model": "baldeaglecore:currency_exchange", "y": 0 },
+    "facing=east": { "model": "baldeaglecore:currency_exchange", "y": 90 },
+    "facing=south": { "model": "baldeaglecore:currency_exchange", "y": 180 },
+    "facing=west": { "model": "baldeaglecore:currency_exchange", "y": 270 }
   }
 }
