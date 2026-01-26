@@ -6,22 +6,22 @@ import java.util.UUID;
 
 public class PlayerEconomy {
 
-    private final Map<UUID, Double> balances = new HashMap<>();
+    private final Map<UUID, Long> balances = new HashMap<>();
 
-    public double getBalance(UUID player) {
-        return balances.getOrDefault(player, 0.0);
+    public long getBalance(UUID player) {
+        return balances.getOrDefault(player, 0L);
     }
 
-    public void setBalance(UUID player, double amount) {
-        balances.put(player, amount);
+    public void setBalance(UUID player, long amount) {
+        balances.put(player, Math.max(0L, amount));
     }
 
-    public void addBalance(UUID player, double amount) {
-        balances.put(player, getBalance(player) + amount);
+    public void addBalance(UUID player, long amount) {
+        balances.put(player, Math.max(0L, getBalance(player) + amount));
     }
 
-    public void subtractBalance(UUID player, double amount) {
-        double current = getBalance(player);
+    public void subtractBalance(UUID player, long amount) {
+        long current = getBalance(player);
         if (amount > current) throw new IllegalArgumentException(
             "Insufficient funds"
         );
@@ -30,7 +30,7 @@ public class PlayerEconomy {
 
     // Save/load to CountryStorage
     public void readFromNBT(CountryStorage storage) {
-        for (Map.Entry<UUID, Double> entry : storage
+        for (Map.Entry<UUID, Long> entry : storage
             .getPlayerBalances()
             .entrySet()) {
             balances.put(entry.getKey(), entry.getValue());

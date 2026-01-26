@@ -126,7 +126,7 @@ public class AtmWithdrawMessage implements IMessage {
                 );
                 if (success) {
                     country.setBalance(
-                        Math.max(0, country.getBalance() - amount)
+                        Math.max(0L, country.getBalance() - amount)
                     );
                     CountryStorage.get(player.world).markDirty();
                 }

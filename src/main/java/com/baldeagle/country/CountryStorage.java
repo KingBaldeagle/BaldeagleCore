@@ -1,14 +1,13 @@
 package com.baldeagle.country;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class CountryStorage extends WorldSavedData {
 
@@ -28,16 +27,18 @@ public class CountryStorage extends WorldSavedData {
         return countries;
     }
 
-    // Inside CountryStorage.java
-    private final Map<UUID, Double> playerBalances = new HashMap<>();
+    private final Map<UUID, Long> playerBalances = new HashMap<>();
 
-    public Map<UUID, Double> getPlayerBalances() {
+    public Map<UUID, Long> getPlayerBalances() {
         return playerBalances;
     }
 
     public static CountryStorage get(World world) {
         MapStorage storage = world.getMapStorage();
-        CountryStorage instance = (CountryStorage) storage.getOrLoadData(CountryStorage.class, DATA_NAME);
+        CountryStorage instance = (CountryStorage) storage.getOrLoadData(
+            CountryStorage.class,
+            DATA_NAME
+        );
         if (instance == null) {
             instance = new CountryStorage();
             storage.setData(DATA_NAME, instance);

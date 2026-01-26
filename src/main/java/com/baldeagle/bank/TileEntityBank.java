@@ -1,7 +1,6 @@
 package com.baldeagle.bank;
 
 import com.baldeagle.country.currency.CurrencyItemHelper;
-import com.baldeagle.economy.EconomyManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
@@ -22,25 +21,17 @@ public class TileEntityBank
     public static final int SLOT_COUNTRY_DEPOSIT = 1;
     public static final int SLOT_COUNT = 2;
 
-    private static final double INTEREST_RATE = 0.01;
-
     private final NonNullList<ItemStack> items = NonNullList.withSize(
         SLOT_COUNT,
         ItemStack.EMPTY
     );
-    private int tickCounter = 0;
+
+    private long clientPlayerBalance = 0L;
+    private long clientCountryBalance = 0L;
 
     @Override
     public void update() {
-        if (world == null || world.isRemote) {
-            return;
-        }
-
-        tickCounter++;
-        if (tickCounter >= 20 * 60) {
-            EconomyManager.applyInterest(world, INTEREST_RATE);
-            tickCounter = 0;
-        }
+        // Interest accrual is handled globally in EconomyTickHandler.
     }
 
     public static boolean isCurrency(ItemStack stack) {
@@ -52,6 +43,22 @@ public class TileEntityBank
             return 0;
         }
         return CurrencyItemHelper.getFaceValue(stack);
+    }
+
+    public long getClientPlayerBalance() {
+        return clientPlayerBalance;
+    }
+
+    public long getClientCountryBalance() {
+        return clientCountryBalance;
+    }
+
+    public void applyClientBalanceSync(
+        long playerBalance,
+        long countryBalance
+    ) {
+        this.clientPlayerBalance = Math.max(0L, playerBalance);
+        this.clientCountryBalance = Math.max(0L, countryBalance);
     }
 
     public static double getCurrencyMonetaryValue(
@@ -185,7 +192,6 @@ public class TileEntityBank
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound tag) {
         super.writeToNBT(tag);
-        tag.setInteger("ticks", tickCounter);
         ItemStackHelper.saveAllItems(tag, items);
         return tag;
     }
@@ -193,7 +199,6 @@ public class TileEntityBank
     @Override
     public void readFromNBT(NBTTagCompound tag) {
         super.readFromNBT(tag);
-        tickCounter = tag.getInteger("ticks");
         ItemStackHelper.loadAllItems(tag, items);
     }
 }

@@ -5,6 +5,7 @@ import com.baldeagle.bank.TileEntityBank;
 import com.baldeagle.country.mint.tile.TileEntityCurrencyExchange;
 import com.baldeagle.country.mint.tile.TileEntityMint;
 import com.baldeagle.country.vault.tile.TileEntityVault;
+import com.baldeagle.economy.EconomyTickHandler;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.shop.TileEntityShop;
@@ -41,6 +42,7 @@ public class BaldeagleCore {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new EconomyTickHandler());
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
         NetworkHandler.register();
         GameRegistry.registerTileEntity(

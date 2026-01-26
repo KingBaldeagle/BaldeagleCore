@@ -5,15 +5,16 @@ import com.baldeagle.country.CountryManager;
 import com.baldeagle.country.CountryStorage;
 import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.economy.EconomyManager;
+import com.baldeagle.network.NetworkHandler;
+import com.baldeagle.network.message.BankSyncMessage;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ContainerBank extends Container {
 
@@ -25,10 +26,8 @@ public class ContainerBank extends Container {
     private final TileEntityBank tileBank;
     private final EntityPlayer player;
 
-    private int cachedPlayerBalance = Integer.MIN_VALUE;
-    private int cachedCountryBalance = Integer.MIN_VALUE;
-    private int displayedPlayerBalance = 0;
-    private int displayedCountryBalance = 0;
+    private long cachedPlayerBalance = Long.MIN_VALUE;
+    private long cachedCountryBalance = Long.MIN_VALUE;
 
     public ContainerBank(
         InventoryPlayer playerInventory,
@@ -80,12 +79,7 @@ public class ContainerBank extends Container {
     public void addListener(IContainerListener listener) {
         super.addListener(listener);
         if (!player.world.isRemote) {
-            listener.sendWindowProperty(this, 0, getPlayerBalanceInt());
-            listener.sendWindowProperty(
-                this,
-                1,
-                Math.max(0, getCountryBalanceInt())
-            );
+            syncBalancesToPlayer();
         }
     }
 
@@ -103,22 +97,7 @@ public class ContainerBank extends Container {
                 DepositTarget.COUNTRY
             );
 
-            int currentPlayerBalance = getPlayerBalanceInt();
-            int currentCountryBalance = Math.max(0, getCountryBalanceInt());
-
-            if (currentPlayerBalance != cachedPlayerBalance) {
-                cachedPlayerBalance = currentPlayerBalance;
-                for (IContainerListener listener : listeners) {
-                    listener.sendWindowProperty(this, 0, currentPlayerBalance);
-                }
-            }
-
-            if (currentCountryBalance != cachedCountryBalance) {
-                cachedCountryBalance = currentCountryBalance;
-                for (IContainerListener listener : listeners) {
-                    listener.sendWindowProperty(this, 1, currentCountryBalance);
-                }
-            }
+            syncBalancesToPlayer();
         }
     }
 
@@ -226,32 +205,52 @@ public class ContainerBank extends Container {
         player.inventory.markDirty();
     }
 
-    private int getPlayerBalanceInt() {
-        long balance = EconomyManager.getPlayerBalance(
+    public TileEntityBank getTile() {
+        return tileBank;
+    }
+
+    public long getDisplayedPlayerBalance() {
+        return tileBank.getClientPlayerBalance();
+    }
+
+    public long getDisplayedCountryBalance() {
+        return tileBank.getClientCountryBalance();
+    }
+
+    private void syncBalancesToPlayer() {
+        if (!(player instanceof EntityPlayerMP)) {
+            return;
+        }
+
+        long currentPlayerBalance = EconomyManager.getPlayerBalance(
             player.world,
             player.getUniqueID()
         );
-        return (int) Math.min(Integer.MAX_VALUE, balance);
-    }
 
-    private int getCountryBalanceInt() {
         Country country = CountryManager.getCountryForPlayer(
             player.world,
             player.getUniqueID()
         );
-        if (country == null) {
-            return -1;
+        long currentCountryBalance =
+            country != null ? country.getBalance() : 0L;
+
+        if (
+            currentPlayerBalance == cachedPlayerBalance &&
+            currentCountryBalance == cachedCountryBalance
+        ) {
+            return;
         }
-        long balance = Math.round(country.getBalance());
-        return (int) Math.min(Integer.MAX_VALUE, balance);
-    }
 
-    public int getDisplayedPlayerBalance() {
-        return displayedPlayerBalance;
-    }
-
-    public int getDisplayedCountryBalance() {
-        return displayedCountryBalance;
+        cachedPlayerBalance = currentPlayerBalance;
+        cachedCountryBalance = currentCountryBalance;
+        NetworkHandler.INSTANCE.sendTo(
+            new BankSyncMessage(
+                tileBank.getPos(),
+                currentPlayerBalance,
+                currentCountryBalance
+            ),
+            (EntityPlayerMP) player
+        );
     }
 
     @Override
@@ -273,16 +272,6 @@ public class ContainerBank extends Container {
                     TileEntityBank.SLOT_COUNTRY_DEPOSIT
                 )
             );
-        }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void updateProgressBar(int id, int data) {
-        if (id == 0) {
-            displayedPlayerBalance = data;
-        } else if (id == 1) {
-            displayedCountryBalance = Math.max(0, data);
         }
     }
 

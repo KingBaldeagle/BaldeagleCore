@@ -36,9 +36,8 @@ public class GuiBank extends GuiContainer {
             0x404040
         );
 
-        int countryBalance = container.getDisplayedCountryBalance();
         fontRenderer.drawString(
-            "Country Balance: " + countryBalance,
+            "Country Balance: " + container.getDisplayedCountryBalance(),
             200,
             50,
             0x404040
