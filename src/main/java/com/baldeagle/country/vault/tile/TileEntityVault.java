@@ -42,6 +42,7 @@ public class TileEntityVault
     private UUID countryId;
     private long trackedReserveUnits = 0;
     private long countryReserveUnits = 0;
+    private boolean suppressReconcile = false;
 
     public boolean ensureCountry(EntityPlayer player) {
         if (countryId != null) {
@@ -238,6 +239,11 @@ public class TileEntityVault
             trackedReserveUnits = computeReserveUnits();
             return;
         }
+        if (suppressReconcile) {
+            trackedReserveUnits = computeReserveUnits();
+            updateCountryReserveCache();
+            return;
+        }
 
         long actual = computeReserveUnits();
         long delta = actual - trackedReserveUnits;
@@ -254,6 +260,33 @@ public class TileEntityVault
         country.adjustTreasury(delta);
         updateCountryReserveCache();
         CountryStorage.get(world).markDirty();
+    }
+
+    public void prepareForDropAndUntrack() {
+        if (world == null || world.isRemote) {
+            return;
+        }
+        if (suppressReconcile) {
+            return;
+        }
+        suppressReconcile = true;
+
+        long actual = computeReserveUnits();
+        if (actual <= 0) {
+            trackedReserveUnits = 0;
+            updateCountryReserveCache();
+            markDirty();
+            return;
+        }
+
+        Country country = getCountry();
+        if (country != null) {
+            country.adjustTreasury(-actual);
+            updateCountryReserveCache();
+            CountryStorage.get(world).markDirty();
+        }
+        trackedReserveUnits = 0;
+        markDirty();
     }
 
     private void updateCountryReserveCache() {

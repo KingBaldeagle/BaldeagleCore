@@ -209,6 +209,9 @@ public class BlockVault extends Block {
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
         TileEntity tileentity = worldIn.getTileEntity(pos);
         if (tileentity instanceof TileEntityVault) {
+            if (!worldIn.isRemote) {
+                ((TileEntityVault) tileentity).prepareForDropAndUntrack();
+            }
             InventoryHelper.dropInventoryItems(
                 worldIn,
                 pos,
