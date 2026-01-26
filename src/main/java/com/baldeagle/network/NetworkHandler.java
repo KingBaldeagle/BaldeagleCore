@@ -8,6 +8,7 @@ import com.baldeagle.network.message.ExchangeSyncMessage;
 import com.baldeagle.network.message.MintActionMessage;
 import com.baldeagle.network.message.MintSyncMessage;
 import com.baldeagle.network.message.ShopActionMessage;
+import com.baldeagle.network.message.VaultSyncMessage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -64,6 +65,12 @@ public final class NetworkHandler {
             ShopActionMessage.class,
             id++,
             Side.SERVER
+        );
+        INSTANCE.registerMessage(
+            VaultSyncMessage.Handler.class,
+            VaultSyncMessage.class,
+            id++,
+            Side.CLIENT
         );
     }
 

@@ -1,9 +1,14 @@
 package com.baldeagle.country.vault.container;
 
+import com.baldeagle.country.Country;
+import com.baldeagle.country.CountryManager;
 import com.baldeagle.country.vault.tile.TileEntityVault;
+import com.baldeagle.network.NetworkHandler;
+import com.baldeagle.network.message.VaultSyncMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
@@ -11,6 +16,7 @@ public class ContainerVault extends Container {
 
     private final TileEntityVault tile;
     private final EntityPlayer player;
+    private long cachedCountryReserves = Long.MIN_VALUE;
 
     public ContainerVault(
         InventoryPlayer playerInventory,
@@ -57,6 +63,46 @@ public class ContainerVault extends Container {
 
     public TileEntityVault getTile() {
         return tile;
+    }
+
+    @Override
+    public void addListener(IContainerListener listener) {
+        super.addListener(listener);
+        syncCountryReserves();
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        syncCountryReserves();
+    }
+
+    private void syncCountryReserves() {
+        if (player.world.isRemote) {
+            return;
+        }
+        if (!(player instanceof net.minecraft.entity.player.EntityPlayerMP)) {
+            return;
+        }
+        if (tile == null || tile.getCountryId() == null) {
+            return;
+        }
+        Country country = CountryManager.getCountry(
+            player.world,
+            tile.getCountryId()
+        );
+        if (country == null) {
+            return;
+        }
+        long reserves = country.getTreasury();
+        if (reserves == cachedCountryReserves) {
+            return;
+        }
+        cachedCountryReserves = reserves;
+        NetworkHandler.INSTANCE.sendTo(
+            new VaultSyncMessage(tile.getPos(), reserves),
+            (net.minecraft.entity.player.EntityPlayerMP) player
+        );
     }
 
     @Override
