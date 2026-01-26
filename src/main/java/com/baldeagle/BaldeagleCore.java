@@ -7,6 +7,7 @@ import com.baldeagle.country.mint.tile.TileEntityMint;
 import com.baldeagle.country.vault.tile.TileEntityVault;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import com.baldeagle.network.NetworkHandler;
+import com.baldeagle.shop.TileEntityShop;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -61,6 +62,10 @@ public class BaldeagleCore {
         GameRegistry.registerTileEntity(
             TileEntityAtm.class,
             new ResourceLocation(MODID, "atm")
+        );
+        GameRegistry.registerTileEntity(
+            TileEntityShop.class,
+            new ResourceLocation(MODID, "shop")
         );
         proxy.preInit();
     }

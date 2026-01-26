@@ -28,7 +28,7 @@ public class GuiVault extends GuiContainer {
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         fontRenderer.drawString("Government Vault", 8, 6, 0x404040);
         fontRenderer.drawString(
-            "Reserves: " + tile.getReserveUnits(),
+            "Reserves: " + tile.getCountryReserveUnits(),
             8,
             72,
             0x404040

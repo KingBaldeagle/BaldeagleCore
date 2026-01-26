@@ -41,6 +41,8 @@ public class TileEntityVault
 
     private UUID countryId;
     private long trackedReserveUnits = 0;
+    private long countryReserveUnits = 0;
+    private boolean suppressReconcile = false;
 
     public boolean ensureCountry(EntityPlayer player) {
         if (countryId != null) {
@@ -63,6 +65,7 @@ public class TileEntityVault
     public void setCountryId(UUID countryId) {
         this.countryId = countryId;
         reconcileReserves();
+        updateCountryReserveCache();
         markDirty();
         sync();
     }
@@ -89,6 +92,14 @@ public class TileEntityVault
 
     public long getReserveUnits() {
         return computeReserveUnits();
+    }
+
+    public long getCountryReserveUnits() {
+        return countryReserveUnits;
+    }
+
+    public void applyCountryReserveSync(long reserveUnits) {
+        this.countryReserveUnits = Math.max(0, reserveUnits);
     }
 
     public int getGoldCount() {
@@ -228,6 +239,11 @@ public class TileEntityVault
             trackedReserveUnits = computeReserveUnits();
             return;
         }
+        if (suppressReconcile) {
+            trackedReserveUnits = computeReserveUnits();
+            updateCountryReserveCache();
+            return;
+        }
 
         long actual = computeReserveUnits();
         long delta = actual - trackedReserveUnits;
@@ -242,13 +258,48 @@ public class TileEntityVault
             return;
         }
         country.adjustTreasury(delta);
+        updateCountryReserveCache();
         CountryStorage.get(world).markDirty();
+    }
+
+    public void prepareForDropAndUntrack() {
+        if (world == null || world.isRemote) {
+            return;
+        }
+        if (suppressReconcile) {
+            return;
+        }
+        suppressReconcile = true;
+
+        long actual = computeReserveUnits();
+        if (actual <= 0) {
+            trackedReserveUnits = 0;
+            updateCountryReserveCache();
+            markDirty();
+            return;
+        }
+
+        Country country = getCountry();
+        if (country != null) {
+            country.adjustTreasury(-actual);
+            updateCountryReserveCache();
+            CountryStorage.get(world).markDirty();
+        }
+        trackedReserveUnits = 0;
+        markDirty();
+    }
+
+    private void updateCountryReserveCache() {
+        Country country = getCountry();
+        countryReserveUnits =
+            country != null ? Math.max(0, country.getTreasury()) : 0;
     }
 
     private void sync() {
         if (world == null || world.isRemote) {
             return;
         }
+        updateCountryReserveCache();
         world.notifyBlockUpdate(
             pos,
             world.getBlockState(pos),
@@ -425,6 +476,7 @@ public class TileEntityVault
             compound.setString("country", countryId.toString());
         }
         compound.setLong("trackedReserves", trackedReserveUnits);
+        compound.setLong("countryReserves", countryReserveUnits);
         return compound;
     }
 
@@ -440,6 +492,7 @@ public class TileEntityVault
             }
         }
         trackedReserveUnits = compound.getLong("trackedReserves");
+        countryReserveUnits = compound.getLong("countryReserves");
         // Reconcile later when world is available
         if (world != null && !world.isRemote) {
             reconcileReserves();
