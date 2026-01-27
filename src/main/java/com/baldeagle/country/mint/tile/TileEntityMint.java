@@ -10,7 +10,11 @@ import com.baldeagle.country.mint.MintingConstants;
 import com.baldeagle.country.vault.VaultManager;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.network.message.MintSyncMessage;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -278,6 +282,137 @@ public class TileEntityMint
             ),
             true
         );
+    }
+
+    public boolean performMintByValue(EntityPlayerMP player, long faceValue) {
+        if (world == null || world.isRemote) {
+            return false;
+        }
+        if (player == null || faceValue <= 0L) {
+            return false;
+        }
+        Country country = getCountry();
+        if (country == null) {
+            return false;
+        }
+        if (!country.isHighAuthority(player.getUniqueID())) {
+            return false;
+        }
+
+        List<CurrencyDenomination> denominations = Arrays.stream(
+            CurrencyDenomination.values()
+        )
+            .sorted(
+                Comparator.comparingInt(
+                    CurrencyDenomination::getValue
+                ).reversed()
+            )
+            .collect(Collectors.toList());
+
+        long remaining = faceValue;
+        long piecesNeeded = 0L;
+        for (CurrencyDenomination denom : denominations) {
+            if (denom == null) continue;
+            long count = remaining / denom.getValue();
+            if (count > 0L) {
+                piecesNeeded += count;
+                remaining = remaining % denom.getValue();
+            }
+            if (remaining <= 0L) break;
+        }
+        if (remaining > 0L) {
+            return false;
+        }
+        if (piecesNeeded > (long) Integer.MAX_VALUE) {
+            player.sendStatusMessage(
+                new net.minecraft.util.text.TextComponentString(
+                    "Mint amount is too large (too many items)."
+                ),
+                true
+            );
+            return false;
+        }
+
+        int needed = (int) piecesNeeded;
+        ItemStack gold = items.get(SLOT_GOLD);
+        int inSlot =
+            !gold.isEmpty() && gold.getItem() == Items.GOLD_INGOT
+                ? gold.getCount()
+                : 0;
+        int fromVault = Math.max(0, needed - inSlot);
+
+        if (fromVault > 0) {
+            int availableFromVault = VaultManager.getAvailableGold(
+                world,
+                country.getId()
+            );
+            if (availableFromVault < fromVault) {
+                player.sendStatusMessage(
+                    new net.minecraft.util.text.TextComponentString(
+                        "Not enough gold ingots. Need " +
+                            needed +
+                            " (missing " +
+                            (fromVault - availableFromVault) +
+                            ")."
+                    ),
+                    true
+                );
+                return false;
+            }
+        } else if (inSlot < needed) {
+            player.sendStatusMessage(
+                new net.minecraft.util.text.TextComponentString(
+                    "Not enough gold ingots. Need " + needed + "."
+                ),
+                true
+            );
+            return false;
+        }
+
+        int toConsumeFromSlot = Math.min(needed, inSlot);
+        if (toConsumeFromSlot > 0) {
+            gold.shrink(toConsumeFromSlot);
+            if (gold.isEmpty()) {
+                items.set(SLOT_GOLD, ItemStack.EMPTY);
+            }
+        }
+        if (fromVault > 0) {
+            VaultManager.consumeGold(world, country.getId(), fromVault);
+        }
+
+        remaining = faceValue;
+        for (CurrencyDenomination denom : denominations) {
+            if (denom == null) continue;
+            long count = remaining / denom.getValue();
+            if (count <= 0L) continue;
+
+            int maxStack = denom.getType() == CurrencyType.COIN ? 64 : 16;
+            while (count > 0L) {
+                int give = (int) Math.min(count, (long) maxStack);
+                ItemStack currency = CurrencyItemHelper.createCurrencyStack(
+                    country,
+                    denom,
+                    give
+                );
+                if (!currency.isEmpty()) {
+                    if (!player.inventory.addItemStackToInventory(currency)) {
+                        player.dropItem(currency, false);
+                    }
+                }
+                count -= give;
+            }
+
+            remaining = remaining % denom.getValue();
+            if (remaining <= 0L) break;
+        }
+
+        country.applyMinting(faceValue, MintingConstants.MINT_INFLATION_FACTOR);
+        CountryStorage.get(world).markDirty();
+
+        recalc();
+        markDirty();
+        syncToClient(player);
+        return true;
     }
 
     private void sync() {

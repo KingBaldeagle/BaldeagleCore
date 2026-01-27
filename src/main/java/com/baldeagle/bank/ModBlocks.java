@@ -17,6 +17,7 @@ public final class ModBlocks {
     public static Block VAULT;
     public static Block ATM;
     public static Block SHOP;
+    public static Block GOVERNMENT_COMPUTER;
 
     private ModBlocks() {}
 
@@ -29,10 +30,20 @@ public final class ModBlocks {
         VAULT = new BlockVault();
         ATM = new BlockAtm();
         SHOP = new com.baldeagle.shop.BlockShop();
+        GOVERNMENT_COMPUTER =
+            new com.baldeagle.oc.gov.BlockGovernmentComputer();
 
         event
             .getRegistry()
-            .registerAll(BANK, MINT, CURRENCY_EXCHANGE, VAULT, ATM, SHOP);
+            .registerAll(
+                BANK,
+                MINT,
+                CURRENCY_EXCHANGE,
+                VAULT,
+                ATM,
+                SHOP,
+                GOVERNMENT_COMPUTER
+            );
     }
 
     @SubscribeEvent
@@ -47,7 +58,10 @@ public final class ModBlocks {
                 ),
                 new ItemBlock(VAULT).setRegistryName(VAULT.getRegistryName()),
                 new ItemBlock(ATM).setRegistryName(ATM.getRegistryName()),
-                new ItemBlock(SHOP).setRegistryName(SHOP.getRegistryName())
+                new ItemBlock(SHOP).setRegistryName(SHOP.getRegistryName()),
+                new ItemBlock(GOVERNMENT_COMPUTER).setRegistryName(
+                    GOVERNMENT_COMPUTER.getRegistryName()
+                )
             );
     }
 }

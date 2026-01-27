@@ -1,0 +1,11 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "baldeaglecore:blocks/bank_top",
+    "up": "baldeaglecore:blocks/bank_top",
+    "north": "baldeaglecore:blocks/bank_front",
+    "south": "baldeaglecore:blocks/bank_sides",
+    "east": "baldeaglecore:blocks/bank_sides",
+    "west": "baldeaglecore:blocks/bank_sides"
+  }
+}

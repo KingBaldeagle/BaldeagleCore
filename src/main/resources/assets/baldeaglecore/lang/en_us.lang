@@ -4,6 +4,7 @@ tile.baldeaglecore.vault.name=Vault
 tile.baldeaglecore.atm.name=Atm
 tile.baldeaglecore.shop.name=Shop
 tile.baldeaglecore.currency_exchange.name=Currency Exchange
+tile.baldeaglecore.government_computer.name=Government Computer
 itemGroup.economy=Economy
 tooltip.baldeaglecore.denomination=Denomination: %s
 tooltip.baldeaglecore.inflation=Inflation: %s

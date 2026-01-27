@@ -8,11 +8,14 @@ import com.baldeagle.country.vault.tile.TileEntityVault;
 import com.baldeagle.economy.EconomyTickHandler;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import com.baldeagle.network.NetworkHandler;
+import com.baldeagle.oc.gov.TileEntityGovernmentComputer;
 import com.baldeagle.shop.TileEntityShop;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -28,7 +31,7 @@ public class BaldeagleCore {
 
     public static final String MODID = "baldeaglecore";
     public static final String NAME = "BaldEagle Core";
-    public static final String VERSION = "0.4";
+    public static final String VERSION = "0.8";
 
     @Mod.Instance
     public static BaldeagleCore instance;
@@ -69,7 +72,18 @@ public class BaldeagleCore {
             TileEntityShop.class,
             new ResourceLocation(MODID, "shop")
         );
+        GameRegistry.registerTileEntity(
+            TileEntityGovernmentComputer.class,
+            new ResourceLocation(MODID, "government_computer")
+        );
         proxy.preInit();
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
+        if (Loader.isModLoaded("opencomputers")) {
+            com.baldeagle.oc.OCIntegration.init();
+        }
     }
 
     @Mod.EventHandler

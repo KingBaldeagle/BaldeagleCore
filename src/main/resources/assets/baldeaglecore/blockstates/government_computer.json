@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "baldeaglecore:government_computer" },
+    "facing=east": { "model": "baldeaglecore:government_computer", "y": 90 },
+    "facing=south": { "model": "baldeaglecore:government_computer", "y": 180 },
+    "facing=west": { "model": "baldeaglecore:government_computer", "y": 270 }
+  }
+}
