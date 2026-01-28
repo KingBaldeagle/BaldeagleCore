@@ -31,36 +31,30 @@ public class EnvironmentCountryAtm extends EnvironmentBase {
 
     @Override
     protected World getWorld() {
-        return tile.getWorld();
+        return tile != null ? tile.getWorld() : null;
     }
 
     @Callback(
-        doc = "function(uuid:string):number -- Returns the player's balance."
+        doc = "function(uuid:string):number|nil -- Returns player balance."
     )
     public Object[] getBalance(Context context, Arguments args) {
         try {
             World world = getWorld();
-            UUID playerUuid = OCUtil.parseUuid(args.checkString(0));
             if (world == null || world.isRemote) {
-                return new Object[] { null, "Server only." };
+                return new Object[] { null };
             }
-            EntityPlayerMP player = world
-                .getMinecraftServer()
-                .getPlayerList()
-                .getPlayerByUUID(playerUuid);
-            if (player == null) {
-                return new Object[] { null, "Player must be online." };
-            }
-            OCUtil.requireCanInteract(context, player.getName());
-            long balance = EconomyManager.getPlayerBalance(world, playerUuid);
-            return new Object[] { balance };
-        } catch (Exception e) {
-            return new Object[] { null, e.getMessage() };
+
+            UUID uuid = OCUtil.parseUuid(args.checkString(0));
+            return new Object[] {
+                EconomyManager.getPlayerBalance(world, uuid),
+            };
+        } catch (Throwable t) {
+            return new Object[] { null };
         }
     }
 
     @Callback(
-        doc = "function(uuid:string, amount:number):boolean,string|nil -- Withdraws physical currency into the player's inventory."
+        doc = "function(uuid:string, amount:number):boolean,string|nil -- Withdraws currency."
     )
     public Object[] withdraw(Context context, Arguments args) {
         try {
@@ -69,25 +63,24 @@ public class EnvironmentCountryAtm extends EnvironmentBase {
                 return new Object[] { false, "Server only." };
             }
 
-            UUID playerUuid = OCUtil.parseUuid(args.checkString(0));
-            long amount = Math.max(0L, args.checkLong(1));
-            if (amount <= 0L) {
+            UUID uuid = OCUtil.parseUuid(args.checkString(0));
+            long amount = args.checkLong(1);
+            if (amount <= 0) {
                 return new Object[] { false, "Amount must be > 0." };
             }
 
             EntityPlayerMP player = world
                 .getMinecraftServer()
                 .getPlayerList()
-                .getPlayerByUUID(playerUuid);
+                .getPlayerByUUID(uuid);
+
             if (player == null) {
                 return new Object[] { false, "Player must be online." };
             }
 
-            String playerName = player.getName();
-            OCUtil.requireCanInteract(context, playerName);
+            OCUtil.requireCanInteract(context, player.getName());
 
             if (
-                tile.getPos() != null &&
                 player.getDistanceSq(
                     tile.getPos().getX() + 0.5,
                     tile.getPos().getY() + 0.5,
@@ -95,22 +88,16 @@ public class EnvironmentCountryAtm extends EnvironmentBase {
                 ) >
                 64
             ) {
-                return new Object[] { false, "Player too far from ATM." };
+                return new Object[] { false, "Too far from ATM." };
             }
 
-            Country country = OCUtil.requireActorCountry(world, playerUuid);
+            Country country = OCUtil.requireActorCountry(world, uuid);
 
-            boolean success = EconomyManager.withdrawPlayer(
-                world,
-                playerUuid,
-                amount
-            );
-            if (!success) {
+            if (!EconomyManager.withdrawPlayer(world, uuid, amount)) {
                 return new Object[] { false, "Insufficient funds." };
             }
 
-            long remaining = amount;
-            List<CurrencyDenomination> denominations = Arrays.stream(
+            List<CurrencyDenomination> denoms = Arrays.stream(
                 CurrencyDenomination.values()
             )
                 .sorted(
@@ -120,33 +107,29 @@ public class EnvironmentCountryAtm extends EnvironmentBase {
                 )
                 .collect(Collectors.toList());
 
-            for (CurrencyDenomination denom : denominations) {
-                if (denom == null) continue;
+            long remaining = amount;
+            for (CurrencyDenomination denom : denoms) {
                 long count = remaining / denom.getValue();
-                if (count <= 0) continue;
-
-                int maxStack =
-                    denom.getType() ==
-                    com.baldeagle.country.currency.CurrencyType.COIN
-                        ? 64
-                        : 16;
                 while (count > 0) {
-                    int give = (int) Math.min(count, (long) maxStack);
+                    int maxStack =
+                        denom.getType() ==
+                        com.baldeagle.country.currency.CurrencyType.COIN
+                            ? 64
+                            : 16;
+
+                    int give = (int) Math.min(count, maxStack);
+
                     ItemStack stack = CurrencyItemHelper.createCurrencyStack(
                         country,
                         denom,
                         give
                     );
-                    if (!stack.isEmpty()) {
-                        if (!player.inventory.addItemStackToInventory(stack)) {
-                            player.dropItem(stack, false);
-                        }
+                    if (!player.inventory.addItemStackToInventory(stack)) {
+                        player.dropItem(stack, false);
                     }
                     count -= give;
                 }
-
-                remaining = remaining % denom.getValue();
-                if (remaining <= 0) break;
+                remaining %= denom.getValue();
             }
 
             country.applyMinting(
@@ -154,9 +137,10 @@ public class EnvironmentCountryAtm extends EnvironmentBase {
                 MintingConstants.MINT_INFLATION_FACTOR
             );
             CountryStorage.get(world).markDirty();
+
             return new Object[] { true };
-        } catch (Exception e) {
-            return new Object[] { false, e.getMessage() };
+        } catch (Throwable t) {
+            return new Object[] { false, t.getMessage() };
         }
     }
 }

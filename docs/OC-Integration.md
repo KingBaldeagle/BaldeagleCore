@@ -1,13 +1,3 @@
-Perfect! Let’s write **complete documentation** for your OpenComputers integration in a way that’s clear for both developers and players who want to automate your mod. I’ll cover:
-
-* **Which blocks are exposed**
-* **Lua API methods**
-* **Parameters & return values**
-* **Permissions & role checks**
-* **Usage examples**
-
----
-
 # OpenComputers Integration Documentation — Country Mod
 
 ## Overview

@@ -34,7 +34,9 @@ public class EnvironmentCountryGov extends EnvironmentBase {
         }
         UUID id = tile.getCountryId();
         if (id == null) {
-            throw new IllegalArgumentException("Government computer is unbound.");
+            throw new IllegalArgumentException(
+                "Government computer is unbound."
+            );
         }
         Country country = CountryManager.getCountry(world, id);
         if (country == null) {
@@ -43,7 +45,9 @@ public class EnvironmentCountryGov extends EnvironmentBase {
         return country;
     }
 
-    @Callback(doc = "function(role:string, amount:number):boolean,string|nil -- Pays salary to all members with that role (from country treasury).")
+    @Callback(
+        doc = "function(role:string, amount:number):boolean,string|nil -- Pays salary to all members with that role (from country treasury)."
+    )
     public Object[] paySalary(Context context, Arguments args) {
         try {
             World world = getWorld();
@@ -65,7 +69,9 @@ public class EnvironmentCountryGov extends EnvironmentBase {
             }
 
             long count = 0L;
-            for (Map.Entry<UUID, Country.Role> entry : country.getMembers().entrySet()) {
+            for (Map.Entry<UUID, Country.Role> entry : country
+                .getMembers()
+                .entrySet()) {
                 if (entry.getValue() == role) {
                     count++;
                 }
@@ -87,9 +93,9 @@ public class EnvironmentCountryGov extends EnvironmentBase {
                 return new Object[] { false, "Insufficient country funds." };
             }
 
-            country.setBalance(country.getBalance() - total);
-
-            for (Map.Entry<UUID, Country.Role> entry : country.getMembers().entrySet()) {
+            for (Map.Entry<UUID, Country.Role> entry : country
+                .getMembers()
+                .entrySet()) {
                 if (entry.getValue() != role) {
                     continue;
                 }
@@ -103,7 +109,9 @@ public class EnvironmentCountryGov extends EnvironmentBase {
         }
     }
 
-    @Callback(doc = "function():number|nil -- Returns the bound country's inflation index.")
+    @Callback(
+        doc = "function():number|nil -- Returns the bound country's inflation index."
+    )
     public Object[] getInflation(Context context, Arguments args) {
         try {
             Country country = requireBoundCountry();
@@ -113,7 +121,9 @@ public class EnvironmentCountryGov extends EnvironmentBase {
         }
     }
 
-    @Callback(doc = "function():number|nil -- Returns the bound country's reserve value.")
+    @Callback(
+        doc = "function():number|nil -- Returns the bound country's reserve value."
+    )
     public Object[] getReserves(Context context, Arguments args) {
         try {
             Country country = requireBoundCountry();

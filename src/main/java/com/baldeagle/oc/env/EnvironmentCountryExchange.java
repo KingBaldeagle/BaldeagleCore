@@ -16,71 +16,119 @@ public class EnvironmentCountryExchange extends EnvironmentBase {
     private final TileEntityCurrencyExchange tile;
 
     public EnvironmentCountryExchange(TileEntityCurrencyExchange tile) {
-        super("country_exchange");
+        super("baldeagle_exchange");
         this.tile = tile;
     }
 
     @Override
     protected World getWorld() {
-        return tile.getWorld();
+        return tile != null ? tile.getWorld() : null;
     }
 
-    @Callback(doc = "function(targetCountry:string):number -- Returns the current exchange rate (including fee and liquidity for 1 unit).")
+    /* --------------------------------------------------------------------- */
+    /* Internal helpers                                                       */
+    /* --------------------------------------------------------------------- */
+
+    private Object[] error(String msg) {
+        return new Object[] { null, msg };
+    }
+
+    private Object[] ok(long value) {
+        return new Object[] { value, null };
+    }
+
+    private Object[] ok(double value) {
+        return new Object[] { value, null };
+    }
+
+    private double computeFinalRate(
+        Country source,
+        Country target,
+        long amount
+    ) {
+        double baseRate = CurrencyMath.computeExchangeRate(source, target);
+        if (baseRate <= 0D) return 0D;
+
+        double liquidity = CurrencyMath.computeLiquidityMultiplier(
+            source,
+            amount
+        );
+
+        double fee = source.getExchangeFee();
+        double feeMultiplier = 1.0D - Math.max(0.0D, Math.min(0.99D, fee));
+
+        return baseRate * liquidity * feeMultiplier;
+    }
+
+    /* --------------------------------------------------------------------- */
+    /* OC callbacks                                                           */
+    /* --------------------------------------------------------------------- */
+
+    @Callback(
+        doc = "function(amount:number, targetCountry:string):number|nil,string|nil " +
+            "-- Returns the final exchange rate for a given amount (includes fee & liquidity)."
+    )
     public Object[] getExchangeRate(Context context, Arguments args) {
         try {
             World world = getWorld();
-            UUID actor = OCUtil.resolveActorUuid(context, world);
-            Country source = OCUtil.requireActorCountry(world, actor);
-
-            String targetName = args.checkString(0);
-            Country target = CountryManager.getCountryByName(world, targetName);
-            if (target == null) {
-                return new Object[] { null, "Target country not found." };
+            if (world == null) {
+                return error("World not available.");
             }
 
-            double rate = CurrencyMath.computeExchangeRate(source, target);
-            if (rate <= 0D) {
-                return new Object[] { 0D };
-            }
-            double liquidity = CurrencyMath.computeLiquidityMultiplier(source, 1);
-            double fee = source.getExchangeFee();
-            double feeMultiplier = 1.0D - Math.max(0.0D, Math.min(0.99D, fee));
-            return new Object[] { rate * liquidity * feeMultiplier };
-        } catch (Exception e) {
-            return new Object[] { null, e.getMessage() };
-        }
-    }
-
-    @Callback(doc = "function(amount:number, targetCountry:string):number -- Converts the amount using current rate (including fee and liquidity).")
-    public Object[] convertCurrency(Context context, Arguments args) {
-        try {
-            World world = getWorld();
             UUID actor = OCUtil.resolveActorUuid(context, world);
             Country source = OCUtil.requireActorCountry(world, actor);
+            OCUtil.requireAuthorized(source, actor);
 
             long amount = Math.max(0L, args.checkLong(0));
             if (amount <= 0L) {
-                return new Object[] { 0L };
+                return ok(0D);
             }
 
             String targetName = args.checkString(1);
             Country target = CountryManager.getCountryByName(world, targetName);
             if (target == null) {
-                return new Object[] { null, "Target country not found." };
+                return error("Target country not found.");
             }
 
-            double rate = CurrencyMath.computeExchangeRate(source, target);
-            if (rate <= 0D) {
-                return new Object[] { 0L };
-            }
-            double liquidity = CurrencyMath.computeLiquidityMultiplier(source, amount);
-            double fee = source.getExchangeFee();
-            double feeMultiplier = 1.0D - Math.max(0.0D, Math.min(0.99D, fee));
-            double finalRate = rate * liquidity * feeMultiplier;
-            long output = (long) Math.floor(amount * finalRate);
-            return new Object[] { Math.max(0L, output) };
+            double rate = computeFinalRate(source, target, amount);
+            return ok(rate);
         } catch (Exception e) {
-            return new Object[] { null, e.getMessage() };
+            return error(e.getMessage());
+        }
+    }
+
+    @Callback(
+        doc = "function(amount:number, targetCountry:string):number|nil,string|nil " +
+            "-- Converts the amount using current rate (includes fee & liquidity)."
+    )
+    public Object[] convertCurrency(Context context, Arguments args) {
+        try {
+            World world = getWorld();
+            if (world == null) {
+                return error("World not available.");
+            }
+
+            UUID actor = OCUtil.resolveActorUuid(context, world);
+            Country source = OCUtil.requireActorCountry(world, actor);
+            OCUtil.requireAuthorized(source, actor);
+
+            long amount = Math.max(0L, args.checkLong(0));
+            if (amount <= 0L) {
+                return ok(0L);
+            }
+
+            String targetName = args.checkString(1);
+            Country target = CountryManager.getCountryByName(world, targetName);
+            if (target == null) {
+                return error("Target country not found.");
+            }
+
+            double rate = computeFinalRate(source, target, amount);
+            long output = (long) Math.floor(amount * rate);
+
+            return ok(Math.max(0L, output));
+        } catch (Exception e) {
+            return error(e.getMessage());
         }
     }
 }

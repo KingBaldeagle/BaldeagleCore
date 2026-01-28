@@ -13,7 +13,6 @@ public class EconomyData extends WorldSavedData {
     public static final String DATA_NAME = "baldeaglecore-economy";
 
     private Map<UUID, Long> playerBalances = new HashMap<>();
-    private Map<String, Long> countryBalances = new HashMap<>();
     private long lastInterestTime = 0L;
 
     public EconomyData() {
@@ -48,14 +47,7 @@ public class EconomyData extends WorldSavedData {
             playerBalances.put(uuid, balance);
         }
 
-        // Country balances
-        NBTTagList countries = nbt.getTagList("Countries", 10);
-        for (int i = 0; i < countries.tagCount(); i++) {
-            NBTTagCompound entry = countries.getCompoundTagAt(i);
-            String name = entry.getString("Name");
-            long balance = entry.getLong("Balance");
-            countryBalances.put(name, balance);
-        }
+        // Country balances are stored on CountryStorage now.
     }
 
     @Override
@@ -72,26 +64,12 @@ public class EconomyData extends WorldSavedData {
         }
         nbt.setTag("Players", players);
 
-        // Country balances
-        NBTTagList countries = new NBTTagList();
-        for (Map.Entry<String, Long> entry : countryBalances.entrySet()) {
-            NBTTagCompound tag = new NBTTagCompound();
-            tag.setString("Name", entry.getKey());
-            tag.setLong("Balance", entry.getValue());
-            countries.appendTag(tag);
-        }
-        nbt.setTag("Countries", countries);
-
         return nbt;
     }
 
     // Getter for manager
     public Map<UUID, Long> getPlayerBalances() {
         return playerBalances;
-    }
-
-    public Map<String, Long> getCountryBalances() {
-        return countryBalances;
     }
 
     public long getLastInterestTime() {

@@ -18,39 +18,45 @@ public abstract class EnvironmentBase extends AbstractManagedEnvironment {
 
     protected EnvironmentBase(String componentName) {
         setNode(
-            Network
-                .newNode(this, Visibility.Network)
+            Network.newNode(this, Visibility.Network)
                 .withComponent(componentName)
                 .create()
         );
     }
 
-    @Callback(doc = "function(uuid:string):string|nil -- Returns the player's country name (or nil).")
+    @Callback(
+        doc = "function(uuid:string):string|nil -- Returns the player's country name."
+    )
     public Object[] getPlayerCountry(Context context, Arguments args) {
         try {
             World world = getWorld();
+            if (world == null) return new Object[] { null };
+
             UUID uuid = OCUtil.parseUuid(args.checkString(0));
             Country country = CountryManager.getCountryForPlayer(world, uuid);
             return new Object[] { country != null ? country.getName() : null };
-        } catch (Exception e) {
+        } catch (Throwable t) {
             return new Object[] { null };
         }
     }
 
-    @Callback(doc = "function(uuid:string):string|nil -- Returns the player's role in their country (or nil).")
+    @Callback(
+        doc = "function(uuid:string):string|nil -- Returns the player's role in their country."
+    )
     public Object[] getPlayerRole(Context context, Arguments args) {
         try {
             World world = getWorld();
+            if (world == null) return new Object[] { null };
+
             UUID uuid = OCUtil.parseUuid(args.checkString(0));
             Country country = CountryManager.getCountryForPlayer(world, uuid);
-            if (country == null) {
-                return new Object[] { null };
-            }
+            if (country == null) return new Object[] { null };
+
             Country.Role role = country.getRole(uuid);
             return new Object[] {
                 role != null ? role.name().toLowerCase() : null,
             };
-        } catch (Exception e) {
+        } catch (Throwable t) {
             return new Object[] { null };
         }
     }

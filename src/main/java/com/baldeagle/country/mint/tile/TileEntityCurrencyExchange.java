@@ -209,7 +209,6 @@ public class TileEntityCurrencyExchange
                 targetCountry.getName(),
                 feeFaceValue
             );
-            targetCountry.setBalance(targetCountry.getBalance() + feeFaceValue);
         }
         CountryStorage.get(world).markDirty();
 

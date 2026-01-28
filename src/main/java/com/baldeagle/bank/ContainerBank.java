@@ -181,11 +181,6 @@ public class ContainerBank extends Container {
             return;
         }
 
-        EconomyManager.depositCountry(
-            player.world,
-            country.getName(),
-            faceValue
-        );
         player.sendStatusMessage(
             new TextComponentString(
                 "Deposited " + faceValue + " to " + country.getName() + "."

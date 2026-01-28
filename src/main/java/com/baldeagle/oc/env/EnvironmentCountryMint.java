@@ -22,10 +22,12 @@ public class EnvironmentCountryMint extends EnvironmentBase {
 
     @Override
     protected World getWorld() {
-        return tile.getWorld();
+        return tile != null ? tile.getWorld() : null;
     }
 
-    @Callback(doc = "function(amount:number):boolean,string|nil -- Mints physical currency (greedy denominations) and consumes 1 gold ingot per coin/bill.")
+    @Callback(
+        doc = "function(amount:number):boolean,string|nil -- Mints physical currency."
+    )
     public Object[] mint(Context context, Arguments args) {
         try {
             World world = getWorld();
@@ -34,8 +36,15 @@ public class EnvironmentCountryMint extends EnvironmentBase {
             }
 
             UUID actor = OCUtil.resolveActorUuid(context, world);
-            EntityPlayerMP player =
-                world.getMinecraftServer().getPlayerList().getPlayerByUUID(actor);
+            if (actor == null) {
+                return new Object[] { false, "No OC player bound." };
+            }
+
+            EntityPlayerMP player = world
+                .getMinecraftServer()
+                .getPlayerList()
+                .getPlayerByUUID(actor);
+
             if (player == null) {
                 return new Object[] { false, "Player must be online." };
             }
@@ -55,30 +64,29 @@ public class EnvironmentCountryMint extends EnvironmentBase {
 
             OCUtil.requireAuthorized(country, actor);
 
-            long amount = Math.max(0L, args.checkLong(0));
-            if (amount <= 0L) {
+            long amount = args.checkLong(0);
+            if (amount <= 0) {
                 return new Object[] { false, "Amount must be > 0." };
             }
 
-            boolean ok = tile.performMintByValue(player, amount);
-            if (!ok) {
+            if (!tile.performMintByValue(player, amount)) {
                 return new Object[] { false, "Minting failed." };
             }
+
             return new Object[] { true };
-        } catch (Exception e) {
-            return new Object[] { false, e.getMessage() };
+        } catch (Throwable t) {
+            return new Object[] { false, t.getMessage() };
         }
     }
 
-    @Callback(doc = "function():number|nil -- Returns current country treasury balance for this mint's country.")
+    @Callback(doc = "function():number|nil -- Returns treasury balance.")
     public Object[] getCountryBalance(Context context, Arguments args) {
         try {
             Country country = tile.getCountry();
-            if (country == null) {
-                return new Object[] { null };
-            }
-            return new Object[] { country.getBalance() };
-        } catch (Exception e) {
+            return new Object[] {
+                country != null ? country.getBalance() : null,
+            };
+        } catch (Throwable t) {
             return new Object[] { null };
         }
     }

@@ -63,11 +63,10 @@ public class EnvironmentCountryBank extends EnvironmentBase {
                 country.getName(),
                 amount
             );
-            if (!ok || country.getBalance() < amount) {
+            if (!ok) {
                 return new Object[] { false, "Insufficient country funds." };
             }
 
-            country.setBalance(Math.max(0L, country.getBalance() - amount));
             EconomyManager.depositPlayer(world, target, amount);
             CountryStorage.get(world).markDirty();
             return new Object[] { true };
@@ -98,7 +97,6 @@ public class EnvironmentCountryBank extends EnvironmentBase {
             }
 
             EconomyManager.depositCountry(world, country.getName(), amount);
-            country.setBalance(country.getBalance() + amount);
             CountryStorage.get(world).markDirty();
             return new Object[] { true };
         } catch (Exception e) {
@@ -141,7 +139,6 @@ public class EnvironmentCountryBank extends EnvironmentBase {
             }
             if (fee > 0L) {
                 EconomyManager.depositCountry(world, country.getName(), fee);
-                country.setBalance(country.getBalance() + fee);
                 CountryStorage.get(world).markDirty();
             }
 
