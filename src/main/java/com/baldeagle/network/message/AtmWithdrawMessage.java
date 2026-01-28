@@ -124,12 +124,6 @@ public class AtmWithdrawMessage implements IMessage {
                     country.getName(),
                     amount
                 );
-                if (success) {
-                    country.setBalance(
-                        Math.max(0, country.getBalance() - amount)
-                    );
-                    CountryStorage.get(player.world).markDirty();
-                }
             }
 
             if (!success) {

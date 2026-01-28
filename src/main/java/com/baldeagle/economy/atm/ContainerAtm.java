@@ -4,8 +4,10 @@ import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
 import com.baldeagle.economy.EconomyManager;
 import com.baldeagle.network.NetworkHandler;
+import com.baldeagle.network.message.AtmBalanceSyncMessage;
 import com.baldeagle.network.message.AtmSyncMessage;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
@@ -17,10 +19,8 @@ public class ContainerAtm extends Container {
     private final TileEntityAtm tile;
     private final EntityPlayer player;
 
-    private int cachedPlayerBalance = Integer.MIN_VALUE;
-    private int cachedCountryBalance = Integer.MIN_VALUE;
-    private int displayedPlayerBalance = 0;
-    private int displayedCountryBalance = 0;
+    private long cachedPlayerBalance = Long.MIN_VALUE;
+    private long cachedCountryBalance = Long.MIN_VALUE;
     private String cachedCountryName;
 
     public ContainerAtm(InventoryPlayer playerInventory, TileEntityAtm tile) {
@@ -51,24 +51,19 @@ public class ContainerAtm extends Container {
         return tile;
     }
 
-    public int getDisplayedPlayerBalance() {
-        return displayedPlayerBalance;
+    public long getDisplayedPlayerBalance() {
+        return tile.getClientPlayerBalance();
     }
 
-    public int getDisplayedCountryBalance() {
-        return displayedCountryBalance;
+    public long getDisplayedCountryBalance() {
+        return tile.getClientCountryBalance();
     }
 
     @Override
     public void addListener(IContainerListener listener) {
         super.addListener(listener);
         if (!player.world.isRemote) {
-            listener.sendWindowProperty(this, 0, getPlayerBalanceInt());
-            listener.sendWindowProperty(
-                this,
-                1,
-                Math.max(0, getCountryBalanceInt())
-            );
+            syncBalancesToPlayer();
             syncCountryName();
         }
     }
@@ -81,44 +76,49 @@ public class ContainerAtm extends Container {
             return;
         }
 
-        int currentPlayerBalance = getPlayerBalanceInt();
-        int currentCountryBalance = Math.max(0, getCountryBalanceInt());
-
-        if (currentPlayerBalance != cachedPlayerBalance) {
-            cachedPlayerBalance = currentPlayerBalance;
-            for (IContainerListener listener : listeners) {
-                listener.sendWindowProperty(this, 0, currentPlayerBalance);
-            }
-        }
-
-        if (currentCountryBalance != cachedCountryBalance) {
-            cachedCountryBalance = currentCountryBalance;
-            for (IContainerListener listener : listeners) {
-                listener.sendWindowProperty(this, 1, currentCountryBalance);
-            }
-        }
-
+        syncBalancesToPlayer();
         syncCountryName();
     }
 
-    private int getPlayerBalanceInt() {
-        long balance = EconomyManager.getPlayerBalance(
-            player.world,
-            player.getUniqueID()
-        );
-        return (int) Math.min(Integer.MAX_VALUE, balance);
-    }
-
-    private int getCountryBalanceInt() {
+    private long getCountryBalanceLong() {
         Country country = CountryManager.getCountryForPlayer(
             player.world,
             player.getUniqueID()
         );
         if (country == null) {
-            return -1;
+            return 0L;
         }
-        long balance = Math.round(country.getBalance());
-        return (int) Math.min(Integer.MAX_VALUE, balance);
+        return country.getBalance();
+    }
+
+    private void syncBalancesToPlayer() {
+        if (!(player instanceof EntityPlayerMP)) {
+            return;
+        }
+
+        long currentPlayerBalance = EconomyManager.getPlayerBalance(
+            player.world,
+            player.getUniqueID()
+        );
+        long currentCountryBalance = getCountryBalanceLong();
+
+        if (
+            currentPlayerBalance == cachedPlayerBalance &&
+            currentCountryBalance == cachedCountryBalance
+        ) {
+            return;
+        }
+
+        cachedPlayerBalance = currentPlayerBalance;
+        cachedCountryBalance = currentCountryBalance;
+        NetworkHandler.INSTANCE.sendTo(
+            new AtmBalanceSyncMessage(
+                tile.getPos(),
+                currentPlayerBalance,
+                currentCountryBalance
+            ),
+            (EntityPlayerMP) player
+        );
     }
 
     private void syncCountryName() {
@@ -161,17 +161,5 @@ public class ContainerAtm extends Container {
     @Override
     public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
         return ItemStack.EMPTY;
-    }
-
-    @Override
-    @net.minecraftforge.fml.relauncher.SideOnly(
-        net.minecraftforge.fml.relauncher.Side.CLIENT
-    )
-    public void updateProgressBar(int id, int data) {
-        if (id == 0) {
-            displayedPlayerBalance = data;
-        } else if (id == 1) {
-            displayedCountryBalance = Math.max(0, data);
-        }
     }
 }

@@ -54,7 +54,7 @@ public class GuiAtm extends GuiContainer {
             156,
             18
         );
-        amountField.setMaxStringLength(10);
+        amountField.setMaxStringLength(18);
         amountField.setText("0");
         amountField.setFocused(false);
     }

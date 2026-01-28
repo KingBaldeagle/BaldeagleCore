@@ -1,16 +1,15 @@
 package com.baldeagle.economy;
 
 import com.baldeagle.country.Country;
+import com.baldeagle.country.CountryManager;
 import com.baldeagle.country.CountryStorage;
-import net.minecraft.world.World;
-
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.world.World;
 
 public class EconomyManager {
 
-    private EconomyManager() {
-    }
+    private EconomyManager() {}
 
     private static EconomyData getData(World world) {
         return EconomyData.get(world);
@@ -27,7 +26,11 @@ public class EconomyManager {
         data.markDirty();
     }
 
-    public static boolean withdrawPlayer(World world, UUID player, long amount) {
+    public static boolean withdrawPlayer(
+        World world,
+        UUID player,
+        long amount
+    ) {
         EconomyData data = getData(world);
         Map<UUID, Long> balances = data.getPlayerBalances();
         long current = getPlayerBalance(world, player);
@@ -40,26 +43,48 @@ public class EconomyManager {
     }
 
     public static long getCountryBalance(World world, String country) {
-        return getData(world).getCountryBalances().getOrDefault(country, 0L);
-    }
-
-    public static void depositCountry(World world, String country, long amount) {
-        EconomyData data = getData(world);
-        Map<String, Long> balances = data.getCountryBalances();
-        balances.put(country, getCountryBalance(world, country) + amount);
-        data.markDirty();
-    }
-
-    public static boolean withdrawCountry(World world, String country, long amount) {
-        EconomyData data = getData(world);
-        Map<String, Long> balances = data.getCountryBalances();
-        long current = getCountryBalance(world, country);
-        if (current >= amount) {
-            balances.put(country, current - amount);
-            data.markDirty();
-            return true;
+        if (world == null || country == null) {
+            return 0L;
         }
-        return false;
+        Country c = CountryManager.getCountryByName(world, country);
+        return c != null ? c.getBalance() : 0L;
+    }
+
+    public static void depositCountry(
+        World world,
+        String country,
+        long amount
+    ) {
+        if (world == null || country == null || amount <= 0L) {
+            return;
+        }
+        Country c = CountryManager.getCountryByName(world, country);
+        if (c == null) {
+            return;
+        }
+        c.setBalance(c.getBalance() + amount);
+        CountryStorage.get(world).markDirty();
+    }
+
+    public static boolean withdrawCountry(
+        World world,
+        String country,
+        long amount
+    ) {
+        if (world == null || country == null || amount <= 0L) {
+            return false;
+        }
+        Country c = CountryManager.getCountryByName(world, country);
+        if (c == null) {
+            return false;
+        }
+        long current = c.getBalance();
+        if (current < amount) {
+            return false;
+        }
+        c.setBalance(current - amount);
+        CountryStorage.get(world).markDirty();
+        return true;
     }
 
     public static void applyInterest(World world, double rate) {
@@ -79,19 +104,6 @@ public class EconomyManager {
             }
         }
 
-        Map<String, Long> countryBalances = data.getCountryBalances();
-        for (Map.Entry<String, Long> entry : countryBalances.entrySet()) {
-            long current = entry.getValue();
-            if (current <= 0) {
-                continue;
-            }
-            long interest = Math.round(current * rate);
-            if (interest > 0) {
-                entry.setValue(current + interest);
-                dataChanged = true;
-            }
-        }
-
         if (dataChanged) {
             data.markDirty();
         }
@@ -99,12 +111,11 @@ public class EconomyManager {
         CountryStorage storage = CountryStorage.get(world);
         boolean storageChanged = false;
         for (Country country : storage.getCountriesMap().values()) {
-            double balance = country.getBalance();
-            if (balance <= 0) {
-                continue;
+            long before = country.getBalance();
+            country.applyInterest(rate);
+            if (country.getBalance() != before) {
+                storageChanged = true;
             }
-            country.setBalance(balance + (balance * rate));
-            storageChanged = true;
         }
 
         if (storageChanged) {

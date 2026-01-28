@@ -18,7 +18,7 @@ public class Country {
 
     private String name;
     private UUID id;
-    private double balance;
+    private long balance;
     private long treasury;
     private long moneyInCirculation;
     private double inflation;
@@ -31,7 +31,7 @@ public class Country {
     public Country(String name, UUID creator) {
         this.name = name;
         this.id = UUID.randomUUID();
-        this.balance = 0;
+        this.balance = 0L;
         this.treasury = 0;
         this.moneyInCirculation = 1;
         this.inflation = 1.0D;
@@ -43,7 +43,7 @@ public class Country {
     public Country(String name) {
         this.name = name;
         this.id = UUID.randomUUID();
-        this.balance = 0;
+        this.balance = 0L;
         this.treasury = 0;
         this.moneyInCirculation = 1;
         this.inflation = 1.0D;
@@ -63,12 +63,12 @@ public class Country {
         return name;
     }
 
-    public double getBalance() {
+    public long getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
-        this.balance = balance;
+    public void setBalance(long balance) {
+        this.balance = Math.max(0L, balance);
     }
 
     public Map<UUID, Role> getMembers() {
@@ -259,7 +259,13 @@ public class Country {
     }
 
     public void applyInterest(double rate) {
-        balance += balance * rate;
+        if (balance <= 0) {
+            return;
+        }
+        long interest = Math.round(balance * rate);
+        if (interest > 0) {
+            balance += interest;
+        }
     }
 
     public boolean isMember(UUID player) {
@@ -275,20 +281,26 @@ public class Country {
         return role == Role.PRESIDENT || role == Role.MINISTER;
     }
 
-    public void deposit(UUID byPlayer, double amount) {
+    public void deposit(UUID byPlayer, long amount) {
         if (!isAuthorized(byPlayer)) throw new IllegalArgumentException(
             "Not authorized"
         );
+        if (amount <= 0) {
+            return;
+        }
         balance += amount;
     }
 
-    public void transfer(UUID byPlayer, Country to, double amount) {
+    public void transfer(UUID byPlayer, Country to, long amount) {
         if (!isAuthorized(byPlayer)) throw new IllegalArgumentException(
             "Not authorized"
         );
         if (amount > balance) throw new IllegalArgumentException(
             "Insufficient funds"
         );
+        if (to == null || amount <= 0) {
+            return;
+        }
         balance -= amount;
         to.balance += amount;
     }
@@ -327,7 +339,7 @@ public class Country {
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString("name", name);
         nbt.setString("id", id.toString());
-        nbt.setDouble("balance", balance);
+        nbt.setLong("balance", balance);
         nbt.setLong("treasury", treasury);
         nbt.setLong("circulation", moneyInCirculation);
         nbt.setDouble("inflation", inflation);
@@ -357,7 +369,7 @@ public class Country {
     public static Country fromNBT(NBTTagCompound nbt) {
         String name = nbt.getString("name");
         UUID id = UUID.fromString(nbt.getString("id"));
-        double balance = nbt.getDouble("balance");
+        long balance = readLegacyLong(nbt, "balance");
         long treasury = nbt.getLong("treasury");
         long circulation = nbt.getLong("circulation");
         double inflation = nbt.getDouble("inflation");
@@ -391,5 +403,37 @@ public class Country {
 
         c.recalculateBaseValue();
         return c;
+    }
+
+    private static long readLegacyLong(NBTTagCompound nbt, String key) {
+        if (nbt == null || key == null || !nbt.hasKey(key)) {
+            return 0L;
+        }
+        int type = nbt.getTagId(key);
+        if (type == 4) {
+            // long
+            return Math.max(0L, nbt.getLong(key));
+        }
+        if (type == 3) {
+            // int
+            return Math.max(0L, (long) nbt.getInteger(key));
+        }
+        if (type == 6) {
+            // double
+            return Math.max(0L, (long) Math.floor(nbt.getDouble(key)));
+        }
+        if (type == 1) {
+            // byte
+            return Math.max(0L, (long) nbt.getByte(key));
+        }
+        if (type == 2) {
+            // short
+            return Math.max(0L, (long) nbt.getShort(key));
+        }
+        if (type == 5) {
+            // float
+            return Math.max(0L, (long) Math.floor(nbt.getFloat(key)));
+        }
+        return 0L;
     }
 }

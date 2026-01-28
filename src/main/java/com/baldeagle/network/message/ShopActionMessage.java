@@ -35,7 +35,12 @@ public class ShopActionMessage implements IMessage {
 
     public ShopActionMessage() {}
 
-    public ShopActionMessage(BlockPos pos, Action action, int slot, long payload) {
+    public ShopActionMessage(
+        BlockPos pos,
+        Action action,
+        int slot,
+        long payload
+    ) {
         this.pos = pos;
         this.action = action;
         this.slot = slot;
@@ -58,31 +63,43 @@ public class ShopActionMessage implements IMessage {
         payload = buf.readLong();
     }
 
-    public static class Handler implements IMessageHandler<ShopActionMessage, IMessage> {
+    public static class Handler
+        implements IMessageHandler<ShopActionMessage, IMessage>
+    {
 
         private static final double TAX_RATE = 0.08D;
 
         @Override
-        public IMessage onMessage(ShopActionMessage message, MessageContext ctx) {
+        public IMessage onMessage(
+            ShopActionMessage message,
+            MessageContext ctx
+        ) {
             EntityPlayerMP player = ctx.getServerHandler().player;
-            player.getServerWorld().addScheduledTask(() -> {
-                TileEntity tile = player.world.getTileEntity(message.pos);
-                if (!(tile instanceof TileEntityShop)) {
-                    return;
-                }
-                TileEntityShop shop = (TileEntityShop) tile;
-                switch (message.action) {
-                    case SET_PRICE:
-                        handleSetPrice(player, shop, message.slot, message.payload);
-                        break;
-                    case WITHDRAW:
-                        handleWithdraw(player, shop);
-                        break;
-                    case BUY:
-                        handleBuy(player, shop, message.slot);
-                        break;
-                }
-            });
+            player
+                .getServerWorld()
+                .addScheduledTask(() -> {
+                    TileEntity tile = player.world.getTileEntity(message.pos);
+                    if (!(tile instanceof TileEntityShop)) {
+                        return;
+                    }
+                    TileEntityShop shop = (TileEntityShop) tile;
+                    switch (message.action) {
+                        case SET_PRICE:
+                            handleSetPrice(
+                                player,
+                                shop,
+                                message.slot,
+                                message.payload
+                            );
+                            break;
+                        case WITHDRAW:
+                            handleWithdraw(player, shop);
+                            break;
+                        case BUY:
+                            handleBuy(player, shop, message.slot);
+                            break;
+                    }
+                });
             return null;
         }
 
@@ -98,16 +115,25 @@ public class ShopActionMessage implements IMessage {
             shop.setPrice(slot, Math.max(0, price));
         }
 
-        private void handleWithdraw(EntityPlayerMP player, TileEntityShop shop) {
+        private void handleWithdraw(
+            EntityPlayerMP player,
+            TileEntityShop shop
+        ) {
             if (!shop.isOwner(player)) {
                 return;
             }
-            Country country = shop.getCountryId() != null
-                ? CountryManager.getCountry(player.world, shop.getCountryId())
-                : null;
+            Country country =
+                shop.getCountryId() != null
+                    ? CountryManager.getCountry(
+                          player.world,
+                          shop.getCountryId()
+                      )
+                    : null;
             if (country == null) {
                 player.sendStatusMessage(
-                    new net.minecraft.util.text.TextComponentString("Shop has no country."),
+                    new net.minecraft.util.text.TextComponentString(
+                        "Shop has no country."
+                    ),
                     true
                 );
                 return;
@@ -120,12 +146,18 @@ public class ShopActionMessage implements IMessage {
 
             spawnCurrency(player, country, cash);
             player.sendStatusMessage(
-                new net.minecraft.util.text.TextComponentString("Withdrew " + cash + "."),
+                new net.minecraft.util.text.TextComponentString(
+                    "Withdrew " + cash + "."
+                ),
                 true
             );
         }
 
-        private void handleBuy(EntityPlayerMP buyer, TileEntityShop shop, int slot) {
+        private void handleBuy(
+            EntityPlayerMP buyer,
+            TileEntityShop shop,
+            int slot
+        ) {
             if (slot < 0 || slot >= TileEntityShop.SLOT_COUNT) {
                 return;
             }
@@ -137,12 +169,18 @@ public class ShopActionMessage implements IMessage {
                     return;
                 }
 
-                Country shopCountry = shop.getCountryId() != null
-                    ? CountryManager.getCountry(buyer.world, shop.getCountryId())
-                    : null;
+                Country shopCountry =
+                    shop.getCountryId() != null
+                        ? CountryManager.getCountry(
+                              buyer.world,
+                              shop.getCountryId()
+                          )
+                        : null;
                 if (shopCountry == null) {
                     buyer.sendStatusMessage(
-                        new net.minecraft.util.text.TextComponentString("Shop has no country."),
+                        new net.minecraft.util.text.TextComponentString(
+                            "Shop has no country."
+                        ),
                         true
                     );
                     return;
@@ -152,10 +190,15 @@ public class ShopActionMessage implements IMessage {
                     buyer.world,
                     buyer.getUniqueID()
                 );
-                if (buyerCountry == null || !shopCountry.getId().equals(buyerCountry.getId())) {
+                if (
+                    buyerCountry == null ||
+                    !shopCountry.getId().equals(buyerCountry.getId())
+                ) {
                     buyer.sendStatusMessage(
                         new net.minecraft.util.text.TextComponentString(
-                            "You must use " + shopCountry.getName() + " currency."
+                            "You must use " +
+                                shopCountry.getName() +
+                                " currency."
                         ),
                         true
                     );
@@ -169,7 +212,9 @@ public class ShopActionMessage implements IMessage {
                 );
                 if (!paid) {
                     buyer.sendStatusMessage(
-                        new net.minecraft.util.text.TextComponentString("Insufficient funds."),
+                        new net.minecraft.util.text.TextComponentString(
+                            "Insufficient funds."
+                        ),
                         true
                     );
                     return;
@@ -180,8 +225,11 @@ public class ShopActionMessage implements IMessage {
 
                 shop.addCash(ownerReceives);
                 if (tax > 0) {
-                    EconomyManager.depositCountry(buyer.world, shopCountry.getName(), tax);
-                    shopCountry.setBalance(shopCountry.getBalance() + tax);
+                    EconomyManager.depositCountry(
+                        buyer.world,
+                        shopCountry.getName(),
+                        tax
+                    );
                     CountryStorage.get(buyer.world).markDirty();
                 }
 
@@ -202,12 +250,20 @@ public class ShopActionMessage implements IMessage {
             }
         }
 
-        private void spawnCurrency(EntityPlayerMP player, Country country, long amount) {
+        private void spawnCurrency(
+            EntityPlayerMP player,
+            Country country,
+            long amount
+        ) {
             long remaining = amount;
             List<CurrencyDenomination> denominations = Arrays.stream(
                 CurrencyDenomination.values()
             )
-                .sorted(Comparator.comparingInt(CurrencyDenomination::getValue).reversed())
+                .sorted(
+                    Comparator.comparingInt(
+                        CurrencyDenomination::getValue
+                    ).reversed()
+                )
                 .collect(Collectors.toList());
 
             for (CurrencyDenomination denom : denominations) {
@@ -215,7 +271,8 @@ public class ShopActionMessage implements IMessage {
                 if (count <= 0) continue;
 
                 int maxStack =
-                    denom.getType() == com.baldeagle.country.currency.CurrencyType.COIN
+                    denom.getType() ==
+                    com.baldeagle.country.currency.CurrencyType.COIN
                         ? 64
                         : 16;
                 while (count > 0) {
