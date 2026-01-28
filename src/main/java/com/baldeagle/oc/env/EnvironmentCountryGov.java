@@ -48,7 +48,7 @@ public class EnvironmentCountryGov extends EnvironmentBase {
     @Callback(
         doc = "function(role:string, amount:number):boolean,string|nil -- Pays salary to all members with that role (from country treasury)."
     )
-    public Object[] paySalary(Context context, Arguments args) {
+    public Object[] payRoleSalary(Context context, Arguments args) {
         try {
             World world = getWorld();
             UUID actor = OCUtil.resolveActorUuid(context, world);

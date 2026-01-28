@@ -1,11 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "down": "baldeaglecore:blocks/bank_top",
-    "up": "baldeaglecore:blocks/bank_top",
-    "north": "baldeaglecore:blocks/bank_front",
-    "south": "baldeaglecore:blocks/bank_sides",
-    "east": "baldeaglecore:blocks/bank_sides",
-    "west": "baldeaglecore:blocks/bank_sides"
+    "particle": "baldeaglecore:blocks/gcomputer_front",
+    "down": "baldeaglecore:blocks/gcomputer_rest",
+    "up": "baldeaglecore:blocks/gcomputer_rest",
+    "north": "baldeaglecore:blocks/gcomputer_front",
+    "south": "baldeaglecore:blocks/gcomputer_rest",
+    "east": "baldeaglecore:blocks/gcomputer_rest",
+    "west": "baldeaglecore:blocks/gcomputer_rest"
   }
 }

@@ -110,13 +110,15 @@ public class EnvironmentCountryAtm extends EnvironmentBase {
             long remaining = amount;
             for (CurrencyDenomination denom : denoms) {
                 long count = remaining / denom.getValue();
-                while (count > 0) {
-                    int maxStack =
-                        denom.getType() ==
-                        com.baldeagle.country.currency.CurrencyType.COIN
-                            ? 64
-                            : 16;
+                if (count <= 0) continue;
 
+                int maxStack =
+                    denom.getType() ==
+                    com.baldeagle.country.currency.CurrencyType.COIN
+                        ? 64
+                        : 16;
+
+                while (count > 0) {
                     int give = (int) Math.min(count, maxStack);
 
                     ItemStack stack = CurrencyItemHelper.createCurrencyStack(
@@ -124,12 +126,16 @@ public class EnvironmentCountryAtm extends EnvironmentBase {
                         denom,
                         give
                     );
+
                     if (!player.inventory.addItemStackToInventory(stack)) {
                         player.dropItem(stack, false);
                     }
+
                     count -= give;
                 }
+
                 remaining %= denom.getValue();
+                if (remaining <= 0) break;
             }
 
             country.applyMinting(
