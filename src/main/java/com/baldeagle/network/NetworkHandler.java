@@ -7,6 +7,8 @@ import com.baldeagle.network.message.AtmWithdrawMessage;
 import com.baldeagle.network.message.BankSyncMessage;
 import com.baldeagle.network.message.ChunkMapRequestMessage;
 import com.baldeagle.network.message.ChunkMapSnapshotMessage;
+import com.baldeagle.network.message.ChunkOwnershipRequestMessage;
+import com.baldeagle.network.message.ChunkOwnershipSnapshotMessage;
 import com.baldeagle.network.message.ExchangeActionMessage;
 import com.baldeagle.network.message.ExchangeSyncMessage;
 import com.baldeagle.network.message.MintActionMessage;
@@ -98,6 +100,19 @@ public final class NetworkHandler {
         INSTANCE.registerMessage(
             ChunkMapSnapshotMessage.Handler.class,
             ChunkMapSnapshotMessage.class,
+            id++,
+            Side.CLIENT
+        );
+
+        INSTANCE.registerMessage(
+            ChunkOwnershipRequestMessage.Handler.class,
+            ChunkOwnershipRequestMessage.class,
+            id++,
+            Side.SERVER
+        );
+        INSTANCE.registerMessage(
+            ChunkOwnershipSnapshotMessage.Handler.class,
+            ChunkOwnershipSnapshotMessage.class,
             id++,
             Side.CLIENT
         );
