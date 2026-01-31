@@ -55,6 +55,45 @@ public class CountryStorage extends WorldSavedData {
             Country country = Country.fromNBT(countryTag);
             countries.put(country.getId(), country);
         }
+
+        // Validate alliance invariants after all countries are loaded.
+        boolean changed = false;
+        for (Country c : countries.values()) {
+            // Remove invalid/self references.
+            if (c.getAllies().remove(c.getId())) {
+                changed = true;
+            }
+            if (c.getIncomingAllianceRequests().remove(c.getId())) {
+                changed = true;
+            }
+
+            if (c.getPresidentUuid() == null) {
+                // Can't manage alliances without a president, but preserve data.
+            }
+
+            c.getAllies().removeIf(id -> !countries.containsKey(id));
+            c
+                .getIncomingAllianceRequests()
+                .removeIf(id -> !countries.containsKey(id));
+        }
+
+        // Enforce bidirectional allies: if A lists B, B must list A.
+        for (Country a : countries.values()) {
+            for (java.util.UUID bId : new java.util.HashSet<>(a.getAllies())) {
+                Country b = countries.get(bId);
+                if (b == null) {
+                    continue;
+                }
+                if (!b.getAllies().contains(a.getId())) {
+                    b.getAllies().add(a.getId());
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed) {
+            markDirty();
+        }
     }
 
     @Override

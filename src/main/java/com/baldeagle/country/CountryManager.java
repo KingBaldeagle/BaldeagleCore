@@ -10,13 +10,28 @@ import net.minecraft.world.World;
 
 public class CountryManager {
 
+    private static World getCountryWorld(World world) {
+        if (world == null) {
+            return null;
+        }
+        if (world.getMinecraftServer() == null) {
+            return world;
+        }
+        World overworld = world.getMinecraftServer().getWorld(0);
+        return overworld != null ? overworld : world;
+    }
+
     public static Map<UUID, Country> getAllCountries(World world) {
-        return CountryStorage.get(world).getCountriesMap();
+        World countryWorld = getCountryWorld(world);
+        if (countryWorld == null) {
+            throw new IllegalArgumentException("World is null");
+        }
+        return CountryStorage.get(countryWorld).getCountriesMap();
     }
 
     public static void clear(World world) {
         getAllCountries(world).clear();
-        CountryStorage.get(world).markDirty();
+        CountryStorage.get(getCountryWorld(world)).markDirty();
     }
 
     public static Country createCountry(
@@ -24,7 +39,8 @@ public class CountryManager {
         String name,
         UUID creatorUUID
     ) {
-        Map<UUID, Country> countries = getAllCountries(world);
+        World countryWorld = getCountryWorld(world);
+        Map<UUID, Country> countries = getAllCountries(countryWorld);
 
         for (Country c : countries.values()) {
             if (c.getName().equalsIgnoreCase(name)) {
@@ -36,10 +52,10 @@ public class CountryManager {
 
         Country country = new Country(name, creatorUUID);
         countries.put(country.getId(), country);
-        CountryStorage.get(world).markDirty();
+        CountryStorage.get(countryWorld).markDirty();
 
-        if (!world.isRemote) {
-            EntityPlayerMP creator = world
+        if (!countryWorld.isRemote) {
+            EntityPlayerMP creator = countryWorld
                 .getMinecraftServer()
                 .getPlayerList()
                 .getPlayerByUUID(creatorUUID);

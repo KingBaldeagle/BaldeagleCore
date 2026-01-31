@@ -21,4 +21,4 @@ bin/
 run/
 
 # Dependencies
-lib/*
+libs/*

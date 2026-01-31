@@ -27,6 +27,8 @@ public class Country {
 
     private final Map<UUID, Role> members = new HashMap<>();
     private final Set<UUID> joinRequests = new HashSet<>();
+    private final Set<UUID> allies = new HashSet<>();
+    private final Set<UUID> incomingAllianceRequests = new HashSet<>();
 
     public Country(String name, UUID creator) {
         this.name = name;
@@ -77,6 +79,66 @@ public class Country {
 
     public Set<UUID> getJoinRequests() {
         return joinRequests;
+    }
+
+    public Set<UUID> getAllies() {
+        return allies;
+    }
+
+    public Set<UUID> getIncomingAllianceRequests() {
+        return incomingAllianceRequests;
+    }
+
+    public UUID getPresidentUuid() {
+        for (Map.Entry<UUID, Role> entry : members.entrySet()) {
+            if (entry.getValue() == Role.PRESIDENT) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    public boolean isPresident(UUID player) {
+        return getRole(player) == Role.PRESIDENT;
+    }
+
+    public boolean isAlliedWith(UUID otherCountryId) {
+        return otherCountryId != null && allies.contains(otherCountryId);
+    }
+
+    public void addIncomingAllianceRequest(UUID fromCountryId) {
+        if (fromCountryId == null || fromCountryId.equals(id)) {
+            return;
+        }
+        incomingAllianceRequests.add(fromCountryId);
+    }
+
+    public boolean removeIncomingAllianceRequest(UUID fromCountryId) {
+        if (fromCountryId == null) {
+            return false;
+        }
+        return incomingAllianceRequests.remove(fromCountryId);
+    }
+
+    public boolean hasIncomingAllianceRequest(UUID fromCountryId) {
+        return (
+            fromCountryId != null &&
+            incomingAllianceRequests.contains(fromCountryId)
+        );
+    }
+
+    public void addAlly(UUID otherCountryId) {
+        if (otherCountryId == null || otherCountryId.equals(id)) {
+            return;
+        }
+        allies.add(otherCountryId);
+    }
+
+    public void removeAlly(UUID otherCountryId) {
+        if (otherCountryId == null) {
+            return;
+        }
+        allies.remove(otherCountryId);
     }
 
     public long getTreasury() {
@@ -363,6 +425,22 @@ public class Country {
         }
         nbt.setTag("joinRequests", requestsList);
 
+        NBTTagList alliesList = new NBTTagList();
+        for (UUID ally : allies) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("id", ally.toString());
+            alliesList.appendTag(tag);
+        }
+        nbt.setTag("allies", alliesList);
+
+        NBTTagList incomingList = new NBTTagList();
+        for (UUID req : incomingAllianceRequests) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("id", req.toString());
+            incomingList.appendTag(tag);
+        }
+        nbt.setTag("incomingAllianceRequests", incomingList);
+
         return nbt;
     }
 
@@ -399,6 +477,31 @@ public class Country {
         for (int i = 0; i < requestsList.tagCount(); i++) {
             NBTTagCompound reqTag = requestsList.getCompoundTagAt(i);
             c.getJoinRequests().add(UUID.fromString(reqTag.getString("uuid")));
+        }
+
+        if (nbt.hasKey("allies")) {
+            NBTTagList alliesList = nbt.getTagList("allies", 10);
+            for (int i = 0; i < alliesList.tagCount(); i++) {
+                NBTTagCompound tag = alliesList.getCompoundTagAt(i);
+                String raw = tag.getString("id");
+                try {
+                    c.getAllies().add(UUID.fromString(raw));
+                } catch (IllegalArgumentException ignored) {}
+            }
+        }
+
+        if (nbt.hasKey("incomingAllianceRequests")) {
+            NBTTagList incomingList = nbt.getTagList(
+                "incomingAllianceRequests",
+                10
+            );
+            for (int i = 0; i < incomingList.tagCount(); i++) {
+                NBTTagCompound tag = incomingList.getCompoundTagAt(i);
+                String raw = tag.getString("id");
+                try {
+                    c.getIncomingAllianceRequests().add(UUID.fromString(raw));
+                } catch (IllegalArgumentException ignored) {}
+            }
         }
 
         c.recalculateBaseValue();

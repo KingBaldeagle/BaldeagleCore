@@ -5,7 +5,7 @@
 **Forge:** 14.23.5.x
 
 **Author:** Baldeagle
-**Dependencies:** None required, optional integration with FTB Teams for chunk ownership.
+**Dependencies:** None required, optional integration with Opencomputers.
 
 ---
 
@@ -124,20 +124,10 @@ This mod is **self-contained**, handling currency, countries, and roles independ
 
 ---
 
-## **Optional Integration**
-
-* **FTB Utilities / FTB Teams**
-
-   * Chunk ownership can be delegated to countries automatically.
-   * This mod handles only economy, roles, and country data.
-
----
 
 ## **Mod Dependencies**
 
 * **Forge 1.12.2**
-* Optional: **FTBU / FTBLib** (if chunk ownership integration desired)
-
 No other mods are required.
 
 ---
@@ -150,6 +140,3 @@ No other mods are required.
 * **Wire transfers between players/countries**
 * **Taxes and upkeep**
 * **OpenComputers / scripting integration**
-
-
-
