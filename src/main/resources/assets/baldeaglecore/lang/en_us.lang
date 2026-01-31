@@ -13,3 +13,5 @@ tooltip.baldeaglecore.unbound=Unminted currency
 
 item.baldeaglecore.currency_bill=%s Bill (%s)
 item.baldeaglecore.currency_coin=%s Coin (%s)
+
+key.baldeaglecore.chunkmap.open=Open Chunk Map
