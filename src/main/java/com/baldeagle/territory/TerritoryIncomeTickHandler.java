@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 public class TerritoryIncomeTickHandler {
 
     // "Daily" payout: once per Minecraft day (20 minutes / 24000 ticks).
-    private static final long PAYOUT_INTERVAL_TICKS = 240L;
+    private static final long PAYOUT_INTERVAL_TICKS = 24000L;
 
     @SubscribeEvent
     public void onWorldTick(TickEvent.WorldTickEvent event) {
