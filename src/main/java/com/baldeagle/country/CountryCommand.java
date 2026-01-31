@@ -1,5 +1,6 @@
 package com.baldeagle.country;
 
+import com.baldeagle.territory.TerritoryManager;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.command.CommandBase;
@@ -135,6 +136,8 @@ public class CountryCommand extends CommandBase {
                         )
                     );
                 } else {
+                    Map<UUID, Integer> claimCounts =
+                        TerritoryManager.getClaimCounts(server);
                     sender.sendMessage(
                         new TextComponentString("=== Countries ===")
                     );
@@ -144,6 +147,8 @@ public class CountryCommand extends CommandBase {
                                 c.getName() +
                                     " | Members: " +
                                     c.getMembers().size() +
+                                    " | Chunks: " +
+                                    claimCounts.getOrDefault(c.getId(), 0) +
                                     " | Balance: " +
                                     c.getBalance()
                             )

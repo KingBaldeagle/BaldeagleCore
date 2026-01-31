@@ -98,6 +98,13 @@ public class TerritoryProtectionHandler {
                     new TextComponentString("Failed to claim this chunk."),
                     true
                 );
+            } else {
+                player.sendStatusMessage(
+                    new TextComponentString(
+                        "Chunk now claimed by " + playerCountry.getName()
+                    ),
+                    true
+                );
             }
             return;
         }
