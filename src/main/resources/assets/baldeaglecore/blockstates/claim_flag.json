@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "normal": { "model": "baldeaglecore:claim_flag" },
+    "inventory": { "model": "baldeaglecore:claim_flag" }
+  }
+}

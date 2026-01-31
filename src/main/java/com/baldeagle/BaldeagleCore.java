@@ -10,6 +10,7 @@ import com.baldeagle.economy.atm.TileEntityAtm;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.oc.gov.TileEntityGovernmentComputer;
 import com.baldeagle.shop.TileEntityShop;
+import com.baldeagle.territory.TerritoryIncomeTickHandler;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
@@ -46,6 +47,7 @@ public class BaldeagleCore {
     public void preInit(FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new EconomyTickHandler());
+        MinecraftForge.EVENT_BUS.register(new TerritoryIncomeTickHandler());
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
         NetworkHandler.register();
         GameRegistry.registerTileEntity(
@@ -89,7 +91,35 @@ public class BaldeagleCore {
     @Mod.EventHandler
     public void serverLoad(FMLServerStartingEvent event) {
         event.registerServerCommand(new com.baldeagle.country.CountryCommand());
-        com.baldeagle.country.CountryStorage.get(event.getServer().getWorld(0));
+        // Ensure country storage is initialized on the overworld, and migrate any legacy
+        // per-dimension country data into the overworld store.
+        net.minecraft.world.World overworld = event.getServer().getWorld(0);
+        com.baldeagle.country.CountryStorage overworldStorage =
+            com.baldeagle.country.CountryStorage.get(overworld);
+        boolean migrated = false;
+        for (net.minecraft.world.World w : event.getServer().worlds) {
+            if (w == null || w.provider.getDimension() == 0) {
+                continue;
+            }
+            com.baldeagle.country.CountryStorage other =
+                com.baldeagle.country.CountryStorage.get(w);
+            for (java.util.Map.Entry<
+                java.util.UUID,
+                com.baldeagle.country.Country
+            > e : other.getCountriesMap().entrySet()) {
+                if (
+                    !overworldStorage.getCountriesMap().containsKey(e.getKey())
+                ) {
+                    overworldStorage
+                        .getCountriesMap()
+                        .put(e.getKey(), e.getValue());
+                    migrated = true;
+                }
+            }
+        }
+        if (migrated) {
+            overworldStorage.markDirty();
+        }
         proxy.serverLoad(event);
     }
 }
