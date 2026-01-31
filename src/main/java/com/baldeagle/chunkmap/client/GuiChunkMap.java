@@ -408,7 +408,7 @@ public class GuiChunkMap extends GuiScreen {
             case NEUTRAL:
             default:
                 // Requested: neutral (non-allied) country borders should be green.
-                return 0x226C22;
+                return 0xFF226C22;
         }
     }
 

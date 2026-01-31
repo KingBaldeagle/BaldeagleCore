@@ -20,7 +20,7 @@ public class CountryCommand extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally> [...]";
+        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally|war> [...]";
     }
 
     @Override
@@ -691,6 +691,150 @@ public class CountryCommand extends CommandBase {
                         sender.sendMessage(
                             new TextComponentString(
                                 "Unknown ally action. Usage: /country ally <request|accept|deny|remove> <countryName>"
+                            )
+                        );
+                        return;
+                }
+            }
+            // --- WAR ---
+            case "war": {
+                if (args.length < 3) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Usage: /country war <declare|end> <countryName>"
+                        )
+                    );
+                    return;
+                }
+
+                String action = args[1].toLowerCase();
+                String targetName = args[2];
+
+                Country self = CountryManager.getCountryForPlayer(
+                    world,
+                    playerUUID
+                );
+                if (self == null) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You are not part of any country."
+                        )
+                    );
+                    return;
+                }
+                if (!self.isPresident(playerUUID)) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Only the President can manage wars."
+                        )
+                    );
+                    return;
+                }
+
+                Country target = CountryManager.getCountryByName(
+                    world,
+                    targetName
+                );
+                if (target == null) {
+                    sender.sendMessage(
+                        new TextComponentString("Country not found.")
+                    );
+                    return;
+                }
+                if (target.getId().equals(self.getId())) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You cannot declare war on yourself."
+                        )
+                    );
+                    return;
+                }
+                if (self.isAlliedWith(target.getId())) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You cannot declare war on an ally. Remove the alliance first."
+                        )
+                    );
+                    return;
+                }
+
+                switch (action) {
+                    case "declare": {
+                        if (self.isAtWarWith(target.getId())) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "You are already at war with " +
+                                        target.getName() +
+                                        "."
+                                )
+                            );
+                            return;
+                        }
+                        self.addWar(target.getId());
+                        target.addWar(self.getId());
+                        CountryStorage.get(countryWorld).markDirty();
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "War declared on " + target.getName() + "."
+                            )
+                        );
+
+                        UUID targetPresident = target.getPresidentUuid();
+                        if (targetPresident != null) {
+                            EntityPlayerMP presidentPlayer = server
+                                .getPlayerList()
+                                .getPlayerByUUID(targetPresident);
+                            if (presidentPlayer != null) {
+                                presidentPlayer.sendMessage(
+                                    new TextComponentString(
+                                        "War declared by " +
+                                            self.getName() +
+                                            "."
+                                    )
+                                );
+                            }
+                        }
+                        return;
+                    }
+                    case "end": {
+                        if (!self.isAtWarWith(target.getId())) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "You are not at war with " +
+                                        target.getName() +
+                                        "."
+                                )
+                            );
+                            return;
+                        }
+                        self.removeWar(target.getId());
+                        target.removeWar(self.getId());
+                        CountryStorage.get(countryWorld).markDirty();
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "War ended with " + target.getName() + "."
+                            )
+                        );
+
+                        UUID targetPresident = target.getPresidentUuid();
+                        if (targetPresident != null) {
+                            EntityPlayerMP presidentPlayer = server
+                                .getPlayerList()
+                                .getPlayerByUUID(targetPresident);
+                            if (presidentPlayer != null) {
+                                presidentPlayer.sendMessage(
+                                    new TextComponentString(
+                                        "War ended with " + self.getName() + "."
+                                    )
+                                );
+                            }
+                        }
+                        return;
+                    }
+                    default:
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Unknown war action. Usage: /country war <declare|end> <countryName>"
                             )
                         );
                         return;

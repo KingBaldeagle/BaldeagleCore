@@ -66,6 +66,9 @@ public class CountryStorage extends WorldSavedData {
             if (c.getIncomingAllianceRequests().remove(c.getId())) {
                 changed = true;
             }
+            if (c.getWars().remove(c.getId())) {
+                changed = true;
+            }
 
             if (c.getPresidentUuid() == null) {
                 // Can't manage alliances without a president, but preserve data.
@@ -75,6 +78,7 @@ public class CountryStorage extends WorldSavedData {
             c
                 .getIncomingAllianceRequests()
                 .removeIf(id -> !countries.containsKey(id));
+            c.getWars().removeIf(id -> !countries.containsKey(id));
         }
 
         // Enforce bidirectional allies: if A lists B, B must list A.
@@ -86,6 +90,20 @@ public class CountryStorage extends WorldSavedData {
                 }
                 if (!b.getAllies().contains(a.getId())) {
                     b.getAllies().add(a.getId());
+                    changed = true;
+                }
+            }
+        }
+
+        // Enforce bidirectional wars: if A lists B, B must list A.
+        for (Country a : countries.values()) {
+            for (java.util.UUID bId : new java.util.HashSet<>(a.getWars())) {
+                Country b = countries.get(bId);
+                if (b == null) {
+                    continue;
+                }
+                if (!b.getWars().contains(a.getId())) {
+                    b.getWars().add(a.getId());
                     changed = true;
                 }
             }

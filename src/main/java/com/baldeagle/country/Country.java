@@ -29,6 +29,7 @@ public class Country {
     private final Set<UUID> joinRequests = new HashSet<>();
     private final Set<UUID> allies = new HashSet<>();
     private final Set<UUID> incomingAllianceRequests = new HashSet<>();
+    private final Set<UUID> wars = new HashSet<>();
 
     public Country(String name, UUID creator) {
         this.name = name;
@@ -89,6 +90,10 @@ public class Country {
         return incomingAllianceRequests;
     }
 
+    public Set<UUID> getWars() {
+        return wars;
+    }
+
     public UUID getPresidentUuid() {
         for (Map.Entry<UUID, Role> entry : members.entrySet()) {
             if (entry.getValue() == Role.PRESIDENT) {
@@ -104,6 +109,24 @@ public class Country {
 
     public boolean isAlliedWith(UUID otherCountryId) {
         return otherCountryId != null && allies.contains(otherCountryId);
+    }
+
+    public boolean isAtWarWith(UUID otherCountryId) {
+        return otherCountryId != null && wars.contains(otherCountryId);
+    }
+
+    public void addWar(UUID otherCountryId) {
+        if (otherCountryId == null || otherCountryId.equals(id)) {
+            return;
+        }
+        wars.add(otherCountryId);
+    }
+
+    public void removeWar(UUID otherCountryId) {
+        if (otherCountryId == null) {
+            return;
+        }
+        wars.remove(otherCountryId);
     }
 
     public void addIncomingAllianceRequest(UUID fromCountryId) {
@@ -441,6 +464,14 @@ public class Country {
         }
         nbt.setTag("incomingAllianceRequests", incomingList);
 
+        NBTTagList warsList = new NBTTagList();
+        for (UUID war : wars) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("id", war.toString());
+            warsList.appendTag(tag);
+        }
+        nbt.setTag("wars", warsList);
+
         return nbt;
     }
 
@@ -500,6 +531,17 @@ public class Country {
                 String raw = tag.getString("id");
                 try {
                     c.getIncomingAllianceRequests().add(UUID.fromString(raw));
+                } catch (IllegalArgumentException ignored) {}
+            }
+        }
+
+        if (nbt.hasKey("wars")) {
+            NBTTagList warsList = nbt.getTagList("wars", 10);
+            for (int i = 0; i < warsList.tagCount(); i++) {
+                NBTTagCompound tag = warsList.getCompoundTagAt(i);
+                String raw = tag.getString("id");
+                try {
+                    c.getWars().add(UUID.fromString(raw));
                 } catch (IllegalArgumentException ignored) {}
             }
         }

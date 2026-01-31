@@ -115,19 +115,15 @@ public class ChunkOwnershipRequestMessage implements IMessage {
                     Country owner = CountryManager.getCountry(world, ownerId);
 
                     ChunkRelation relation;
-                    if (
-                        playerCountry != null &&
-                        ownerId.equals(playerCountry.getId())
-                    ) {
+                    if (playerCountry == null) {
+                        relation = ChunkRelation.NEUTRAL;
+                    } else if (ownerId.equals(playerCountry.getId())) {
                         relation = ChunkRelation.OWNED;
-                    } else if (
-                        playerCountry != null &&
-                        playerCountry.isAlliedWith(ownerId)
-                    ) {
+                    } else if (playerCountry.isAlliedWith(ownerId)) {
                         relation = ChunkRelation.ALLIED;
+                    } else if (playerCountry.isAtWarWith(ownerId)) {
+                        relation = ChunkRelation.HOSTILE;
                     } else {
-                        // Default non-allied countries are treated as neutral for rendering
-                        // (reserve HOSTILE for a future war-state overlay).
                         relation = ChunkRelation.NEUTRAL;
                     }
 
