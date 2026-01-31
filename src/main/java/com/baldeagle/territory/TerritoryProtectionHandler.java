@@ -120,9 +120,18 @@ public class TerritoryProtectionHandler {
         }
 
         Country owner = CountryManager.getCountry(world, claim.countryId);
+        Country playerCountry = CountryManager.getCountryForPlayer(
+            world,
+            player.getUniqueID()
+        );
         boolean isOwnerMember =
             owner != null && owner.isMember(player.getUniqueID());
-        if (!isOwnerMember) {
+        boolean isAllied =
+            owner != null &&
+            playerCountry != null &&
+            owner.isAlliedWith(playerCountry.getId());
+
+        if (!isOwnerMember && !isAllied) {
             event.setCanceled(true);
             player.sendStatusMessage(
                 new TextComponentString("This land is claimed."),
@@ -172,10 +181,25 @@ public class TerritoryProtectionHandler {
         Country owner = CountryManager.getCountry(world, claim.countryId);
         boolean isOwnerMember =
             owner != null && owner.isMember(player.getUniqueID());
+        boolean isAllied =
+            owner != null &&
+            playerCountry != null &&
+            owner.isAlliedWith(playerCountry.getId());
 
         if (isClaimFlag) {
             if (isOwnerMember) {
                 TerritoryManager.unclaimChunk(world, chunk);
+                return;
+            }
+
+            if (isAllied) {
+                event.setCanceled(true);
+                player.sendStatusMessage(
+                    new TextComponentString(
+                        "You cannot break an allied claim flag."
+                    ),
+                    true
+                );
                 return;
             }
 
@@ -202,7 +226,7 @@ public class TerritoryProtectionHandler {
         }
 
         // Non-flag block breaks are always protected for non-owners.
-        if (!isOwnerMember) {
+        if (!isOwnerMember && !isAllied) {
             event.setCanceled(true);
             player.sendStatusMessage(
                 new TextComponentString("This land is claimed."),

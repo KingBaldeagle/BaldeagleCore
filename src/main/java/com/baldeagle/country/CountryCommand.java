@@ -20,7 +20,7 @@ public class CountryCommand extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote> [...]";
+        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally> [...]";
     }
 
     @Override
@@ -39,6 +39,10 @@ public class CountryCommand extends CommandBase {
         EntityPlayerMP player = (EntityPlayerMP) sender;
         UUID playerUUID = player.getUniqueID();
         World world = player.getEntityWorld();
+        World countryWorld =
+            world.getMinecraftServer() != null
+                ? world.getMinecraftServer().getWorld(0)
+                : world;
 
         if (args.length < 1) {
             sender.sendMessage(new TextComponentString(getUsage(sender)));
@@ -181,7 +185,7 @@ public class CountryCommand extends CommandBase {
                     return;
                 }
                 c.requestJoin(playerUUID);
-                CountryStorage.get(world).markDirty();
+                CountryStorage.get(countryWorld).markDirty();
                 sender.sendMessage(
                     new TextComponentString(
                         "Join request sent to " + c.getName()
@@ -224,7 +228,7 @@ public class CountryCommand extends CommandBase {
                     return;
                 }
                 if (c.approveJoin(playerUUID, applicant)) {
-                    CountryStorage.get(world).markDirty();
+                    CountryStorage.get(countryWorld).markDirty();
                     sender.sendMessage(
                         new TextComponentString(
                             "Approved " + applicant + " to join " + c.getName()
@@ -272,7 +276,7 @@ public class CountryCommand extends CommandBase {
                     return;
                 }
                 c.denyJoin(playerUUID, applicant);
-                CountryStorage.get(world).markDirty();
+                CountryStorage.get(countryWorld).markDirty();
                 sender.sendMessage(
                     new TextComponentString(
                         "Denied " + applicant + " from joining " + c.getName()
@@ -367,7 +371,7 @@ public class CountryCommand extends CommandBase {
                     sender.sendMessage(new TextComponentString(e.getMessage()));
                     return;
                 }
-                CountryStorage.get(world).markDirty();
+                CountryStorage.get(countryWorld).markDirty();
                 sender.sendMessage(
                     new TextComponentString(
                         "Deposited " + amount + " to " + c.getName()
@@ -414,7 +418,7 @@ public class CountryCommand extends CommandBase {
                 }
                 try {
                     from.transfer(playerUUID, to, amount);
-                    CountryStorage.get(world).markDirty();
+                    CountryStorage.get(countryWorld).markDirty();
                     sender.sendMessage(
                         new TextComponentString(
                             "Transferred " +
@@ -465,7 +469,7 @@ public class CountryCommand extends CommandBase {
                     return;
                 }
                 if (c.promote(playerUUID, member)) {
-                    CountryStorage.get(world).markDirty();
+                    CountryStorage.get(countryWorld).markDirty();
                     sender.sendMessage(
                         new TextComponentString(
                             "Promoted " +
@@ -480,6 +484,217 @@ public class CountryCommand extends CommandBase {
                     );
                 }
                 break;
+            }
+            // --- ALLIANCES ---
+            case "ally": {
+                if (args.length < 3) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Usage: /country ally <request|accept|deny|remove> <countryName>"
+                        )
+                    );
+                    return;
+                }
+
+                String action = args[1].toLowerCase();
+                String targetName = args[2];
+
+                Country self = CountryManager.getCountryForPlayer(
+                    world,
+                    playerUUID
+                );
+                if (self == null) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You are not part of any country."
+                        )
+                    );
+                    return;
+                }
+                if (!self.isPresident(playerUUID)) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Only the President can manage alliances."
+                        )
+                    );
+                    return;
+                }
+
+                Country target = CountryManager.getCountryByName(
+                    world,
+                    targetName
+                );
+                if (target == null) {
+                    sender.sendMessage(
+                        new TextComponentString("Country not found.")
+                    );
+                    return;
+                }
+                if (target.getId().equals(self.getId())) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You cannot ally with yourself."
+                        )
+                    );
+                    return;
+                }
+
+                switch (action) {
+                    case "request": {
+                        if (self.isAlliedWith(target.getId())) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "You are already allied with " +
+                                        target.getName() +
+                                        "."
+                                )
+                            );
+                            return;
+                        }
+                        if (target.hasIncomingAllianceRequest(self.getId())) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "An alliance request is already pending."
+                                )
+                            );
+                            return;
+                        }
+                        if (self.hasIncomingAllianceRequest(target.getId())) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "You already have an incoming request from " +
+                                        target.getName() +
+                                        ". Use /country ally accept " +
+                                        target.getName()
+                                )
+                            );
+                            return;
+                        }
+
+                        target.addIncomingAllianceRequest(self.getId());
+                        CountryStorage.get(countryWorld).markDirty();
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Alliance request sent to " +
+                                    target.getName() +
+                                    "."
+                            )
+                        );
+
+                        UUID targetPresident = target.getPresidentUuid();
+                        if (targetPresident != null) {
+                            EntityPlayerMP presidentPlayer = server
+                                .getPlayerList()
+                                .getPlayerByUUID(targetPresident);
+                            if (presidentPlayer != null) {
+                                presidentPlayer.sendMessage(
+                                    new TextComponentString(
+                                        "Alliance request from " +
+                                            self.getName() +
+                                            ". Use /country ally accept " +
+                                            self.getName() +
+                                            " or /country ally deny " +
+                                            self.getName()
+                                    )
+                                );
+                            }
+                        }
+
+                        return;
+                    }
+                    case "accept": {
+                        if (!self.hasIncomingAllianceRequest(target.getId())) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "No incoming alliance request from " +
+                                        target.getName() +
+                                        "."
+                                )
+                            );
+                            return;
+                        }
+                        self.removeIncomingAllianceRequest(target.getId());
+                        self.addAlly(target.getId());
+                        target.addAlly(self.getId());
+                        // If the other country had also queued a request, clear it.
+                        target.removeIncomingAllianceRequest(self.getId());
+
+                        CountryStorage.get(countryWorld).markDirty();
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Alliance formed with " + target.getName() + "."
+                            )
+                        );
+                        UUID otherPresident = target.getPresidentUuid();
+                        if (otherPresident != null) {
+                            EntityPlayerMP presidentPlayer = server
+                                .getPlayerList()
+                                .getPlayerByUUID(otherPresident);
+                            if (presidentPlayer != null) {
+                                presidentPlayer.sendMessage(
+                                    new TextComponentString(
+                                        "Alliance formed with " +
+                                            self.getName() +
+                                            "."
+                                    )
+                                );
+                            }
+                        }
+                        return;
+                    }
+                    case "deny": {
+                        if (!self.hasIncomingAllianceRequest(target.getId())) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "No incoming alliance request from " +
+                                        target.getName() +
+                                        "."
+                                )
+                            );
+                            return;
+                        }
+                        self.removeIncomingAllianceRequest(target.getId());
+                        CountryStorage.get(countryWorld).markDirty();
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Alliance request from " +
+                                    target.getName() +
+                                    " denied."
+                            )
+                        );
+                        return;
+                    }
+                    case "remove": {
+                        if (!self.isAlliedWith(target.getId())) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "You are not allied with " +
+                                        target.getName() +
+                                        "."
+                                )
+                            );
+                            return;
+                        }
+                        self.removeAlly(target.getId());
+                        target.removeAlly(self.getId());
+                        CountryStorage.get(countryWorld).markDirty();
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Alliance removed with " +
+                                    target.getName() +
+                                    "."
+                            )
+                        );
+                        return;
+                    }
+                    default:
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Unknown ally action. Usage: /country ally <request|accept|deny|remove> <countryName>"
+                            )
+                        );
+                        return;
+                }
             }
             default:
                 sender.sendMessage(
