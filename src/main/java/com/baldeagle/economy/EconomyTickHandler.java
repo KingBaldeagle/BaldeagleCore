@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 public class EconomyTickHandler {
 
     private static final long INTEREST_INTERVAL_TICKS = 20L * 60L;
-    private static final double INTEREST_RATE = 0.01D;
+    private static final double INTEREST_RATE = 0.03D;
 
     @SubscribeEvent
     public void onWorldTick(TickEvent.WorldTickEvent event) {
