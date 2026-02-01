@@ -20,6 +20,11 @@ public class ModItems {
         .setTranslationKey("baldeaglecore.t2_core")
         .setCreativeTab(BaldeagleCoreTab.INSTANCE);
 
+    public static final Item T3_CORE = (Item) new T3Core()
+        .setRegistryName("baldeaglecore", "t3_core")
+        .setTranslationKey("baldeaglecore.t3_core")
+        .setCreativeTab(BaldeagleCoreTab.INSTANCE);
+
     public static final ItemCoin COIN_1 = (ItemCoin) new ItemCoin(
         CurrencyDenomination.COIN_1
     )
@@ -82,6 +87,7 @@ public class ModItems {
             .registerAll(
                 T1_CORE,
                 T2_CORE,
+                T3_CORE,
                 COIN_1,
                 COIN_5,
                 COIN_10,

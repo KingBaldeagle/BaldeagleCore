@@ -6,6 +6,7 @@ tile.baldeaglecore.shop.name=Shop
 tile.baldeaglecore.currency_exchange.name=Currency Exchange
 tile.baldeaglecore.government_computer.name=Government Computer
 tile.baldeaglecore.claim_flag.name=Claim Flag
+tile.baldeaglecore.research_assembler.name=Research Assembler
 itemGroup.baldeaglecore=Baldeagle Core
 tooltip.baldeaglecore.denomination=Denomination: %s
 tooltip.baldeaglecore.inflation=Inflation: %s
@@ -15,5 +16,6 @@ item.baldeaglecore.currency_bill=%s Bill (%s)
 item.baldeaglecore.currency_coin=%s Coin (%s)
 item.baldeaglecore.t1_core.name=Tier 1 Core
 item.baldeaglecore.t2_core.name=Tier 2 Core
+item.baldeaglecore.t3_core.name=Tier 3 Core
 
 key.baldeaglecore.chunkmap.open=Open Chunk Map

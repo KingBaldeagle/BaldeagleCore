@@ -9,6 +9,7 @@ import com.baldeagle.economy.EconomyTickHandler;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.oc.gov.TileEntityGovernmentComputer;
+import com.baldeagle.research.tile.TileEntityResearchAssembler;
 import com.baldeagle.shop.TileEntityShop;
 import com.baldeagle.territory.TerritoryIncomeTickHandler;
 import net.minecraft.util.ResourceLocation;
@@ -77,6 +78,10 @@ public class BaldeagleCore {
         GameRegistry.registerTileEntity(
             TileEntityGovernmentComputer.class,
             new ResourceLocation(MODID, "government_computer")
+        );
+        GameRegistry.registerTileEntity(
+            TileEntityResearchAssembler.class,
+            new ResourceLocation(MODID, "research_assembler")
         );
         proxy.preInit();
     }

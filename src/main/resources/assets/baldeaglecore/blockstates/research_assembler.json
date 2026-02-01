@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "baldeaglecore:research_assembler", "y": 0 },
+    "facing=east": { "model": "baldeaglecore:research_assembler", "y": 90 },
+    "facing=south": { "model": "baldeaglecore:research_assembler", "y": 180 },
+    "facing=west": { "model": "baldeaglecore:research_assembler", "y": 270 }
+  }
+}

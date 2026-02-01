@@ -12,6 +12,9 @@ import com.baldeagle.country.vault.tile.TileEntityVault;
 import com.baldeagle.economy.atm.ContainerAtm;
 import com.baldeagle.economy.atm.GuiAtm;
 import com.baldeagle.economy.atm.TileEntityAtm;
+import com.baldeagle.research.client.GuiResearchAssembler;
+import com.baldeagle.research.container.ContainerResearchAssembler;
+import com.baldeagle.research.tile.TileEntityResearchAssembler;
 import com.baldeagle.shop.ContainerShop;
 import com.baldeagle.shop.GuiShop;
 import com.baldeagle.shop.TileEntityShop;
@@ -29,6 +32,7 @@ public class GuiHandler implements IGuiHandler {
     public static final int VAULT_GUI_ID = 4;
     public static final int ATM_GUI_ID = 5;
     public static final int SHOP_GUI_ID = 6;
+    public static final int RESEARCH_ASSEMBLER_GUI_ID = 7;
 
     @Override
     public Object getServerGuiElement(
@@ -87,6 +91,14 @@ public class GuiHandler implements IGuiHandler {
                     return new ContainerShop(
                         player.inventory,
                         (TileEntityShop) tile
+                    );
+                }
+                break;
+            case RESEARCH_ASSEMBLER_GUI_ID:
+                if (tile instanceof TileEntityResearchAssembler) {
+                    return new ContainerResearchAssembler(
+                        player.inventory,
+                        (TileEntityResearchAssembler) tile
                     );
                 }
                 break;
@@ -159,6 +171,16 @@ public class GuiHandler implements IGuiHandler {
                         new ContainerShop(
                             player.inventory,
                             (TileEntityShop) tile
+                        )
+                    );
+                }
+                break;
+            case RESEARCH_ASSEMBLER_GUI_ID:
+                if (tile instanceof TileEntityResearchAssembler) {
+                    return new GuiResearchAssembler(
+                        new ContainerResearchAssembler(
+                            player.inventory,
+                            (TileEntityResearchAssembler) tile
                         )
                     );
                 }

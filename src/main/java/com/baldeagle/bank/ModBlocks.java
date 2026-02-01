@@ -19,6 +19,7 @@ public final class ModBlocks {
     public static Block SHOP;
     public static Block GOVERNMENT_COMPUTER;
     public static Block CLAIM_FLAG;
+    public static Block RESEARCH_ASSEMBLER;
 
     private ModBlocks() {}
 
@@ -34,6 +35,8 @@ public final class ModBlocks {
         GOVERNMENT_COMPUTER =
             new com.baldeagle.oc.gov.BlockGovernmentComputer();
         CLAIM_FLAG = new com.baldeagle.territory.BlockClaimFlag();
+        RESEARCH_ASSEMBLER =
+            new com.baldeagle.research.BlockResearchAssembler();
 
         event
             .getRegistry()
@@ -45,7 +48,8 @@ public final class ModBlocks {
                 ATM,
                 SHOP,
                 GOVERNMENT_COMPUTER,
-                CLAIM_FLAG
+                CLAIM_FLAG,
+                RESEARCH_ASSEMBLER
             );
     }
 
@@ -67,6 +71,9 @@ public final class ModBlocks {
                 ),
                 new ItemBlock(CLAIM_FLAG).setRegistryName(
                     CLAIM_FLAG.getRegistryName()
+                ),
+                new ItemBlock(RESEARCH_ASSEMBLER).setRegistryName(
+                    RESEARCH_ASSEMBLER.getRegistryName()
                 )
             );
     }

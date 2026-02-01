@@ -24,6 +24,7 @@ public class ClientModelRegistry {
         registerItem(ModItems.BILL_100);
         registerItem(ModItems.T1_CORE);
         registerItem(ModItems.T2_CORE);
+        registerItem(ModItems.T3_CORE);
         registerItem(Item.getItemFromBlock(ModBlocks.BANK));
         registerItem(Item.getItemFromBlock(ModBlocks.MINT));
         registerItem(Item.getItemFromBlock(ModBlocks.CURRENCY_EXCHANGE));
@@ -32,6 +33,7 @@ public class ClientModelRegistry {
         registerItem(Item.getItemFromBlock(ModBlocks.SHOP));
         registerItem(Item.getItemFromBlock(ModBlocks.GOVERNMENT_COMPUTER));
         registerItem(Item.getItemFromBlock(ModBlocks.CLAIM_FLAG));
+        registerItem(Item.getItemFromBlock(ModBlocks.RESEARCH_ASSEMBLER));
     }
 
     private static void registerItem(Item item) {
