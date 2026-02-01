@@ -1,7 +1,7 @@
 package com.baldeagle.bank;
 
 import com.baldeagle.BaldeagleCore;
-import com.baldeagle.country.creativetab.EconomyTab;
+import com.baldeagle.country.creativetab.BaldeagleCoreTab;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -30,7 +30,7 @@ public class BlockAtm extends Block {
         setRegistryName(BaldeagleCore.MODID, "atm");
         setTranslationKey("baldeaglecore.atm");
         setHardness(4.0F);
-        setCreativeTab(EconomyTab.INSTANCE);
+        setCreativeTab(BaldeagleCoreTab.INSTANCE);
         this.setDefaultState(
             this.blockState.getBaseState().withProperty(
                 FACING,

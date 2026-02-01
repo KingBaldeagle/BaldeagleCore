@@ -30,7 +30,9 @@ public class BlockMint extends Block {
         setRegistryName(BaldeagleCore.MODID, "mint");
         setTranslationKey("baldeaglecore.mint");
         setHardness(4.5F);
-        setCreativeTab(com.baldeagle.country.creativetab.EconomyTab.INSTANCE);
+        setCreativeTab(
+            com.baldeagle.country.creativetab.BaldeagleCoreTab.INSTANCE
+        );
         this.setDefaultState(
             this.blockState.getBaseState().withProperty(
                 FACING,

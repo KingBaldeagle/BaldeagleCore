@@ -3,7 +3,7 @@ package com.baldeagle.territory;
 import com.baldeagle.BaldeagleCore;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
-import com.baldeagle.country.creativetab.EconomyTab;
+import com.baldeagle.country.creativetab.BaldeagleCoreTab;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -22,7 +22,7 @@ public class BlockClaimFlag extends Block {
         setRegistryName(BaldeagleCore.MODID, "claim_flag");
         setTranslationKey("baldeaglecore.claim_flag");
         setHardness(2.0F);
-        setCreativeTab(EconomyTab.INSTANCE);
+        setCreativeTab(BaldeagleCoreTab.INSTANCE);
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.baldeagle.BaldeagleCore;
 import com.baldeagle.bank.GuiHandler;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
-import com.baldeagle.country.creativetab.EconomyTab;
+import com.baldeagle.country.creativetab.BaldeagleCoreTab;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
@@ -32,7 +32,7 @@ public class BlockShop extends Block {
         setRegistryName(BaldeagleCore.MODID, "shop");
         setTranslationKey("baldeaglecore.shop");
         setHardness(4.0F);
-        setCreativeTab(EconomyTab.INSTANCE);
+        setCreativeTab(BaldeagleCoreTab.INSTANCE);
         this.setDefaultState(
             this.blockState.getBaseState().withProperty(
                 FACING,

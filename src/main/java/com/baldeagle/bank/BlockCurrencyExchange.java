@@ -27,7 +27,9 @@ public class BlockCurrencyExchange extends Block {
         setRegistryName(BaldeagleCore.MODID, "currency_exchange");
         setTranslationKey("baldeaglecore.currency_exchange");
         setHardness(4.0F);
-        setCreativeTab(com.baldeagle.country.creativetab.EconomyTab.INSTANCE);
+        setCreativeTab(
+            com.baldeagle.country.creativetab.BaldeagleCoreTab.INSTANCE
+        );
         this.setDefaultState(
             this.blockState.getBaseState().withProperty(
                 FACING,
