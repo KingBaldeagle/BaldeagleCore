@@ -16,12 +16,55 @@ public final class TerritoryManager {
 
     private TerritoryManager() {}
 
-    public static long chunkKey(int chunkX, int chunkZ) {
-        return ((long) chunkX << 32) | (chunkZ & 0xffffffffL);
+    public static final class DimChunkKey {
+
+        public final int dimension;
+        public final int chunkX;
+        public final int chunkZ;
+
+        public DimChunkKey(int dimension, int chunkX, int chunkZ) {
+            this.dimension = dimension;
+            this.chunkX = chunkX;
+            this.chunkZ = chunkZ;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof DimChunkKey)) {
+                return false;
+            }
+            DimChunkKey other = (DimChunkKey) obj;
+            return (
+                dimension == other.dimension &&
+                chunkX == other.chunkX &&
+                chunkZ == other.chunkZ
+            );
+        }
+
+        @Override
+        public int hashCode() {
+            int result = dimension;
+            result = 31 * result + chunkX;
+            result = 31 * result + chunkZ;
+            return result;
+        }
     }
 
-    public static long chunkKey(ChunkPos chunk) {
-        return chunkKey(chunk.x, chunk.z);
+    public static DimChunkKey chunkKey(int dimension, int chunkX, int chunkZ) {
+        return new DimChunkKey(dimension, chunkX, chunkZ);
+    }
+
+    public static DimChunkKey chunkKey(World world, ChunkPos chunk) {
+        int dim = world != null ? world.provider.getDimension() : 0;
+        return chunkKey(dim, chunk.x, chunk.z);
+    }
+
+    public static DimChunkKey chunkKey(World world, int chunkX, int chunkZ) {
+        int dim = world != null ? world.provider.getDimension() : 0;
+        return chunkKey(dim, chunkX, chunkZ);
     }
 
     public static TerritoryData.ClaimEntry getClaim(
@@ -33,7 +76,7 @@ public final class TerritoryManager {
         }
 
         TerritoryData data = TerritoryData.get(world);
-        long key = chunkKey(chunk);
+        DimChunkKey key = chunkKey(world, chunk);
         TerritoryData.ClaimEntry claim = data.getClaims().get(key);
         if (claim == null) {
             return null;
@@ -77,7 +120,7 @@ public final class TerritoryManager {
         }
 
         TerritoryData data = TerritoryData.get(world);
-        long key = chunkKey(chunk);
+        DimChunkKey key = chunkKey(world, chunk);
         if (data.getClaims().containsKey(key)) {
             // Existing claim (validity checked on access).
             return false;
@@ -104,7 +147,7 @@ public final class TerritoryManager {
             return;
         }
         TerritoryData data = TerritoryData.get(world);
-        if (data.getClaims().remove(chunkKey(chunk)) != null) {
+        if (data.getClaims().remove(chunkKey(world, chunk)) != null) {
             data.markDirty();
         }
     }
@@ -119,7 +162,7 @@ public final class TerritoryManager {
 
         ChunkPos chunk = new ChunkPos(flagPos);
         TerritoryData data = TerritoryData.get(world);
-        long key = chunkKey(chunk);
+        DimChunkKey key = chunkKey(world, chunk);
         TerritoryData.ClaimEntry claim = data.getClaims().get(key);
         if (claim == null) {
             return;
@@ -142,8 +185,15 @@ public final class TerritoryManager {
                 continue;
             }
 
+            int dim = world.provider.getDimension();
             TerritoryData data = TerritoryData.get(world);
-            for (TerritoryData.ClaimEntry claim : data.getClaims().values()) {
+            for (Map.Entry<DimChunkKey, TerritoryData.ClaimEntry> entry : data
+                .getClaims()
+                .entrySet()) {
+                if (entry.getKey().dimension != dim) {
+                    continue;
+                }
+                TerritoryData.ClaimEntry claim = entry.getValue();
                 counts.put(
                     claim.countryId,
                     counts.getOrDefault(claim.countryId, 0) + 1

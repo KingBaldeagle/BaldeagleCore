@@ -96,19 +96,29 @@ public class ChunkOwnershipRequestMessage implements IMessage {
             );
 
             List<ChunkOwnershipInfo> infos = new ArrayList<>();
-            TerritoryData data = TerritoryData.get(world);
 
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
                     int cx = message.centerChunkX + dx;
                     int cz = message.centerChunkZ + dz;
                     ChunkPos chunkPos = new ChunkPos(cx, cz);
-                    TerritoryData.ClaimEntry claim = data
-                        .getClaims()
-                        .get(TerritoryManager.chunkKey(chunkPos));
+                    TerritoryData.ClaimEntry claim = TerritoryManager.getClaim(
+                        world,
+                        chunkPos
+                    );
 
                     if (claim == null) {
-                        continue; // client treats missing as NEUTRAL/unclaimed
+                        infos.add(
+                            new ChunkOwnershipInfo(
+                                cx,
+                                cz,
+                                null,
+                                "",
+                                ChunkRelation.NEUTRAL,
+                                0L
+                            )
+                        );
+                        continue;
                     }
 
                     UUID ownerId = claim.countryId;

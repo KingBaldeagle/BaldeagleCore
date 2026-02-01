@@ -62,7 +62,10 @@ public class BlockClaimFlag extends Block {
 
         ChunkPos chunk = new ChunkPos(pos);
         TerritoryData data = TerritoryData.get(worldIn);
-        long key = TerritoryManager.chunkKey(chunk);
+        TerritoryManager.DimChunkKey key = TerritoryManager.chunkKey(
+            worldIn,
+            chunk
+        );
         TerritoryData.ClaimEntry existing = data.getClaims().get(key);
 
         if (existing != null) {
