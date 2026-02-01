@@ -3,7 +3,7 @@ package com.baldeagle.bank;
 import com.baldeagle.BaldeagleCore;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
-import com.baldeagle.country.creativetab.EconomyTab;
+import com.baldeagle.country.creativetab.BaldeagleCoreTab;
 import com.baldeagle.country.vault.tile.TileEntityVault;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -36,7 +36,7 @@ public class BlockVault extends Block {
         setTranslationKey("baldeaglecore.vault");
         setHardness(50.0F);
         setResistance(2000.0F);
-        setCreativeTab(EconomyTab.INSTANCE);
+        setCreativeTab(BaldeagleCoreTab.INSTANCE);
         this.setDefaultState(
             this.blockState.getBaseState().withProperty(
                 FACING,

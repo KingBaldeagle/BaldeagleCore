@@ -1,8 +1,8 @@
 package com.baldeagle.network.message;
 
-import com.baldeagle.chunkmap.ClientChunkOwnershipCache;
 import com.baldeagle.chunkmap.ChunkOwnershipInfo;
 import com.baldeagle.chunkmap.ChunkRelation;
+import com.baldeagle.chunkmap.ClientChunkOwnershipCache;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,10 @@ public class ChunkOwnershipSnapshotMessage implements IMessage {
 
             buf.writeByte(info.relation.ordinal());
             buf.writeLong(info.incomePerDay);
-            ByteBufUtils.writeUTF8String(buf, info.ownerName != null ? info.ownerName : "");
+            ByteBufUtils.writeUTF8String(
+                buf,
+                info.ownerName != null ? info.ownerName : ""
+            );
         }
     }
 
@@ -65,9 +68,10 @@ public class ChunkOwnershipSnapshotMessage implements IMessage {
             }
 
             int relOrd = buf.readUnsignedByte();
-            ChunkRelation rel = relOrd < ChunkRelation.values().length
-                ? ChunkRelation.values()[relOrd]
-                : ChunkRelation.NEUTRAL;
+            ChunkRelation rel =
+                relOrd < ChunkRelation.values().length
+                    ? ChunkRelation.values()[relOrd]
+                    : ChunkRelation.NEUTRAL;
 
             long incomePerDay = buf.readLong();
             String ownerName = ByteBufUtils.readUTF8String(buf);
@@ -98,7 +102,10 @@ public class ChunkOwnershipSnapshotMessage implements IMessage {
                 if (message == null) {
                     return;
                 }
-                ClientChunkOwnershipCache.putAll(message.dimension, message.infos);
+                ClientChunkOwnershipCache.putAll(
+                    message.dimension,
+                    message.infos
+                );
             });
             return null;
         }

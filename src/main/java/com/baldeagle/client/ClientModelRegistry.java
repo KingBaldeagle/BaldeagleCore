@@ -22,6 +22,8 @@ public class ClientModelRegistry {
         registerItem(ModItems.COIN_10);
         registerItem(ModItems.BILL_50);
         registerItem(ModItems.BILL_100);
+        registerItem(ModItems.T1_CORE);
+        registerItem(ModItems.T2_CORE);
         registerItem(Item.getItemFromBlock(ModBlocks.BANK));
         registerItem(Item.getItemFromBlock(ModBlocks.MINT));
         registerItem(Item.getItemFromBlock(ModBlocks.CURRENCY_EXCHANGE));

@@ -11,7 +11,7 @@ public final class WarManager {
 
     /**
      * Placeholder until a proper war system exists.
-     * For now, allow hostile flag capture by any other country.
+     * Flag capture is only allowed while at war, and never against allies.
      */
     public static boolean canCapture(
         UUID attackerCountryId,
@@ -25,9 +25,12 @@ public final class WarManager {
             return false;
         }
         Country defender = CountryManager.getCountry(world, defenderCountryId);
-        if (defender != null && defender.isAlliedWith(attackerCountryId)) {
+        if (defender == null) {
             return false;
         }
-        return true;
+        if (defender.isAlliedWith(attackerCountryId)) {
+            return false;
+        }
+        return defender.isAtWarWith(attackerCountryId);
     }
 }

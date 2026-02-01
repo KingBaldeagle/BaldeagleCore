@@ -28,6 +28,7 @@ public class GuiChunkMap extends GuiScreen {
     private int lastCenterX = Integer.MIN_VALUE;
     private int lastCenterZ = Integer.MIN_VALUE;
     private long lastRefreshMs = 0L;
+    private int lastDimension = Integer.MIN_VALUE;
 
     @Override
     public void initGui() {
@@ -44,6 +45,15 @@ public class GuiChunkMap extends GuiScreen {
     private void requestIfNeeded(boolean force) {
         if (mc == null || mc.player == null) {
             return;
+        }
+        int dim = mc.player.dimension;
+        if (dim != lastDimension) {
+            ClientChunkOwnershipCache.clear(dim);
+            ClientChunkMapCache.clear(dim);
+            lastCenterX = Integer.MIN_VALUE;
+            lastCenterZ = Integer.MIN_VALUE;
+            lastRefreshMs = 0L;
+            lastDimension = dim;
         }
         int cx = mc.player.chunkCoordX;
         int cz = mc.player.chunkCoordZ;
@@ -408,7 +418,7 @@ public class GuiChunkMap extends GuiScreen {
             case NEUTRAL:
             default:
                 // Requested: neutral (non-allied) country borders should be green.
-                return 0x226C22;
+                return 0xFF226C22;
         }
     }
 

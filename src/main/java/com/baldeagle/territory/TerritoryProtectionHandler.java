@@ -47,7 +47,10 @@ public class TerritoryProtectionHandler {
             // PlaceEvent fires after the block is placed. If a stale claim exists whose stored
             // flag position matches this placement, validate against the pre-place state.
             TerritoryData data = TerritoryData.get(world);
-            long key = TerritoryManager.chunkKey(chunk);
+            TerritoryManager.DimChunkKey key = TerritoryManager.chunkKey(
+                world,
+                chunk
+            );
             TerritoryData.ClaimEntry raw = data.getClaims().get(key);
             if (raw != null && pos.equals(raw.flagPos)) {
                 IBlockState replaced = null;
@@ -134,7 +137,7 @@ public class TerritoryProtectionHandler {
         if (!isOwnerMember && !isAllied) {
             event.setCanceled(true);
             player.sendStatusMessage(
-                new TextComponentString("This land is claimed."),
+                new TextComponentString("This chunk is claimed."),
                 true
             );
         }
@@ -229,7 +232,7 @@ public class TerritoryProtectionHandler {
         if (!isOwnerMember && !isAllied) {
             event.setCanceled(true);
             player.sendStatusMessage(
-                new TextComponentString("This land is claimed."),
+                new TextComponentString("This chunk is claimed."),
                 true
             );
         }

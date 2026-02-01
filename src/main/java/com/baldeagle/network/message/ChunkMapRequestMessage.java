@@ -91,12 +91,13 @@ public class ChunkMapRequestMessage implements IMessage {
                 for (int dz = -radius; dz <= radius; dz++) {
                     int cx = message.centerChunkX + dx;
                     int cz = message.centerChunkZ + dz;
-                    ChunkTerrainSnapshot snap = ChunkTerrainSnapshotCache.getOrSample(
-                        world,
-                        cx,
-                        cz,
-                        grid
-                    );
+                    ChunkTerrainSnapshot snap =
+                        ChunkTerrainSnapshotCache.getOrSample(
+                            world,
+                            cx,
+                            cz,
+                            grid
+                        );
                     if (snap != null) {
                         snapshots.add(snap);
                     }

@@ -24,8 +24,9 @@ public class TerritoryData extends WorldSavedData {
         }
     }
 
-    // chunkKey -> claim entry
-    private final Map<Long, ClaimEntry> claims = new HashMap<>();
+    // dimension+chunk -> claim entry
+    private final Map<TerritoryManager.DimChunkKey, ClaimEntry> claims =
+        new HashMap<>();
 
     // Used by the income tick handler (only read/written on overworld instance).
     private long lastPayoutTime = 0L;
@@ -49,7 +50,7 @@ public class TerritoryData extends WorldSavedData {
         return data;
     }
 
-    public Map<Long, ClaimEntry> getClaims() {
+    public Map<TerritoryManager.DimChunkKey, ClaimEntry> getClaims() {
         return claims;
     }
 
@@ -72,6 +73,9 @@ public class TerritoryData extends WorldSavedData {
             NBTTagCompound tag = list.getCompoundTagAt(i);
             int chunkX = tag.getInteger("ChunkX");
             int chunkZ = tag.getInteger("ChunkZ");
+            int dimension = tag.hasKey("Dimension")
+                ? tag.getInteger("Dimension")
+                : 0;
             UUID countryId = UUID.fromString(tag.getString("CountryId"));
 
             int fx = tag.getInteger("FlagX");
@@ -79,7 +83,10 @@ public class TerritoryData extends WorldSavedData {
             int fz = tag.getInteger("FlagZ");
             BlockPos flagPos = new BlockPos(fx, fy, fz);
 
-            claims.put(TerritoryManager.chunkKey(chunkX, chunkZ), new ClaimEntry(countryId, flagPos));
+            claims.put(
+                TerritoryManager.chunkKey(dimension, chunkX, chunkZ),
+                new ClaimEntry(countryId, flagPos)
+            );
         }
     }
 
@@ -88,15 +95,17 @@ public class TerritoryData extends WorldSavedData {
         nbt.setLong("LastPayoutTime", lastPayoutTime);
 
         NBTTagList list = new NBTTagList();
-        for (Map.Entry<Long, ClaimEntry> entry : claims.entrySet()) {
-            long key = entry.getKey();
-            int chunkX = (int) (key >> 32);
-            int chunkZ = (int) key;
+        for (Map.Entry<
+            TerritoryManager.DimChunkKey,
+            ClaimEntry
+        > entry : claims.entrySet()) {
+            TerritoryManager.DimChunkKey key = entry.getKey();
             ClaimEntry claim = entry.getValue();
 
             NBTTagCompound tag = new NBTTagCompound();
-            tag.setInteger("ChunkX", chunkX);
-            tag.setInteger("ChunkZ", chunkZ);
+            tag.setInteger("Dimension", key.dimension);
+            tag.setInteger("ChunkX", key.chunkX);
+            tag.setInteger("ChunkZ", key.chunkZ);
             tag.setString("CountryId", claim.countryId.toString());
             tag.setInteger("FlagX", claim.flagPos.getX());
             tag.setInteger("FlagY", claim.flagPos.getY());

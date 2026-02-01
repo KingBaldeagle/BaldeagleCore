@@ -1,7 +1,7 @@
 package com.baldeagle.bank;
 
 import com.baldeagle.BaldeagleCore;
-import com.baldeagle.country.creativetab.EconomyTab;
+import com.baldeagle.country.creativetab.BaldeagleCoreTab;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
@@ -22,7 +22,7 @@ public class BlockBank extends Block {
         setRegistryName(BaldeagleCore.MODID, "bank");
         setTranslationKey("baldeaglecore.bank");
         setHardness(3.5F);
-        setCreativeTab(EconomyTab.INSTANCE);
+        setCreativeTab(BaldeagleCoreTab.INSTANCE);
         this.setDefaultState(
             this.blockState.getBaseState().withProperty(
                 FACING,

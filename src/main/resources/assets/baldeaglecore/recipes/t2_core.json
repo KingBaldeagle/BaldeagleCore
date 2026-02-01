@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["CCC", "CCC", "CCC"],
+  "key": {
+    "C": { "item": "baldeaglecore:t1_core" }
+  },
+  "result": {
+    "item": "baldeaglecore:t2_core",
+    "count": 1
+  }
+}

@@ -4,12 +4,12 @@ import com.baldeagle.country.items.ModItems;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 
-public class EconomyTab extends CreativeTabs {
+public class BaldeagleCoreTab extends CreativeTabs {
 
-    public static final EconomyTab INSTANCE = new EconomyTab();
+    public static final BaldeagleCoreTab INSTANCE = new BaldeagleCoreTab();
 
-    private EconomyTab() {
-        super("economy"); // internal tab ID
+    private BaldeagleCoreTab() {
+        super("baldeaglecore"); // internal tab ID
     }
 
     @Override

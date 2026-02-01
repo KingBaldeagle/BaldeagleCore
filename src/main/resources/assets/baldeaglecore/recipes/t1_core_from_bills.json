@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["BBB", "BBB", "BBB"],
+  "key": {
+    "B": { "item": "baldeaglecore:bill_100" }
+  },
+  "result": {
+    "item": "baldeaglecore:t1_core",
+    "count": 1
+  }
+}
