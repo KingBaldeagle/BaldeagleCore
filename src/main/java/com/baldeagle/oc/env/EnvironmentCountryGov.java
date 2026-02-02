@@ -132,4 +132,16 @@ public class EnvironmentCountryGov extends EnvironmentBase {
             return new Object[] { null };
         }
     }
+
+    @Callback(
+        doc = "function():number|nil -- Returns the bound country's money in circulation."
+    )
+    public Object[] getMoneyInCirculation(Context context, Arguments args) {
+        try {
+            Country country = requireBoundCountry();
+            return new Object[] { country.getMoneyInCirculation() };
+        } catch (Exception e) {
+            return new Object[] { null };
+        }
+    }
 }
