@@ -46,6 +46,7 @@ public class BaldeagleCore {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        com.baldeagle.config.BaldeagleConfig.init(event);
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new EconomyTickHandler());
         MinecraftForge.EVENT_BUS.register(new TerritoryIncomeTickHandler());

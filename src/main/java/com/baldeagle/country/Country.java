@@ -403,14 +403,38 @@ public class Country {
         if (!isAuthorized(byPlayer)) throw new IllegalArgumentException(
             "Not authorized"
         );
-        if (amount > balance) throw new IllegalArgumentException(
-            "Insufficient funds"
-        );
         if (to == null || amount <= 0) {
             return;
         }
+        if (amount > balance) throw new IllegalArgumentException(
+            "Insufficient funds"
+        );
+
+        double taxRate =
+            com.baldeagle.config.BaldeagleConfig.wireTransferTaxRate;
+        double interestRate =
+            com.baldeagle.config.BaldeagleConfig.wireTransferInterestRate;
+        int interestThreshold =
+            com.baldeagle.config.BaldeagleConfig.wireTransferInterestThreshold;
+
+        double safeTaxRate = Math.max(0.0D, Math.min(1.0D, taxRate));
+        double safeInterestRate = Math.max(0.0D, Math.min(1.0D, interestRate));
+
+        long tax = (long) Math.floor(amount * safeTaxRate);
+        long afterTax = Math.max(0L, amount - tax);
+        long interest = 0L;
+        if (amount >= interestThreshold && safeInterestRate > 0.0D) {
+            interest = (long) Math.floor(afterTax * safeInterestRate);
+        }
+        long netTransfer = Math.max(0L, afterTax - interest);
+        if (netTransfer <= 0) {
+            throw new IllegalArgumentException(
+                "Transfer amount too small after fees."
+            );
+        }
+
         balance -= amount;
-        to.balance += amount;
+        to.balance += netTransfer;
     }
 
     public void requestJoin(UUID player) {

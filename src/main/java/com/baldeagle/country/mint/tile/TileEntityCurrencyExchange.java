@@ -110,10 +110,13 @@ public class TileEntityCurrencyExchange
             );
             return;
         }
-        if (sourceCountry.getId().equals(targetCountry.getId())) {
+        if (
+            sourceCountry.getId().equals(targetCountry.getId()) &&
+            !com.baldeagle.config.BaldeagleConfig.allowReverseConversion
+        ) {
             player.sendStatusMessage(
                 new net.minecraft.util.text.TextComponentString(
-                    "Select a different target country."
+                    "Reverse conversion is disabled."
                 ),
                 true
             );
@@ -165,8 +168,19 @@ public class TileEntityCurrencyExchange
         }
 
         double fee = sourceCountry.getExchangeFee();
+        double conversionTax =
+            com.baldeagle.config.BaldeagleConfig.currencyConversionTax;
+        double conversionInterest =
+            com.baldeagle.config.BaldeagleConfig.currencyConversionInterest;
+        int interestThreshold =
+            com.baldeagle.config.BaldeagleConfig
+                .currencyConversionInterestThreshold;
+        double extraFee =
+            faceValue >= interestThreshold ? conversionInterest : 0.0D;
+        double totalFeeRate = fee + conversionTax + extraFee;
+        double safeFeeRate = Math.max(0.0D, Math.min(0.99D, totalFeeRate));
         long feeFaceValue = (long) Math.floor(
-            grossTargetFaceValue * Math.max(0.0D, Math.min(0.99D, fee))
+            grossTargetFaceValue * safeFeeRate
         );
         long targetFaceValue = Math.max(0, grossTargetFaceValue - feeFaceValue);
         if (targetFaceValue <= 0) {
@@ -254,7 +268,7 @@ public class TileEntityCurrencyExchange
 
         recalc();
         sync();
-        double feeMultiplier = 1.0D - Math.max(0.0D, Math.min(0.99D, fee));
+        double feeMultiplier = 1.0D - safeFeeRate;
         player.sendStatusMessage(
             new net.minecraft.util.text.TextComponentString(
                 "Exchange completed at rate " +
@@ -337,6 +351,14 @@ public class TileEntityCurrencyExchange
             projectedOutput = 0;
             return;
         }
+        if (
+            sourceCountry.getId().equals(targetCountry.getId()) &&
+            !com.baldeagle.config.BaldeagleConfig.allowReverseConversion
+        ) {
+            projectedRate = 0;
+            projectedOutput = 0;
+            return;
+        }
 
         double rate = CurrencyMath.computeExchangeRate(
             sourceCountry,
@@ -354,7 +376,18 @@ public class TileEntityCurrencyExchange
             faceValue
         );
         double fee = sourceCountry.getExchangeFee();
-        double feeMultiplier = 1.0D - Math.max(0.0D, Math.min(0.99D, fee));
+        double conversionTax =
+            com.baldeagle.config.BaldeagleConfig.currencyConversionTax;
+        double conversionInterest =
+            com.baldeagle.config.BaldeagleConfig.currencyConversionInterest;
+        int interestThreshold =
+            com.baldeagle.config.BaldeagleConfig
+                .currencyConversionInterestThreshold;
+        double extraFee =
+            faceValue >= interestThreshold ? conversionInterest : 0.0D;
+        double totalFeeRate = fee + conversionTax + extraFee;
+        double safeFeeRate = Math.max(0.0D, Math.min(0.99D, totalFeeRate));
+        double feeMultiplier = 1.0D - safeFeeRate;
         double finalRate = rate * liquidityMultiplier * feeMultiplier;
         projectedRate = finalRate;
         projectedOutput = (int) Math.max(0, Math.floor(faceValue * finalRate));
