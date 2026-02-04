@@ -30,6 +30,23 @@ public enum CurrencyDenomination {
         return value;
     }
 
+    public double getResearchMultiplier() {
+        switch (this) {
+            case COIN_1:
+                return 1.0D;
+            case COIN_5:
+                return 1.05D;
+            case COIN_10:
+                return 1.10D;
+            case BILL_50:
+                return 1.20D;
+            case BILL_100:
+                return 1.30D;
+            default:
+                return 1.0D;
+        }
+    }
+
     public String getId() {
         return id;
     }

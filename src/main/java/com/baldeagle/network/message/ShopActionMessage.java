@@ -112,7 +112,11 @@ public class ShopActionMessage implements IMessage {
             if (!shop.isOwner(player)) {
                 return;
             }
-            shop.setPrice(slot, Math.max(0, price));
+            int rowStart = (slot / 3) * 3;
+            long safePrice = Math.max(0, price);
+            for (int i = 0; i < 3; i++) {
+                shop.setPrice(rowStart + i, safePrice);
+            }
         }
 
         private void handleWithdraw(

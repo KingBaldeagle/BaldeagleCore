@@ -13,6 +13,8 @@ import com.baldeagle.network.message.ExchangeActionMessage;
 import com.baldeagle.network.message.ExchangeSyncMessage;
 import com.baldeagle.network.message.MintActionMessage;
 import com.baldeagle.network.message.MintSyncMessage;
+import com.baldeagle.network.message.ResearchAssemblerActionMessage;
+import com.baldeagle.network.message.ResearchAssemblerSyncMessage;
 import com.baldeagle.network.message.ShopActionMessage;
 import com.baldeagle.network.message.VaultSyncMessage;
 import net.minecraft.util.math.BlockPos;
@@ -87,6 +89,18 @@ public final class NetworkHandler {
         INSTANCE.registerMessage(
             BankSyncMessage.Handler.class,
             BankSyncMessage.class,
+            id++,
+            Side.CLIENT
+        );
+        INSTANCE.registerMessage(
+            ResearchAssemblerActionMessage.Handler.class,
+            ResearchAssemblerActionMessage.class,
+            id++,
+            Side.SERVER
+        );
+        INSTANCE.registerMessage(
+            ResearchAssemblerSyncMessage.Handler.class,
+            ResearchAssemblerSyncMessage.class,
             id++,
             Side.CLIENT
         );

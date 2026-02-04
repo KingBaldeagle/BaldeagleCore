@@ -21,6 +21,7 @@ public class Country {
     private long balance;
     private long treasury;
     private long moneyInCirculation;
+    private long researchCredits;
     private double inflation;
     private double baseValue;
     private double exchangeFee = 0.03D;
@@ -37,6 +38,7 @@ public class Country {
         this.balance = 0L;
         this.treasury = 0;
         this.moneyInCirculation = 1;
+        this.researchCredits = 0L;
         this.inflation = 1.0D;
         this.baseValue = 1.0D;
         this.exchangeFee = 0.03D;
@@ -49,6 +51,7 @@ public class Country {
         this.balance = 0L;
         this.treasury = 0;
         this.moneyInCirculation = 1;
+        this.researchCredits = 0L;
         this.inflation = 1.0D;
         this.baseValue = 1.0D;
         this.exchangeFee = 0.03D;
@@ -203,6 +206,26 @@ public class Country {
 
     public long getMoneyInCirculation() {
         return Math.max(1, moneyInCirculation);
+    }
+
+    public long getResearchCredits() {
+        return Math.max(0L, researchCredits);
+    }
+
+    public void addResearchCredits(long amount) {
+        if (amount <= 0) {
+            return;
+        }
+        long updated = researchCredits + amount;
+        researchCredits = updated < researchCredits ? Long.MAX_VALUE : updated;
+    }
+
+    public boolean consumeResearchCredits(long amount) {
+        if (amount <= 0 || researchCredits < amount) {
+            return false;
+        }
+        researchCredits -= amount;
+        return true;
     }
 
     public void addMoneyInCirculation(long amount) {
@@ -427,6 +450,7 @@ public class Country {
         nbt.setLong("balance", balance);
         nbt.setLong("treasury", treasury);
         nbt.setLong("circulation", moneyInCirculation);
+        nbt.setLong("researchCredits", researchCredits);
         nbt.setDouble("inflation", inflation);
         nbt.setDouble("baseValue", baseValue);
         nbt.setDouble("exchangeFee", exchangeFee);
@@ -481,6 +505,9 @@ public class Country {
         long balance = readLegacyLong(nbt, "balance");
         long treasury = nbt.getLong("treasury");
         long circulation = nbt.getLong("circulation");
+        long researchCredits = nbt.hasKey("researchCredits")
+            ? nbt.getLong("researchCredits")
+            : 0L;
         double inflation = nbt.getDouble("inflation");
         double baseValue = nbt.getDouble("baseValue");
         double exchangeFee = nbt.hasKey("exchangeFee")
@@ -492,6 +519,7 @@ public class Country {
         c.setBalance(balance);
         c.treasury = Math.max(0, treasury);
         c.moneyInCirculation = Math.max(1, circulation);
+        c.researchCredits = Math.max(0L, researchCredits);
         c.inflation = inflation <= 0 ? 1.0D : c.clampInflation(inflation);
         c.baseValue = baseValue;
         c.setExchangeFee(exchangeFee);
