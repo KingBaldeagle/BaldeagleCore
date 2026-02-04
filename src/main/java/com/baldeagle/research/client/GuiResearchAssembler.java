@@ -107,7 +107,7 @@ public class GuiResearchAssembler extends GuiContainer {
 
         String status = tile.getLastStatus();
         if (status != null && !status.trim().isEmpty()) {
-            fontRenderer.drawString(status, 103, 18, 0x7F0000);
+            fontRenderer.drawString(status, 81, 51, 0x7F0000);
         }
     }
 

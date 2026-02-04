@@ -69,7 +69,7 @@ public class TileEntityResearchAssembler
             }
             storedResearchCredits = ownerCountry.getResearchCredits();
         } else if (selectedTier == ResearchCoreTier.T1) {
-            lastStatus = "No Owner";
+            lastStatus = "Join a country";
         }
 
         if (selectedTier == ResearchCoreTier.T1) {

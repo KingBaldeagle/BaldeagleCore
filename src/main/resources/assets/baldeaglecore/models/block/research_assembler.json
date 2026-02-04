@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "particle": "baldeaglecore:blocks/mint_front",
-    "down": "baldeaglecore:blocks/mint_all",
-    "up": "baldeaglecore:blocks/mint_all",
-    "north": "baldeaglecore:blocks/mint_front",
-    "south": "baldeaglecore:blocks/mint_all",
-    "west": "baldeaglecore:blocks/mint_all",
-    "east": "baldeaglecore:blocks/mint_all"
+    "particle": "baldeaglecore:blocks/assembler_front",
+    "down": "baldeaglecore:blocks/assembler_rest",
+    "up": "baldeaglecore:blocks/assembler_rest",
+    "north": "baldeaglecore:blocks/assembler_front",
+    "south": "baldeaglecore:blocks/assembler_rest",
+    "west": "baldeaglecore:blocks/assembler_rest",
+    "east": "baldeaglecore:blocks/assembler_rest"
   }
 }
