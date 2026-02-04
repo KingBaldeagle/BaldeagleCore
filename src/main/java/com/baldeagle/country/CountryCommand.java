@@ -20,7 +20,7 @@ public class CountryCommand extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally|war> [...]";
+        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally|war|bounty> [...]";
     }
 
     @Override
@@ -839,6 +839,125 @@ public class CountryCommand extends CommandBase {
                         );
                         return;
                 }
+            }
+            // --- BOUNTY ---
+            case "bounty": {
+                if (args.length < 2) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Usage: /country bounty add <playerName> <reward>"
+                        )
+                    );
+                    return;
+                }
+
+                String action = args[1].toLowerCase();
+                if (!"add".equals(action)) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Unknown bounty action. Usage: /country bounty add <playerName> <reward>"
+                        )
+                    );
+                    return;
+                }
+                if (args.length < 4) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Usage: /country bounty add <playerName> <reward>"
+                        )
+                    );
+                    return;
+                }
+
+                Country self = CountryManager.getCountryForPlayer(
+                    world,
+                    playerUUID
+                );
+                if (self == null) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You are not part of any country."
+                        )
+                    );
+                    return;
+                }
+                if (!self.isHighAuthority(playerUUID)) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Only the President or a Minister can set bounties."
+                        )
+                    );
+                    return;
+                }
+
+                EntityPlayerMP targetPlayer = server
+                    .getPlayerList()
+                    .getPlayerByUsername(args[2]);
+                if (targetPlayer == null) {
+                    sender.sendMessage(
+                        new TextComponentString("Player not found.")
+                    );
+                    return;
+                }
+                UUID targetUUID = targetPlayer.getUniqueID();
+                Country targetCountry = CountryManager.getCountryForPlayer(
+                    world,
+                    targetUUID
+                );
+                if (targetCountry == null) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Target player is not part of a country."
+                        )
+                    );
+                    return;
+                }
+                if (!self.isAtWarWith(targetCountry.getId())) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You can only set bounties on enemies during war."
+                        )
+                    );
+                    return;
+                }
+
+                long reward;
+                try {
+                    reward = Long.parseLong(args[3]);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(
+                        new TextComponentString("Invalid reward amount.")
+                    );
+                    return;
+                }
+                if (reward <= 0) {
+                    sender.sendMessage(
+                        new TextComponentString("Reward must be positive.")
+                    );
+                    return;
+                }
+                if (self.getBalance() < reward) {
+                    sender.sendMessage(
+                        new TextComponentString("Insufficient country funds.")
+                    );
+                    return;
+                }
+
+                self.setBounty(targetUUID, reward);
+                CountryStorage.get(countryWorld).markDirty();
+                server
+                    .getPlayerList()
+                    .sendMessage(
+                        new TextComponentString(
+                            self.getName() +
+                                " has placed a bounty on " +
+                                targetPlayer.getName() +
+                                " for " +
+                                reward +
+                                "."
+                        )
+                    );
+                return;
             }
             default:
                 sender.sendMessage(
