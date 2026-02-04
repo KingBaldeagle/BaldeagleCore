@@ -2,6 +2,7 @@ package com.baldeagle;
 
 import com.baldeagle.bank.GuiHandler;
 import com.baldeagle.bank.TileEntityBank;
+import com.baldeagle.country.BountyEventHandler;
 import com.baldeagle.country.mint.tile.TileEntityCurrencyExchange;
 import com.baldeagle.country.mint.tile.TileEntityMint;
 import com.baldeagle.country.vault.tile.TileEntityVault;
@@ -48,6 +49,7 @@ public class BaldeagleCore {
     public void preInit(FMLPreInitializationEvent event) {
         com.baldeagle.config.BaldeagleConfig.init(event);
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new BountyEventHandler());
         MinecraftForge.EVENT_BUS.register(new EconomyTickHandler());
         MinecraftForge.EVENT_BUS.register(new TerritoryIncomeTickHandler());
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
