@@ -1,6 +1,7 @@
 package com.baldeagle.research.tile;
 
 import com.baldeagle.country.Country;
+import com.baldeagle.country.CountryManager;
 import com.baldeagle.country.CountryStorage;
 import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.country.items.ModItems;
@@ -38,6 +39,8 @@ public class TileEntityResearchAssembler
     private ResearchCoreTier selectedTier = ResearchCoreTier.T1;
     private String ownerCountryName = "";
     private UUID ownerCountryId;
+    private boolean creditsMigrated = false;
+    private long legacyStoredCredits = 0L;
 
     private String lastCountryName = "";
     private double lastExchangeRate = 0.0D;
@@ -54,6 +57,20 @@ public class TileEntityResearchAssembler
         boolean changed = false;
         String prevStatus = lastStatus;
         lastStatus = "";
+
+        Country ownerCountry = getBoundCountry();
+        if (ownerCountry != null) {
+            if (!creditsMigrated && legacyStoredCredits > 0L) {
+                ownerCountry.addResearchCredits(legacyStoredCredits);
+                legacyStoredCredits = 0L;
+                creditsMigrated = true;
+                CountryStorage.get(world).markDirty();
+                changed = true;
+            }
+            storedResearchCredits = ownerCountry.getResearchCredits();
+        } else if (selectedTier == ResearchCoreTier.T1) {
+            lastStatus = "No Owner";
+        }
 
         if (selectedTier == ResearchCoreTier.T1) {
             if (handleCurrencyInput()) {
@@ -82,27 +99,52 @@ public class TileEntityResearchAssembler
         }
     }
 
+    private Country getBoundCountry() {
+        if (world == null) {
+            return null;
+        }
+        if (ownerCountryId != null) {
+            return CountryManager.getCountry(world, ownerCountryId);
+        }
+        if (ownerCountryName == null || ownerCountryName.trim().isEmpty()) {
+            return null;
+        }
+        for (Country country : CountryStorage.get(world)
+            .getCountriesMap()
+            .values()) {
+            if (
+                country != null &&
+                ownerCountryName.equalsIgnoreCase(country.getName())
+            ) {
+                ownerCountryId = country.getId();
+                return country;
+            }
+        }
+        return null;
+    }
+
     private boolean handleCurrencyInput() {
         ItemStack input = items.get(SLOT_INPUT);
         if (input.isEmpty()) {
             return false;
         }
         if (!CurrencyItemHelper.isCurrency(input)) {
-            lastStatus = "Insert currency.";
+            lastStatus = "Insert currency";
             return false;
         }
         if (!canAcceptOutput(selectedTier.getItem(), 1)) {
-            lastStatus = "Output full.";
+            lastStatus = "Output full";
             return false;
         }
 
-        if (ownerCountryId == null) {
+        Country ownerCountry = getBoundCountry();
+        if (ownerCountry == null) {
             lastStatus = "Wrong Currency";
             return false;
         }
         Country currencyCountry = CurrencyItemHelper.getCountry(world, input);
-        if (!isCurrencyAllowed(currencyCountry)) {
-            lastStatus = "Wrong country.";
+        if (!isCurrencyAllowed(ownerCountry, currencyCountry)) {
+            lastStatus = "Wrong currency";
             return false;
         }
 
@@ -111,7 +153,9 @@ public class TileEntityResearchAssembler
             lastConvertedCredits = 0L;
             return false;
         }
-        addResearchCredits(credits);
+        ownerCountry.addResearchCredits(credits);
+        storedResearchCredits = ownerCountry.getResearchCredits();
+        CountryStorage.get(world).markDirty();
         CurrencyItemHelper.removeFromCirculation(world, input);
         items.set(SLOT_INPUT, ItemStack.EMPTY);
         return true;
@@ -126,17 +170,17 @@ public class TileEntityResearchAssembler
             return false;
         }
         if (input.getItem() != inputItem) {
-            lastStatus = "Insert lower cores.";
+            lastStatus = "Insert lower cores";
             return false;
         }
         if (!canAcceptOutput(outputItem, 1)) {
-            lastStatus = "Output full.";
+            lastStatus = "Output full";
             return false;
         }
 
         int crafts = input.getCount() / 9;
         if (crafts <= 0) {
-            lastStatus = "Need 9 cores.";
+            lastStatus = "Need 9 cores";
             return false;
         }
         int maxCrafts = Math.min(crafts, getMaxOutputFit(outputItem));
@@ -186,20 +230,14 @@ public class TileEntityResearchAssembler
         return credits;
     }
 
-    private void addResearchCredits(long credits) {
-        if (credits <= 0) {
-            return;
-        }
-        long updated = storedResearchCredits + credits;
-        storedResearchCredits =
-            updated < storedResearchCredits ? Long.MAX_VALUE : updated;
-    }
-
-    private boolean isCurrencyAllowed(Country currencyCountry) {
-        if (currencyCountry == null || ownerCountryId == null) {
+    private boolean isCurrencyAllowed(
+        Country ownerCountry,
+        Country currencyCountry
+    ) {
+        if (currencyCountry == null || ownerCountry == null) {
             return false;
         }
-        return ownerCountryId.equals(currencyCountry.getId());
+        return ownerCountry.getId().equals(currencyCountry.getId());
     }
 
     private boolean canAcceptOutput(Item item, int count) {
@@ -243,7 +281,12 @@ public class TileEntityResearchAssembler
     }
 
     private boolean tryOutputCore() {
+        Country ownerCountry = getBoundCountry();
+        if (ownerCountry == null) {
+            return false;
+        }
         long cost = selectedTier.getCost();
+        storedResearchCredits = ownerCountry.getResearchCredits();
         if (cost <= 0 || storedResearchCredits < cost) {
             return false;
         }
@@ -258,7 +301,11 @@ public class TileEntityResearchAssembler
         }
 
         addOutput(coreItem, 1);
-        storedResearchCredits = Math.max(0L, storedResearchCredits - cost);
+        if (!ownerCountry.consumeResearchCredits(cost)) {
+            return false;
+        }
+        storedResearchCredits = ownerCountry.getResearchCredits();
+        CountryStorage.get(world).markDirty();
         return true;
     }
 
@@ -310,6 +357,7 @@ public class TileEntityResearchAssembler
         } else {
             ownerCountryId = country.getId();
             ownerCountryName = country.getName();
+            storedResearchCredits = country.getResearchCredits();
         }
         sync();
         markDirty();
@@ -319,6 +367,9 @@ public class TileEntityResearchAssembler
         if (world == null || world.isRemote) {
             return;
         }
+        Country ownerCountry = getBoundCountry();
+        storedResearchCredits =
+            ownerCountry != null ? ownerCountry.getResearchCredits() : 0L;
         world.notifyBlockUpdate(
             pos,
             world.getBlockState(pos),
@@ -507,6 +558,8 @@ public class TileEntityResearchAssembler
         super.writeToNBT(compound);
         compound.setLong("storedCredits", storedResearchCredits);
         compound.setInteger("tier", selectedTier.ordinal());
+        compound.setBoolean("creditsMigrated", creditsMigrated);
+        compound.setLong("legacyStoredCredits", legacyStoredCredits);
         if (ownerCountryId != null) {
             compound.setString("ownerId", ownerCountryId.toString());
         }
@@ -527,6 +580,17 @@ public class TileEntityResearchAssembler
         selectedTier = ResearchCoreTier.fromOrdinal(
             compound.getInteger("tier")
         );
+        creditsMigrated = compound.getBoolean("creditsMigrated");
+        if (compound.hasKey("legacyStoredCredits")) {
+            legacyStoredCredits = Math.max(
+                0L,
+                compound.getLong("legacyStoredCredits")
+            );
+        } else if (!creditsMigrated) {
+            legacyStoredCredits = storedResearchCredits;
+        } else {
+            legacyStoredCredits = 0L;
+        }
         ownerCountryName = compound.getString("ownerName");
         if (compound.hasKey("ownerId")) {
             try {

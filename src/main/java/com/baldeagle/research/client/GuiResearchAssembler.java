@@ -15,7 +15,7 @@ public class GuiResearchAssembler extends GuiContainer {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(
         "baldeaglecore",
-        "textures/gui/mint.png"
+        "textures/gui/research_assembler.png"
     );
 
     private final TileEntityResearchAssembler tile;
@@ -74,7 +74,7 @@ public class GuiResearchAssembler extends GuiContainer {
         if (tier == ResearchCoreTier.T1) {
             fontRenderer.drawString("Cost: " + cost + " RC", 8, 46, 0x404040);
             fontRenderer.drawString(
-                "Stored: " + stored + " RC",
+                "Country: " + stored + " RC",
                 8,
                 58,
                 0x404040
@@ -107,7 +107,7 @@ public class GuiResearchAssembler extends GuiContainer {
 
         String status = tile.getLastStatus();
         if (status != null && !status.trim().isEmpty()) {
-            fontRenderer.drawString(status, 8, 118, 0x7F0000);
+            fontRenderer.drawString(status, 103, 18, 0x7F0000);
         }
     }
 

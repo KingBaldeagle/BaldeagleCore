@@ -20,7 +20,7 @@ public class ContainerResearchAssembler extends Container {
         this.player = inventory.player;
 
         this.addSlotToContainer(
-            new Slot(tile, 0, 56, 35) {
+            new Slot(tile, 0, 128, 33) {
                 @Override
                 public boolean isItemValid(ItemStack stack) {
                     return tile.isInputValid(stack);
@@ -29,7 +29,7 @@ public class ContainerResearchAssembler extends Container {
         );
 
         this.addSlotToContainer(
-            new Slot(tile, 1, 116, 35) {
+            new Slot(tile, 1, 128, 60) {
                 @Override
                 public boolean isItemValid(ItemStack stack) {
                     return false;
