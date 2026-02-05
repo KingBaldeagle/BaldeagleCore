@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["IBI", "IVI", "III"],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "V": {
+      "item": "baldeaglecore:vault"
+    },
+    "B": {
+      "item": "baldeaglecore:atm"
+    }
+  },
+  "result": {
+    "item": "baldeaglecore:shop",
+    "count": 1
+  }
+}

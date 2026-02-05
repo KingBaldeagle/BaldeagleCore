@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["IAI", "IVI", "III"],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "V": {
+      "item": "baldeaglecore:vault"
+    },
+    "A": {
+      "item": "baldeaglecore:atm"
+    }
+  },
+  "result": {
+    "item": "baldeaglecore:government_computer",
+    "count": 1
+  }
+}

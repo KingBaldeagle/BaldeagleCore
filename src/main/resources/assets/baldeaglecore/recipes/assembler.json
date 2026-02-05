@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["DBD", "DVD", "DMD"],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "V": {
+      "item": "baldeaglecore:vault"
+    },
+    "B": {
+      "item": "baldeaglecore:atm"
+    },
+    "M": {
+      "item": "baldeaglecore:mint"
+    }
+  },
+  "result": {
+    "item": "baldeaglecore:research_assembler",
+    "count": 1
+  }
+}
