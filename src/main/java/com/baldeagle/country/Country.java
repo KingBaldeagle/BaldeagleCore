@@ -1,6 +1,6 @@
 package com.baldeagle.country;
 
-import com.baldeagle.country.mint.MintingConstants;
+import com.baldeagle.blocks.mint.MintingConstants;
 import java.util.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;

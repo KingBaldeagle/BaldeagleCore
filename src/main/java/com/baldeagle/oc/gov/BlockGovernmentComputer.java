@@ -3,7 +3,7 @@ package com.baldeagle.oc.gov;
 import com.baldeagle.BaldeagleCore;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
-import com.baldeagle.country.creativetab.BaldeagleCoreTab;
+import com.baldeagle.creativetab.BaldeagleCoreTab;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;

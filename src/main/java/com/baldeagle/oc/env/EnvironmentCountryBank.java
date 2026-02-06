@@ -1,6 +1,6 @@
 package com.baldeagle.oc.env;
 
-import com.baldeagle.bank.TileEntityBank;
+import com.baldeagle.blocks.bank.TileEntityBank;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryStorage;
 import com.baldeagle.economy.EconomyManager;

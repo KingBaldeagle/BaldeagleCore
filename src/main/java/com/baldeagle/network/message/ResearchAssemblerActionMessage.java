@@ -1,6 +1,6 @@
 package com.baldeagle.network.message;
 
-import com.baldeagle.research.tile.TileEntityResearchAssembler;
+import com.baldeagle.blocks.research.tile.TileEntityResearchAssembler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;

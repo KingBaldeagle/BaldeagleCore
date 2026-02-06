@@ -6,7 +6,7 @@ import com.baldeagle.country.CountryStorage;
 import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.economy.EconomyManager;
-import com.baldeagle.shop.TileEntityShop;
+import com.baldeagle.blocks.shop.TileEntityShop;
 import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
 import java.util.Comparator;

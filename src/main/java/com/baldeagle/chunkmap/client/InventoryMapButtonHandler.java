@@ -1,13 +1,11 @@
 package com.baldeagle.chunkmap.client;
 
-import com.baldeagle.bank.ModBlocks;
-import com.baldeagle.country.items.ModItems;
+import com.baldeagle.items.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

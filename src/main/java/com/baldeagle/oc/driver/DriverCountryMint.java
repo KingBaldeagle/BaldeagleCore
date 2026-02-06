@@ -1,6 +1,6 @@
 package com.baldeagle.oc.driver;
 
-import com.baldeagle.country.mint.tile.TileEntityMint;
+import com.baldeagle.blocks.mint.tile.TileEntityMint;
 import com.baldeagle.oc.env.EnvironmentCountryMint;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.network.ManagedEnvironment;

@@ -1,6 +1,6 @@
 package com.baldeagle.territory;
 
-import com.baldeagle.bank.ModBlocks;
+import com.baldeagle.ModBlocks;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
 import net.minecraft.block.state.IBlockState;

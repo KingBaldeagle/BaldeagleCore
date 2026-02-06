@@ -1,6 +1,6 @@
 package com.baldeagle.network.message;
 
-import com.baldeagle.bank.TileEntityBank;
+import com.baldeagle.blocks.bank.TileEntityBank;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
