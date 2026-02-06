@@ -1,6 +1,6 @@
 package com.baldeagle.network.message;
 
-import com.baldeagle.country.vault.tile.TileEntityVault;
+import com.baldeagle.blocks.vault.tile.TileEntityVault;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
@@ -33,12 +33,19 @@ public class VaultSyncMessage implements IMessage {
         countryReserves = buf.readLong();
     }
 
-    public static class Handler implements IMessageHandler<VaultSyncMessage, IMessage> {
+    public static class Handler
+        implements IMessageHandler<VaultSyncMessage, IMessage>
+    {
 
         @Override
-        public IMessage onMessage(VaultSyncMessage message, MessageContext ctx) {
+        public IMessage onMessage(
+            VaultSyncMessage message,
+            MessageContext ctx
+        ) {
             Minecraft.getMinecraft().addScheduledTask(() -> {
-                TileEntity tile = Minecraft.getMinecraft().world.getTileEntity(message.pos);
+                TileEntity tile = Minecraft.getMinecraft().world.getTileEntity(
+                    message.pos
+                );
                 if (tile instanceof TileEntityVault) {
                     ((TileEntityVault) tile).applyCountryReserveSync(
                         message.countryReserves

@@ -6,7 +6,7 @@ import com.baldeagle.country.CountryStorage;
 import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.economy.EconomyManager;
-import com.baldeagle.shop.TileEntityShop;
+import com.baldeagle.blocks.shop.TileEntityShop;
 import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -66,8 +66,7 @@ public class ShopActionMessage implements IMessage {
     public static class Handler
         implements IMessageHandler<ShopActionMessage, IMessage>
     {
-
-        private static final double TAX_RATE = 0.08D;
+        private static final double MAX_FEE_RATE = 0.99D;
 
         @Override
         public IMessage onMessage(
@@ -209,10 +208,29 @@ public class ShopActionMessage implements IMessage {
                     return;
                 }
 
+                double buyTaxRate =
+                    com.baldeagle.config.BaldeagleConfig.shopBuyTax;
+                double bulkRate =
+                    com.baldeagle.config.BaldeagleConfig.shopBulkInterestRate;
+                int bulkThreshold =
+                    com.baldeagle.config.BaldeagleConfig.shopBulkThreshold;
+
+                double safeBuyTaxRate =
+                    Math.max(0.0D, Math.min(MAX_FEE_RATE, buyTaxRate));
+                double safeBulkRate =
+                    Math.max(0.0D, Math.min(MAX_FEE_RATE, bulkRate));
+
+                long buyTax = (long) Math.floor(price * safeBuyTaxRate);
+                long bulkFee = 0L;
+                if (price >= bulkThreshold && safeBulkRate > 0.0D) {
+                    bulkFee = (long) Math.floor(price * safeBulkRate);
+                }
+                long totalCost = Math.max(0L, price + buyTax + bulkFee);
+
                 boolean paid = EconomyManager.withdrawPlayer(
                     buyer.world,
                     buyer.getUniqueID(),
-                    price
+                    totalCost
                 );
                 if (!paid) {
                     buyer.sendStatusMessage(
@@ -224,15 +242,13 @@ public class ShopActionMessage implements IMessage {
                     return;
                 }
 
-                long tax = (long) Math.floor(price * TAX_RATE);
-                long ownerReceives = Math.max(0, price - tax);
-
-                shop.addCash(ownerReceives);
-                if (tax > 0) {
+                shop.addCash(price);
+                long totalFees = buyTax + bulkFee;
+                if (totalFees > 0) {
                     EconomyManager.depositCountry(
                         buyer.world,
                         shopCountry.getName(),
-                        tax
+                        totalFees
                     );
                     CountryStorage.get(buyer.world).markDirty();
                 }
@@ -247,7 +263,13 @@ public class ShopActionMessage implements IMessage {
 
                 buyer.sendStatusMessage(
                     new net.minecraft.util.text.TextComponentString(
-                        "Purchased for " + price + " (tax " + tax + ")."
+                        "Purchased for " +
+                        totalCost +
+                        " (price " +
+                        price +
+                        ", fees " +
+                        totalFees +
+                        ")."
                     ),
                     true
                 );

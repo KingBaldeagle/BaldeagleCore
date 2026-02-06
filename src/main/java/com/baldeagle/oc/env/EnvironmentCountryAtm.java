@@ -1,10 +1,10 @@
 package com.baldeagle.oc.env;
 
+import com.baldeagle.blocks.mint.MintingConstants;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryStorage;
 import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
-import com.baldeagle.country.mint.MintingConstants;
 import com.baldeagle.economy.EconomyManager;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import com.baldeagle.oc.OCUtil;

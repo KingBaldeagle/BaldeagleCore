@@ -1,6 +1,6 @@
 package com.baldeagle.oc.driver;
 
-import com.baldeagle.bank.TileEntityBank;
+import com.baldeagle.blocks.bank.TileEntityBank;
 import com.baldeagle.oc.env.EnvironmentCountryBank;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.network.ManagedEnvironment;

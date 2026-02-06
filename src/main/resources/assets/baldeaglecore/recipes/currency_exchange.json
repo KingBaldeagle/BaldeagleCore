@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["CCC", "CBC", "CCC"],
+  "key": {
+    "C": {
+      "item": "baldeaglecore:coin_10"
+    },
+    "B": {
+      "item": "baldeaglecore:bank"
+    }
+  },
+  "result": {
+    "item": "baldeaglecore:currency_exchange",
+    "count": 1
+  }
+}

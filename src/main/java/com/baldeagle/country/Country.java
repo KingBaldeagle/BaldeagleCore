@@ -1,6 +1,6 @@
 package com.baldeagle.country;
 
-import com.baldeagle.country.mint.MintingConstants;
+import com.baldeagle.blocks.mint.MintingConstants;
 import java.util.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -31,6 +31,7 @@ public class Country {
     private final Set<UUID> allies = new HashSet<>();
     private final Set<UUID> incomingAllianceRequests = new HashSet<>();
     private final Set<UUID> wars = new HashSet<>();
+    private final Map<UUID, Long> bounties = new HashMap<>();
 
     public Country(String name, UUID creator) {
         this.name = name;
@@ -95,6 +96,28 @@ public class Country {
 
     public Set<UUID> getWars() {
         return wars;
+    }
+
+    public Map<UUID, Long> getBounties() {
+        return bounties;
+    }
+
+    public Long getBountyReward(UUID target) {
+        return target == null ? null : bounties.get(target);
+    }
+
+    public void setBounty(UUID target, long reward) {
+        if (target == null || reward <= 0) {
+            return;
+        }
+        bounties.put(target, reward);
+    }
+
+    public boolean removeBounty(UUID target) {
+        if (target == null) {
+            return false;
+        }
+        return bounties.remove(target) != null;
     }
 
     public UUID getPresidentUuid() {
@@ -403,14 +426,38 @@ public class Country {
         if (!isAuthorized(byPlayer)) throw new IllegalArgumentException(
             "Not authorized"
         );
-        if (amount > balance) throw new IllegalArgumentException(
-            "Insufficient funds"
-        );
         if (to == null || amount <= 0) {
             return;
         }
+        if (amount > balance) throw new IllegalArgumentException(
+            "Insufficient funds"
+        );
+
+        double taxRate =
+            com.baldeagle.config.BaldeagleConfig.wireTransferTaxRate;
+        double interestRate =
+            com.baldeagle.config.BaldeagleConfig.wireTransferInterestRate;
+        int interestThreshold =
+            com.baldeagle.config.BaldeagleConfig.wireTransferInterestThreshold;
+
+        double safeTaxRate = Math.max(0.0D, Math.min(1.0D, taxRate));
+        double safeInterestRate = Math.max(0.0D, Math.min(1.0D, interestRate));
+
+        long tax = (long) Math.floor(amount * safeTaxRate);
+        long afterTax = Math.max(0L, amount - tax);
+        long interest = 0L;
+        if (amount >= interestThreshold && safeInterestRate > 0.0D) {
+            interest = (long) Math.floor(afterTax * safeInterestRate);
+        }
+        long netTransfer = Math.max(0L, afterTax - interest);
+        if (netTransfer <= 0) {
+            throw new IllegalArgumentException(
+                "Transfer amount too small after fees."
+            );
+        }
+
         balance -= amount;
-        to.balance += amount;
+        to.balance += netTransfer;
     }
 
     public void requestJoin(UUID player) {
@@ -496,6 +543,18 @@ public class Country {
         }
         nbt.setTag("wars", warsList);
 
+        NBTTagList bountyList = new NBTTagList();
+        for (Map.Entry<UUID, Long> entry : bounties.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("uuid", entry.getKey().toString());
+            tag.setLong("reward", entry.getValue());
+            bountyList.appendTag(tag);
+        }
+        nbt.setTag("bounties", bountyList);
+
         return nbt;
     }
 
@@ -570,6 +629,21 @@ public class Country {
                 String raw = tag.getString("id");
                 try {
                     c.getWars().add(UUID.fromString(raw));
+                } catch (IllegalArgumentException ignored) {}
+            }
+        }
+
+        if (nbt.hasKey("bounties")) {
+            NBTTagList bountyList = nbt.getTagList("bounties", 10);
+            for (int i = 0; i < bountyList.tagCount(); i++) {
+                NBTTagCompound tag = bountyList.getCompoundTagAt(i);
+                String raw = tag.getString("uuid");
+                long reward = tag.getLong("reward");
+                if (reward <= 0) {
+                    continue;
+                }
+                try {
+                    c.getBounties().put(UUID.fromString(raw), reward);
                 } catch (IllegalArgumentException ignored) {}
             }
         }

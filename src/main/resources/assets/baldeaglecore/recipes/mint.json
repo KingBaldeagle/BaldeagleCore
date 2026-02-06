@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["GGG", "GCG", "GGG"],
+  "key": {
+    "I": {
+      "item": "minecraft:gold_ingot"
+    },
+    "V": {
+      "item": "baldeaglecore:vault"
+    }
+  },
+  "result": {
+    "item": "baldeaglecore:mint",
+    "count": 1
+  }
+}

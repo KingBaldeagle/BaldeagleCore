@@ -1,12 +1,11 @@
 package com.baldeagle.chunkmap.client;
 
-import com.baldeagle.bank.ModBlocks;
+import com.baldeagle.items.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -94,12 +93,10 @@ public class InventoryMapButtonHandler {
 
         TerritoryIconButton(int buttonId, int x, int y) {
             super(buttonId, x, y, 20, 20, "");
-            // Use the mod's physical territory/claim icon.
-            Item item =
-                ModBlocks.CLAIM_FLAG != null
-                    ? Item.getItemFromBlock(ModBlocks.CLAIM_FLAG)
-                    : null;
-            this.icon = item != null ? new ItemStack(item) : ItemStack.EMPTY;
+            this.icon =
+                ModItems.COIN_1 != null
+                    ? new ItemStack(ModItems.COIN_1)
+                    : ItemStack.EMPTY;
         }
 
         @Override

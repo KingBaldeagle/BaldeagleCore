@@ -1,11 +1,11 @@
 package com.baldeagle.network.message;
 
+import com.baldeagle.blocks.mint.MintingConstants;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
 import com.baldeagle.country.CountryStorage;
 import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
-import com.baldeagle.country.mint.MintingConstants;
 import com.baldeagle.economy.EconomyManager;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import io.netty.buffer.ByteBuf;

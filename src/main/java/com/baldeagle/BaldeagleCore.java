@@ -1,16 +1,16 @@
 package com.baldeagle;
 
-import com.baldeagle.bank.GuiHandler;
-import com.baldeagle.bank.TileEntityBank;
-import com.baldeagle.country.mint.tile.TileEntityCurrencyExchange;
-import com.baldeagle.country.mint.tile.TileEntityMint;
-import com.baldeagle.country.vault.tile.TileEntityVault;
+import com.baldeagle.blocks.bank.TileEntityBank;
+import com.baldeagle.blocks.currency_exchange.tile.TileEntityCurrencyExchange;
+import com.baldeagle.blocks.mint.tile.TileEntityMint;
+import com.baldeagle.country.BountyEventHandler;
+import com.baldeagle.blocks.vault.tile.TileEntityVault;
 import com.baldeagle.economy.EconomyTickHandler;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.oc.gov.TileEntityGovernmentComputer;
-import com.baldeagle.research.tile.TileEntityResearchAssembler;
-import com.baldeagle.shop.TileEntityShop;
+import com.baldeagle.blocks.research.tile.TileEntityResearchAssembler;
+import com.baldeagle.blocks.shop.TileEntityShop;
 import com.baldeagle.territory.TerritoryIncomeTickHandler;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -33,7 +33,7 @@ public class BaldeagleCore {
 
     public static final String MODID = "baldeaglecore";
     public static final String NAME = "BaldEagle Core";
-    public static final String VERSION = "0.95";
+    public static final String VERSION = "1.0";
 
     @Mod.Instance
     public static BaldeagleCore instance;
@@ -46,7 +46,9 @@ public class BaldeagleCore {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        com.baldeagle.config.BaldeagleConfig.init(event);
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new BountyEventHandler());
         MinecraftForge.EVENT_BUS.register(new EconomyTickHandler());
         MinecraftForge.EVENT_BUS.register(new TerritoryIncomeTickHandler());
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());

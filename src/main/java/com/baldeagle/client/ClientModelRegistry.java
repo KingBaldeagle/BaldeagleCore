@@ -1,7 +1,7 @@
 package com.baldeagle.client;
 
-import com.baldeagle.bank.ModBlocks;
-import com.baldeagle.country.items.ModItems;
+import com.baldeagle.ModBlocks;
+import com.baldeagle.items.ModItems;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;

@@ -56,6 +56,18 @@ public class CountryStorage extends WorldSavedData {
             countries.put(country.getId(), country);
         }
 
+        playerBalances.clear();
+        NBTTagList players = nbt.getTagList("playerBalances", 10);
+        for (int i = 0; i < players.tagCount(); i++) {
+            NBTTagCompound entry = players.getCompoundTagAt(i);
+            String uuidString = entry.getString("UUID");
+            if (uuidString == null || uuidString.isEmpty()) {
+                continue;
+            }
+            UUID uuid = UUID.fromString(uuidString);
+            long balance = entry.getLong("Balance");
+            playerBalances.put(uuid, balance);
+        }
         // Validate alliance invariants after all countries are loaded.
         boolean changed = false;
         for (Country c : countries.values()) {

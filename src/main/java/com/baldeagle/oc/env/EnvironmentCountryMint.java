@@ -1,8 +1,8 @@
 package com.baldeagle.oc.env;
 
+import com.baldeagle.blocks.mint.tile.TileEntityMint;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
-import com.baldeagle.country.mint.tile.TileEntityMint;
 import com.baldeagle.oc.OCUtil;
 import java.util.UUID;
 import li.cil.oc.api.machine.Arguments;

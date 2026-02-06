@@ -1,6 +1,6 @@
 package com.baldeagle.country;
 
-import com.baldeagle.bank.ModBlocks;
+import com.baldeagle.ModBlocks;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayerMP;

@@ -1,6 +1,6 @@
 package com.baldeagle.network.message;
 
-import com.baldeagle.country.mint.tile.TileEntityCurrencyExchange;
+import com.baldeagle.blocks.currency_exchange.tile.TileEntityCurrencyExchange;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;

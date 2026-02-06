@@ -1,6 +1,6 @@
 package com.baldeagle.oc.driver;
 
-import com.baldeagle.country.mint.tile.TileEntityCurrencyExchange;
+import com.baldeagle.blocks.currency_exchange.tile.TileEntityCurrencyExchange;
 import com.baldeagle.oc.env.EnvironmentCountryExchange;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.network.ManagedEnvironment;
