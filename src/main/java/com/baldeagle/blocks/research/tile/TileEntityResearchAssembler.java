@@ -30,8 +30,8 @@ public class TileEntityResearchAssembler
     private static final int SLOT_INPUT = 0;
     private static final int SLOT_OUTPUT = 1;
     private static final ResearchCoreTier[] TIER_ORDER = new ResearchCoreTier[] {
-        ResearchCoreTier.T1,
         ResearchCoreTier.T1_DEPOSIT,
+        ResearchCoreTier.T1,
         ResearchCoreTier.T2,
         ResearchCoreTier.T3,
     };
