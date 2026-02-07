@@ -31,7 +31,7 @@ public class CountryCommand extends CommandBase {
     ) throws CommandException {
         if (!(sender instanceof EntityPlayerMP)) {
             sender.sendMessage(
-                new TextComponentString("Only players can use this command.")
+                new TextComponentString("Only players can use this command")
             );
             return;
         }
@@ -70,7 +70,7 @@ public class CountryCommand extends CommandBase {
                     );
                     sender.sendMessage(
                         new TextComponentString(
-                            "Country '" + name + "' created! You are President."
+                            "Country '" + name + "' created! You are President"
                         )
                     );
                 } catch (IllegalArgumentException e) {
@@ -93,7 +93,7 @@ public class CountryCommand extends CommandBase {
                 if (found == null) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not part of any country."
+                            "You are not part of any country"
                         )
                     );
                 } else {
@@ -136,7 +136,7 @@ public class CountryCommand extends CommandBase {
                 if (countries.isEmpty()) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "No countries exist in this world."
+                            "No countries exist in this world"
                         )
                     );
                 } else {
@@ -206,14 +206,14 @@ public class CountryCommand extends CommandBase {
                 Country c = CountryManager.getCountryByName(world, args[1]);
                 if (c == null) {
                     sender.sendMessage(
-                        new TextComponentString("Country not found.")
+                        new TextComponentString("Country not found")
                     );
                     return;
                 }
                 if (!c.isAuthorized(playerUUID)) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not authorized to approve members."
+                            "You are not authorized to approve members"
                         )
                     );
                     return;
@@ -222,9 +222,7 @@ public class CountryCommand extends CommandBase {
                 try {
                     applicant = UUID.fromString(args[2]);
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage(
-                        new TextComponentString("Invalid UUID.")
-                    );
+                    sender.sendMessage(new TextComponentString("Invalid UUID"));
                     return;
                 }
                 if (c.approveJoin(playerUUID, applicant)) {
@@ -236,7 +234,7 @@ public class CountryCommand extends CommandBase {
                     );
                 } else {
                     sender.sendMessage(
-                        new TextComponentString("Approval failed.")
+                        new TextComponentString("Approval failed")
                     );
                 }
                 break;
@@ -254,14 +252,14 @@ public class CountryCommand extends CommandBase {
                 Country c = CountryManager.getCountryByName(world, args[1]);
                 if (c == null) {
                     sender.sendMessage(
-                        new TextComponentString("Country not found.")
+                        new TextComponentString("Country not found")
                     );
                     return;
                 }
                 if (!c.isAuthorized(playerUUID)) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not authorized to deny members."
+                            "You are not authorized to deny members"
                         )
                     );
                     return;
@@ -270,9 +268,7 @@ public class CountryCommand extends CommandBase {
                 try {
                     applicant = UUID.fromString(args[2]);
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage(
-                        new TextComponentString("Invalid UUID.")
-                    );
+                    sender.sendMessage(new TextComponentString("Invalid UUID"));
                     return;
                 }
                 c.denyJoin(playerUUID, applicant);
@@ -297,21 +293,21 @@ public class CountryCommand extends CommandBase {
                 Country c = CountryManager.getCountryByName(world, args[1]);
                 if (c == null) {
                     sender.sendMessage(
-                        new TextComponentString("Country not found.")
+                        new TextComponentString("Country not found")
                     );
                     return;
                 }
                 if (!c.isAuthorized(playerUUID)) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not authorized to view join requests."
+                            "You are not authorized to view join requests"
                         )
                     );
                     return;
                 }
                 if (c.getJoinRequests().isEmpty()) {
                     sender.sendMessage(
-                        new TextComponentString("No pending join requests.")
+                        new TextComponentString("No pending join requests")
                     );
                 } else {
                     sender.sendMessage(
@@ -344,14 +340,14 @@ public class CountryCommand extends CommandBase {
                 Country c = CountryManager.getCountryByName(world, args[1]);
                 if (c == null) {
                     sender.sendMessage(
-                        new TextComponentString("Country not found.")
+                        new TextComponentString("Country not found")
                     );
                     return;
                 }
                 if (!c.isAuthorized(playerUUID)) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not authorized to deposit."
+                            "You are not authorized to deposit"
                         )
                     );
                     return;
@@ -361,7 +357,7 @@ public class CountryCommand extends CommandBase {
                     amount = Long.parseLong(args[2]);
                 } catch (NumberFormatException e) {
                     sender.sendMessage(
-                        new TextComponentString("Invalid amount.")
+                        new TextComponentString("Invalid amount")
                     );
                     return;
                 }
@@ -394,7 +390,7 @@ public class CountryCommand extends CommandBase {
                 if (from == null || to == null) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "One of the countries does not exist."
+                            "One of the countries does not exist"
                         )
                     );
                     return;
@@ -402,7 +398,7 @@ public class CountryCommand extends CommandBase {
                 if (!from.isAuthorized(playerUUID)) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not authorized to transfer."
+                            "You are not authorized to transfer"
                         )
                     );
                     return;
@@ -412,7 +408,7 @@ public class CountryCommand extends CommandBase {
                     amount = Long.parseLong(args[3]);
                 } catch (NumberFormatException e) {
                     sender.sendMessage(
-                        new TextComponentString("Invalid amount.")
+                        new TextComponentString("Invalid amount")
                     );
                     return;
                 }
@@ -458,14 +454,14 @@ public class CountryCommand extends CommandBase {
                     tier = Integer.parseInt(args[2]);
                 } catch (NumberFormatException e) {
                     sender.sendMessage(
-                        new TextComponentString("Invalid upgrade tier.")
+                        new TextComponentString("Invalid upgrade tier")
                     );
                     return;
                 }
                 if (tier != 1 && tier != 2) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "Invalid upgrade tier. Use 1 or 2."
+                            "Invalid upgrade tier. Use 1 or 2"
                         )
                     );
                     return;
@@ -477,7 +473,7 @@ public class CountryCommand extends CommandBase {
                 if (country == null) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not part of any country."
+                            "You are not part of any country"
                         )
                     );
                     return;
@@ -485,7 +481,7 @@ public class CountryCommand extends CommandBase {
                 if (!country.isAuthorized(playerUUID)) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not authorized to upgrade station capacity."
+                            "You are not authorized to upgrade station capacity"
                         )
                     );
                     return;
@@ -498,7 +494,7 @@ public class CountryCommand extends CommandBase {
                         new TextComponentString(
                             "Not enough research credits. Need " +
                                 upgradeCost +
-                                " RC."
+                                " RC"
                         )
                     );
                     return;
@@ -507,7 +503,7 @@ public class CountryCommand extends CommandBase {
                     if (currentCap >= 1) {
                         sender.sendMessage(
                             new TextComponentString(
-                                "Station cap tier 1 is already unlocked."
+                                "Station cap tier 1 is already unlocked"
                             )
                         );
                         return;
@@ -515,7 +511,7 @@ public class CountryCommand extends CommandBase {
                     if (currentCap != 0) {
                         sender.sendMessage(
                             new TextComponentString(
-                                "Station cap tiers must be unlocked in order."
+                                "Station cap tiers must be unlocked in order"
                             )
                         );
                         return;
@@ -526,7 +522,7 @@ public class CountryCommand extends CommandBase {
                     if (currentCap >= 2) {
                         sender.sendMessage(
                             new TextComponentString(
-                                "Station cap tier 2 is already unlocked."
+                                "Station cap tier 2 is already unlocked"
                             )
                         );
                         return;
@@ -534,7 +530,7 @@ public class CountryCommand extends CommandBase {
                     if (currentCap != 1) {
                         sender.sendMessage(
                             new TextComponentString(
-                                "Station cap tier 1 must be unlocked first."
+                                "Station cap tier 1 must be unlocked first"
                             )
                         );
                         return;
@@ -551,7 +547,7 @@ public class CountryCommand extends CommandBase {
                             country.getName() +
                             ". Spent " +
                             upgradeCost +
-                            " RC."
+                            " RC"
                     )
                 );
                 break;
@@ -569,14 +565,14 @@ public class CountryCommand extends CommandBase {
                 Country c = CountryManager.getCountryByName(world, args[1]);
                 if (c == null) {
                     sender.sendMessage(
-                        new TextComponentString("Country not found.")
+                        new TextComponentString("Country not found")
                     );
                     return;
                 }
                 if (c.getRole(playerUUID) != Country.Role.PRESIDENT) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "Only the President can promote members."
+                            "Only the President can promote members"
                         )
                     );
                     return;
@@ -585,9 +581,7 @@ public class CountryCommand extends CommandBase {
                 try {
                     member = UUID.fromString(args[2]);
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage(
-                        new TextComponentString("Invalid UUID.")
-                    );
+                    sender.sendMessage(new TextComponentString("Invalid UUID"));
                     return;
                 }
                 if (c.promote(playerUUID, member)) {
@@ -602,7 +596,7 @@ public class CountryCommand extends CommandBase {
                     );
                 } else {
                     sender.sendMessage(
-                        new TextComponentString("Promotion failed.")
+                        new TextComponentString("Promotion failed")
                     );
                 }
                 break;
@@ -628,7 +622,7 @@ public class CountryCommand extends CommandBase {
                 if (self == null) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not part of any country."
+                            "You are not part of any country"
                         )
                     );
                     return;
@@ -636,7 +630,7 @@ public class CountryCommand extends CommandBase {
                 if (!self.isPresident(playerUUID)) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "Only the President can manage alliances."
+                            "Only the President can manage alliances"
                         )
                     );
                     return;
@@ -648,15 +642,13 @@ public class CountryCommand extends CommandBase {
                 );
                 if (target == null) {
                     sender.sendMessage(
-                        new TextComponentString("Country not found.")
+                        new TextComponentString("Country not found")
                     );
                     return;
                 }
                 if (target.getId().equals(self.getId())) {
                     sender.sendMessage(
-                        new TextComponentString(
-                            "You cannot ally with yourself."
-                        )
+                        new TextComponentString("You cannot ally with yourself")
                     );
                     return;
                 }
@@ -667,8 +659,7 @@ public class CountryCommand extends CommandBase {
                             sender.sendMessage(
                                 new TextComponentString(
                                     "You are already allied with " +
-                                        target.getName() +
-                                        "."
+                                        target.getName()
                                 )
                             );
                             return;
@@ -676,7 +667,7 @@ public class CountryCommand extends CommandBase {
                         if (target.hasIncomingAllianceRequest(self.getId())) {
                             sender.sendMessage(
                                 new TextComponentString(
-                                    "An alliance request is already pending."
+                                    "An alliance request is already pending"
                                 )
                             );
                             return;
@@ -697,9 +688,7 @@ public class CountryCommand extends CommandBase {
                         CountryStorage.get(countryWorld).markDirty();
                         sender.sendMessage(
                             new TextComponentString(
-                                "Alliance request sent to " +
-                                    target.getName() +
-                                    "."
+                                "Alliance request sent to " + target.getName()
                             )
                         );
 
@@ -729,8 +718,7 @@ public class CountryCommand extends CommandBase {
                             sender.sendMessage(
                                 new TextComponentString(
                                     "No incoming alliance request from " +
-                                        target.getName() +
-                                        "."
+                                        target.getName()
                                 )
                             );
                             return;
@@ -744,7 +732,7 @@ public class CountryCommand extends CommandBase {
                         CountryStorage.get(countryWorld).markDirty();
                         sender.sendMessage(
                             new TextComponentString(
-                                "Alliance formed with " + target.getName() + "."
+                                "Alliance formed with " + target.getName()
                             )
                         );
                         UUID otherPresident = target.getPresidentUuid();
@@ -755,9 +743,7 @@ public class CountryCommand extends CommandBase {
                             if (presidentPlayer != null) {
                                 presidentPlayer.sendMessage(
                                     new TextComponentString(
-                                        "Alliance formed with " +
-                                            self.getName() +
-                                            "."
+                                        "Alliance formed with " + self.getName()
                                     )
                                 );
                             }
@@ -769,8 +755,7 @@ public class CountryCommand extends CommandBase {
                             sender.sendMessage(
                                 new TextComponentString(
                                     "No incoming alliance request from " +
-                                        target.getName() +
-                                        "."
+                                        target.getName()
                                 )
                             );
                             return;
@@ -781,7 +766,7 @@ public class CountryCommand extends CommandBase {
                             new TextComponentString(
                                 "Alliance request from " +
                                     target.getName() +
-                                    " denied."
+                                    " was denied"
                             )
                         );
                         return;
@@ -791,8 +776,7 @@ public class CountryCommand extends CommandBase {
                             sender.sendMessage(
                                 new TextComponentString(
                                     "You are not allied with " +
-                                        target.getName() +
-                                        "."
+                                        target.getName()
                                 )
                             );
                             return;
@@ -802,9 +786,7 @@ public class CountryCommand extends CommandBase {
                         CountryStorage.get(countryWorld).markDirty();
                         sender.sendMessage(
                             new TextComponentString(
-                                "Alliance removed with " +
-                                    target.getName() +
-                                    "."
+                                "Alliance removed with " + target.getName()
                             )
                         );
                         return;
@@ -839,7 +821,7 @@ public class CountryCommand extends CommandBase {
                 if (self == null) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not part of any country."
+                            "You are not part of any country"
                         )
                     );
                     return;
@@ -847,7 +829,7 @@ public class CountryCommand extends CommandBase {
                 if (!self.isPresident(playerUUID)) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "Only the President can manage wars."
+                            "Only the President can manage wars"
                         )
                     );
                     return;
@@ -859,14 +841,14 @@ public class CountryCommand extends CommandBase {
                 );
                 if (target == null) {
                     sender.sendMessage(
-                        new TextComponentString("Country not found.")
+                        new TextComponentString("Country not found")
                     );
                     return;
                 }
                 if (target.getId().equals(self.getId())) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You cannot declare war on yourself."
+                            "You cannot declare war on yourself"
                         )
                     );
                     return;
@@ -874,7 +856,7 @@ public class CountryCommand extends CommandBase {
                 if (self.isAlliedWith(target.getId())) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You cannot declare war on an ally. Remove the alliance first."
+                            "You cannot declare war on an ally. Remove the alliance first"
                         )
                     );
                     return;
@@ -886,8 +868,7 @@ public class CountryCommand extends CommandBase {
                             sender.sendMessage(
                                 new TextComponentString(
                                     "You are already at war with " +
-                                        target.getName() +
-                                        "."
+                                        target.getName()
                                 )
                             );
                             return;
@@ -897,7 +878,7 @@ public class CountryCommand extends CommandBase {
                         CountryStorage.get(countryWorld).markDirty();
                         sender.sendMessage(
                             new TextComponentString(
-                                "War declared on " + target.getName() + "."
+                                "War declared on " + target.getName()
                             )
                         );
 
@@ -909,9 +890,7 @@ public class CountryCommand extends CommandBase {
                             if (presidentPlayer != null) {
                                 presidentPlayer.sendMessage(
                                     new TextComponentString(
-                                        "War declared by " +
-                                            self.getName() +
-                                            "."
+                                        "War declared by " + self.getName()
                                     )
                                 );
                             }
@@ -923,8 +902,7 @@ public class CountryCommand extends CommandBase {
                             sender.sendMessage(
                                 new TextComponentString(
                                     "You are not at war with " +
-                                        target.getName() +
-                                        "."
+                                        target.getName()
                                 )
                             );
                             return;
@@ -934,7 +912,7 @@ public class CountryCommand extends CommandBase {
                         CountryStorage.get(countryWorld).markDirty();
                         sender.sendMessage(
                             new TextComponentString(
-                                "War ended with " + target.getName() + "."
+                                "War ended with " + target.getName()
                             )
                         );
 
@@ -946,7 +924,7 @@ public class CountryCommand extends CommandBase {
                             if (presidentPlayer != null) {
                                 presidentPlayer.sendMessage(
                                     new TextComponentString(
-                                        "War ended with " + self.getName() + "."
+                                        "War ended with " + self.getName()
                                     )
                                 );
                             }
@@ -998,7 +976,7 @@ public class CountryCommand extends CommandBase {
                 if (self == null) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You are not part of any country."
+                            "You are not part of any country"
                         )
                     );
                     return;
@@ -1006,7 +984,7 @@ public class CountryCommand extends CommandBase {
                 if (!self.isHighAuthority(playerUUID)) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "Only the President or a Minister can set bounties."
+                            "Only the President or a Minister can set bounties"
                         )
                     );
                     return;
@@ -1017,7 +995,7 @@ public class CountryCommand extends CommandBase {
                     .getPlayerByUsername(args[2]);
                 if (targetPlayer == null) {
                     sender.sendMessage(
-                        new TextComponentString("Player not found.")
+                        new TextComponentString("Player not found")
                     );
                     return;
                 }
@@ -1029,7 +1007,7 @@ public class CountryCommand extends CommandBase {
                 if (targetCountry == null) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "Target player is not part of a country."
+                            "Target player is not part of a country"
                         )
                     );
                     return;
@@ -1037,7 +1015,7 @@ public class CountryCommand extends CommandBase {
                 if (!self.isAtWarWith(targetCountry.getId())) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "You can only set bounties on enemies during war."
+                            "You can only set bounties on enemies during war"
                         )
                     );
                     return;
@@ -1048,19 +1026,19 @@ public class CountryCommand extends CommandBase {
                     reward = Long.parseLong(args[3]);
                 } catch (NumberFormatException e) {
                     sender.sendMessage(
-                        new TextComponentString("Invalid reward amount.")
+                        new TextComponentString("Invalid reward amount")
                     );
                     return;
                 }
                 if (reward <= 0) {
                     sender.sendMessage(
-                        new TextComponentString("Reward must be positive.")
+                        new TextComponentString("Reward must be positive")
                     );
                     return;
                 }
                 if (self.getBalance() < reward) {
                     sender.sendMessage(
-                        new TextComponentString("Insufficient country funds.")
+                        new TextComponentString("Insufficient country funds")
                     );
                     return;
                 }
@@ -1075,8 +1053,7 @@ public class CountryCommand extends CommandBase {
                                 " has placed a bounty on " +
                                 targetPlayer.getName() +
                                 " for " +
-                                reward +
-                                "."
+                                reward
                         )
                     );
                 return;
