@@ -100,6 +100,9 @@ public class BaldeagleCore {
         if (Loader.isModLoaded("opencomputers")) {
             com.baldeagle.oc.OCIntegration.init();
         }
+        if (Loader.isModLoaded("advancedrocketry")) {
+            com.baldeagle.integration.ar.AdvancedRocketryIntegration.init();
+        }
     }
 
     @Mod.EventHandler
@@ -133,6 +136,11 @@ public class BaldeagleCore {
         }
         if (migrated) {
             overworldStorage.markDirty();
+        }
+        if (Loader.isModLoaded("advancedrocketry")) {
+            com.baldeagle.integration.ar.AdvancedRocketryIntegration.onServerLoad(
+                event
+            );
         }
         proxy.serverLoad(event);
     }

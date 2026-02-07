@@ -14,6 +14,7 @@ public class CountryStorage extends WorldSavedData {
     private static final String DATA_NAME = "baldeagle_countries";
 
     private final Map<UUID, Country> countries = new HashMap<>();
+    private final Map<Integer, UUID> stationOwners = new HashMap<>();
 
     public CountryStorage() {
         super(DATA_NAME);
@@ -25,6 +26,10 @@ public class CountryStorage extends WorldSavedData {
 
     public Map<UUID, Country> getCountriesMap() {
         return countries;
+    }
+
+    public Map<Integer, UUID> getStationOwners() {
+        return stationOwners;
     }
 
     private final Map<UUID, Long> playerBalances = new HashMap<>();
@@ -124,6 +129,25 @@ public class CountryStorage extends WorldSavedData {
         if (changed) {
             markDirty();
         }
+
+        stationOwners.clear();
+        if (nbt.hasKey("stationOwners")) {
+            NBTTagList owners = nbt.getTagList("stationOwners", 10);
+            for (int i = 0; i < owners.tagCount(); i++) {
+                NBTTagCompound entry = owners.getCompoundTagAt(i);
+                if (!entry.hasKey("stationId") || !entry.hasKey("countryId")) {
+                    continue;
+                }
+                int stationId = entry.getInteger("stationId");
+                String countryId = entry.getString("countryId");
+                if (countryId == null || countryId.isEmpty()) {
+                    continue;
+                }
+                try {
+                    stationOwners.put(stationId, UUID.fromString(countryId));
+                } catch (IllegalArgumentException ignored) {}
+            }
+        }
     }
 
     @Override
@@ -133,6 +157,17 @@ public class CountryStorage extends WorldSavedData {
             list.appendTag(c.writeToNBT());
         }
         compound.setTag("countries", list);
+        NBTTagList owners = new NBTTagList();
+        for (Map.Entry<Integer, UUID> entry : stationOwners.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            NBTTagCompound ownerTag = new NBTTagCompound();
+            ownerTag.setInteger("stationId", entry.getKey());
+            ownerTag.setString("countryId", entry.getValue().toString());
+            owners.appendTag(ownerTag);
+        }
+        compound.setTag("stationOwners", owners);
         return compound;
     }
 }

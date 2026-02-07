@@ -20,7 +20,7 @@ public class CountryCommand extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally|war|bounty> [...]";
+        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally|war|bounty|station> [...]";
     }
 
     @Override
@@ -432,6 +432,112 @@ public class CountryCommand extends CommandBase {
                 } catch (IllegalArgumentException e) {
                     sender.sendMessage(new TextComponentString(e.getMessage()));
                 }
+                break;
+            }
+            // --- STATION UPGRADES ---
+            case "station": {
+                if (args.length < 3) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Usage: /country station upgrade <1|2>"
+                        )
+                    );
+                    return;
+                }
+                String action = args[1].toLowerCase();
+                if (!"upgrade".equals(action)) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Usage: /country station upgrade <1|2>"
+                        )
+                    );
+                    return;
+                }
+                int tier;
+                try {
+                    tier = Integer.parseInt(args[2]);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(
+                        new TextComponentString("Invalid upgrade tier.")
+                    );
+                    return;
+                }
+                if (tier != 1 && tier != 2) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Invalid upgrade tier. Use 1 or 2."
+                        )
+                    );
+                    return;
+                }
+                Country country = CountryManager.getCountryForPlayer(
+                    world,
+                    playerUUID
+                );
+                if (country == null) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You are not part of any country."
+                        )
+                    );
+                    return;
+                }
+                if (!country.isAuthorized(playerUUID)) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You are not authorized to upgrade station capacity."
+                        )
+                    );
+                    return;
+                }
+                int currentCap = country.getStationCap();
+                if (tier == 1) {
+                    if (currentCap >= 1) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Station cap tier 1 is already unlocked."
+                            )
+                        );
+                        return;
+                    }
+                    if (currentCap != 0) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Station cap tiers must be unlocked in order."
+                            )
+                        );
+                        return;
+                    }
+                    country.setStationCap(1);
+                } else {
+                    if (currentCap >= 2) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Station cap tier 2 is already unlocked."
+                            )
+                        );
+                        return;
+                    }
+                    if (currentCap != 1) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Station cap tier 1 must be unlocked first."
+                            )
+                        );
+                        return;
+                    }
+                    country.setStationCap(2);
+                }
+                CountryStorage.get(countryWorld).markDirty();
+                sender.sendMessage(
+                    new TextComponentString(
+                        "Station cap upgraded to " +
+                            country.getStationCap() +
+                            " for " +
+                            country.getName() +
+                            "."
+                    )
+                );
                 break;
             }
             // --- PROMOTE ---

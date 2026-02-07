@@ -25,6 +25,8 @@ public class Country {
     private double inflation;
     private double baseValue;
     private double exchangeFee = 0.03D;
+    private int stationCap;
+    private int stationsBuilt;
 
     private final Map<UUID, Role> members = new HashMap<>();
     private final Set<UUID> joinRequests = new HashSet<>();
@@ -43,6 +45,8 @@ public class Country {
         this.inflation = 1.0D;
         this.baseValue = 1.0D;
         this.exchangeFee = 0.03D;
+        this.stationCap = 0;
+        this.stationsBuilt = 0;
         this.members.put(creator, Role.PRESIDENT);
     }
 
@@ -56,6 +60,8 @@ public class Country {
         this.inflation = 1.0D;
         this.baseValue = 1.0D;
         this.exchangeFee = 0.03D;
+        this.stationCap = 0;
+        this.stationsBuilt = 0;
     }
 
     public UUID getId() {
@@ -192,6 +198,35 @@ public class Country {
 
     public long getTreasury() {
         return treasury;
+    }
+
+    public int getStationCap() {
+        return stationCap;
+    }
+
+    public int getStationsBuilt() {
+        return stationsBuilt;
+    }
+
+    public void setStationCap(int cap) {
+        int clamped = Math.max(0, Math.min(cap, 2));
+        stationCap = clamped;
+    }
+
+    public void setStationsBuilt(int count) {
+        stationsBuilt = Math.max(0, count);
+    }
+
+    public boolean canCreateStation() {
+        return stationsBuilt < stationCap;
+    }
+
+    public void onStationCreated() {
+        stationsBuilt = Math.max(0, stationsBuilt + 1);
+    }
+
+    public void onStationRemoved() {
+        stationsBuilt = Math.max(0, stationsBuilt - 1);
     }
 
     public void addTreasury(long amount) {
@@ -501,6 +536,8 @@ public class Country {
         nbt.setDouble("inflation", inflation);
         nbt.setDouble("baseValue", baseValue);
         nbt.setDouble("exchangeFee", exchangeFee);
+        nbt.setInteger("stationCap", stationCap);
+        nbt.setInteger("stationsBuilt", stationsBuilt);
 
         NBTTagList memberList = new NBTTagList();
         for (Map.Entry<UUID, Role> entry : members.entrySet()) {
@@ -572,6 +609,12 @@ public class Country {
         double exchangeFee = nbt.hasKey("exchangeFee")
             ? nbt.getDouble("exchangeFee")
             : 0.03D;
+        int stationCap = nbt.hasKey("stationCap")
+            ? nbt.getInteger("stationCap")
+            : 0;
+        int stationsBuilt = nbt.hasKey("stationsBuilt")
+            ? nbt.getInteger("stationsBuilt")
+            : 0;
 
         Country c = new Country(name);
         c.setId(id);
@@ -582,6 +625,8 @@ public class Country {
         c.inflation = inflation <= 0 ? 1.0D : c.clampInflation(inflation);
         c.baseValue = baseValue;
         c.setExchangeFee(exchangeFee);
+        c.setStationCap(stationCap);
+        c.setStationsBuilt(stationsBuilt);
 
         NBTTagList membersList = nbt.getTagList("members", 10);
         for (int i = 0; i < membersList.tagCount(); i++) {
