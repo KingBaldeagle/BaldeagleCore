@@ -2,7 +2,6 @@ package com.baldeagle.blocks.bank;
 
 import com.baldeagle.BaldeagleCore;
 import com.baldeagle.GuiHandler;
-import com.baldeagle.blocks.bank.TileEntityBank;
 import com.baldeagle.creativetab.BaldeagleCoreTab;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

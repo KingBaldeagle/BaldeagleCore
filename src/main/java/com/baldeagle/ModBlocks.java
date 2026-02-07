@@ -1,6 +1,5 @@
 package com.baldeagle;
 
-import com.baldeagle.BaldeagleCore;
 import com.baldeagle.blocks.bank.BlockBank;
 import com.baldeagle.blocks.currency_exchange.BlockCurrencyExchange;
 import com.baldeagle.blocks.mint.BlockMint;

@@ -30,6 +30,8 @@ repositories {
 dependencies {
 	minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2859"
 	compileOnly files("libs/OpenComputers-MC1.12.2-1.8.7+2502094-api.jar")
+    fg.deobf(name: 'libs/AdvancedRocketry-1.12.2-2.2.2')
+    fg.deobf(name: 'libs/ARLib-17-09-2024')
 
 }
 
