@@ -270,6 +270,10 @@ public class Country {
         return Math.max(0L, researchCredits);
     }
 
+    public void setResearchCredits(long amount) {
+        researchCredits = Math.max(0L, amount);
+    }
+
     public void addResearchCredits(long amount) {
         if (amount <= 0) {
             return;
