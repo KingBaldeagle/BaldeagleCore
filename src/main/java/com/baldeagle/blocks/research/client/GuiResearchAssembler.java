@@ -1,10 +1,10 @@
 package com.baldeagle.blocks.research.client;
 
-import com.baldeagle.network.NetworkHandler;
-import com.baldeagle.network.message.ResearchAssemblerActionMessage;
 import com.baldeagle.blocks.research.ResearchCoreTier;
 import com.baldeagle.blocks.research.container.ContainerResearchAssembler;
 import com.baldeagle.blocks.research.tile.TileEntityResearchAssembler;
+import com.baldeagle.network.NetworkHandler;
+import com.baldeagle.network.message.ResearchAssemblerActionMessage;
 import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -80,7 +80,7 @@ public class GuiResearchAssembler extends GuiContainer {
                 0x404040
             );
         } else if (tier == ResearchCoreTier.T1_DEPOSIT) {
-            fontRenderer.drawString("Deposit only", 8, 46, 0x404040);
+            fontRenderer.drawString("Deposit", 8, 46, 0x404040);
             fontRenderer.drawString(
                 "Country: " + stored + " RC",
                 8,
@@ -102,8 +102,7 @@ public class GuiResearchAssembler extends GuiContainer {
         }
 
         if (
-            tier == ResearchCoreTier.T1 ||
-            tier == ResearchCoreTier.T1_DEPOSIT
+            tier == ResearchCoreTier.T1 || tier == ResearchCoreTier.T1_DEPOSIT
         ) {
             fontRenderer.drawString(
                 String.format(
