@@ -42,7 +42,7 @@ public class TileEntityResearchAssembler
     );
 
     private long storedResearchCredits = 0L;
-    private ResearchCoreTier selectedTier = ResearchCoreTier.T1;
+    private ResearchCoreTier selectedTier = ResearchCoreTier.T1_DEPOSIT;
     private String ownerCountryName = "";
     private UUID ownerCountryId;
     private boolean creditsMigrated = false;
