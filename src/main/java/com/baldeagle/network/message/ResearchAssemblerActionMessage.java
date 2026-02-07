@@ -14,6 +14,7 @@ public class ResearchAssemblerActionMessage implements IMessage {
     public enum Action {
         PREV_TIER,
         NEXT_TIER,
+        TOGGLE_MODE,
     }
 
     private BlockPos pos;
@@ -75,6 +76,8 @@ public class ResearchAssemblerActionMessage implements IMessage {
                         assembler.cycleTier(false);
                     } else if (message.action == Action.NEXT_TIER) {
                         assembler.cycleTier(true);
+                    } else if (message.action == Action.TOGGLE_MODE) {
+                        assembler.toggleAutoCreateCores();
                     }
                 });
             return null;

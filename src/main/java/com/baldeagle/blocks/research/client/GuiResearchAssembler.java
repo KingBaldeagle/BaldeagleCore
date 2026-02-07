@@ -22,6 +22,7 @@ public class GuiResearchAssembler extends GuiContainer {
 
     private GuiButton prevTier;
     private GuiButton nextTier;
+    private GuiButton toggleMode;
 
     public GuiResearchAssembler(ContainerResearchAssembler container) {
         super(container);
@@ -39,6 +40,8 @@ public class GuiResearchAssembler extends GuiContainer {
         buttonList.clear();
         prevTier = addButton(new GuiButton(0, x + 10, y + 20, 20, 20, "<"));
         nextTier = addButton(new GuiButton(1, x + 80, y + 20, 20, 20, ">"));
+        toggleMode =
+            addButton(new GuiButton(2, x + 30, y + 44, 70, 20, ""));
     }
 
     @Override
@@ -58,6 +61,13 @@ public class GuiResearchAssembler extends GuiContainer {
                     ResearchAssemblerActionMessage.Action.NEXT_TIER
                 )
             );
+        } else if (button == toggleMode) {
+            NetworkHandler.INSTANCE.sendToServer(
+                new ResearchAssemblerActionMessage(
+                    tile.getPos(),
+                    ResearchAssemblerActionMessage.Action.TOGGLE_MODE
+                )
+            );
         }
     }
 
@@ -69,6 +79,13 @@ public class GuiResearchAssembler extends GuiContainer {
         long cost = tier != null ? tier.getCost() : 0L;
         long stored = tile.getStoredResearchCredits();
         String tierLabel = tier != null ? tier.getLabel() : "?";
+        if (toggleMode != null) {
+            boolean isTierOne = tier == ResearchCoreTier.T1;
+            toggleMode.visible = isTierOne;
+            toggleMode.enabled = isTierOne;
+            toggleMode.displayString =
+                tile.isAutoCreateCores() ? "Create Core" : "Deposit Only";
+        }
 
         fontRenderer.drawString(tierLabel, 35, 26, 0x404040);
         if (tier == ResearchCoreTier.T1) {
@@ -79,6 +96,10 @@ public class GuiResearchAssembler extends GuiContainer {
                 58,
                 0x404040
             );
+            String modeLabel = tile.isAutoCreateCores()
+                ? "Mode: Core output"
+                : "Mode: Deposit only";
+            fontRenderer.drawString(modeLabel, 8, 80, 0x404040);
         } else {
             fontRenderer.drawString("Cost: 9x lower cores", 8, 46, 0x404040);
         }

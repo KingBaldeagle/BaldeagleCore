@@ -41,6 +41,7 @@ public class TileEntityResearchAssembler
     private UUID ownerCountryId;
     private boolean creditsMigrated = false;
     private long legacyStoredCredits = 0L;
+    private boolean autoCreateCores = true;
 
     private String lastCountryName = "";
     private double lastExchangeRate = 0.0D;
@@ -76,8 +77,10 @@ public class TileEntityResearchAssembler
             if (handleCurrencyInput()) {
                 changed = true;
             }
-            if (tryOutputCore()) {
-                changed = true;
+            if (autoCreateCores) {
+                if (tryOutputCore()) {
+                    changed = true;
+                }
             }
         } else if (selectedTier == ResearchCoreTier.T2) {
             if (handleCoreUpgrade(ModItems.T1_CORE, ModItems.T2_CORE)) {
@@ -318,6 +321,16 @@ public class TileEntityResearchAssembler
         markDirty();
     }
 
+    public boolean isAutoCreateCores() {
+        return autoCreateCores;
+    }
+
+    public void toggleAutoCreateCores() {
+        autoCreateCores = !autoCreateCores;
+        sync();
+        markDirty();
+    }
+
     public long getStoredResearchCredits() {
         return storedResearchCredits;
     }
@@ -386,7 +399,8 @@ public class TileEntityResearchAssembler
                 lastExchangeRate,
                 lastInflationModifier,
                 lastConvertedCredits,
-                lastStatus
+                lastStatus,
+                autoCreateCores
             ),
             world.provider.getDimension(),
             pos
@@ -401,7 +415,8 @@ public class TileEntityResearchAssembler
         double exchangeRate,
         double inflationModifier,
         long convertedCredits,
-        String status
+        String status,
+        boolean autoCreateCores
     ) {
         this.storedResearchCredits = Math.max(0L, storedCredits);
         this.selectedTier = ResearchCoreTier.fromOrdinal(tierOrdinal);
@@ -411,6 +426,7 @@ public class TileEntityResearchAssembler
         this.lastInflationModifier = inflationModifier;
         this.lastConvertedCredits = Math.max(0L, convertedCredits);
         this.lastStatus = status != null ? status : "";
+        this.autoCreateCores = autoCreateCores;
     }
 
     public Container createContainer(EntityPlayer player) {
@@ -560,6 +576,7 @@ public class TileEntityResearchAssembler
         compound.setInteger("tier", selectedTier.ordinal());
         compound.setBoolean("creditsMigrated", creditsMigrated);
         compound.setLong("legacyStoredCredits", legacyStoredCredits);
+        compound.setBoolean("autoCreateCores", autoCreateCores);
         if (ownerCountryId != null) {
             compound.setString("ownerId", ownerCountryId.toString());
         }
@@ -599,6 +616,9 @@ public class TileEntityResearchAssembler
                 ownerCountryId = null;
             }
         }
+        autoCreateCores = compound.hasKey("autoCreateCores")
+            ? compound.getBoolean("autoCreateCores")
+            : true;
         lastCountryName = compound.getString("lastCountry");
         lastExchangeRate = compound.getDouble("lastRate");
         lastInflationModifier = compound.getDouble("lastInflation");
