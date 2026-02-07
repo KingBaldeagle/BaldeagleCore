@@ -22,6 +22,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Mod(
     modid = BaldeagleCore.MODID,
@@ -51,9 +53,13 @@ public class BaldeagleCore {
     )
     public static ServerProxy proxy;
 
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
+
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        LOGGER.info("The Eagle is taking off");
         com.baldeagle.config.BaldeagleConfig.init(event);
+
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BountyEventHandler());
         MinecraftForge.EVENT_BUS.register(new EconomyTickHandler());
@@ -97,6 +103,7 @@ public class BaldeagleCore {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        LOGGER.info("The Eagle is in flight");
         if (Loader.isModLoaded("opencomputers")) {
             com.baldeagle.oc.OCIntegration.init();
         }
@@ -106,7 +113,13 @@ public class BaldeagleCore {
     }
 
     @Mod.EventHandler
+    public void postinit(FMLInitializationEvent event) {
+        LOGGER.info("The Eagle has landed");
+    }
+
+    @Mod.EventHandler
     public void serverLoad(FMLServerStartingEvent event) {
+        LOGGER.info("The Eagle has been deployed");
         event.registerServerCommand(new com.baldeagle.country.CountryCommand());
         // Ensure country storage is initialized on the overworld, and migrate any legacy
         // per-dimension country data into the overworld store.
