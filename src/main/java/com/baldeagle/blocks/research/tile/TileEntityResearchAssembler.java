@@ -29,6 +29,12 @@ public class TileEntityResearchAssembler
 
     private static final int SLOT_INPUT = 0;
     private static final int SLOT_OUTPUT = 1;
+    private static final ResearchCoreTier[] TIER_ORDER = new ResearchCoreTier[] {
+        ResearchCoreTier.T1,
+        ResearchCoreTier.T1_DEPOSIT,
+        ResearchCoreTier.T2,
+        ResearchCoreTier.T3,
+    };
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(
         2,
@@ -41,7 +47,6 @@ public class TileEntityResearchAssembler
     private UUID ownerCountryId;
     private boolean creditsMigrated = false;
     private long legacyStoredCredits = 0L;
-    private boolean autoCreateCores = true;
 
     private String lastCountryName = "";
     private double lastExchangeRate = 0.0D;
@@ -73,11 +78,14 @@ public class TileEntityResearchAssembler
             lastStatus = "Join a country";
         }
 
-        if (selectedTier == ResearchCoreTier.T1) {
+        if (
+            selectedTier == ResearchCoreTier.T1 ||
+            selectedTier == ResearchCoreTier.T1_DEPOSIT
+        ) {
             if (handleCurrencyInput()) {
                 changed = true;
             }
-            if (autoCreateCores) {
+            if (selectedTier == ResearchCoreTier.T1) {
                 if (tryOutputCore()) {
                     changed = true;
                 }
@@ -135,9 +143,11 @@ public class TileEntityResearchAssembler
             lastStatus = "Insert currency";
             return false;
         }
-        if (!canAcceptOutput(selectedTier.getItem(), 1)) {
-            lastStatus = "Output full";
-            return false;
+        if (selectedTier == ResearchCoreTier.T1) {
+            if (!canAcceptOutput(selectedTier.getItem(), 1)) {
+                lastStatus = "Output full";
+                return false;
+            }
         }
 
         Country ownerCountry = getBoundCountry();
@@ -313,20 +323,17 @@ public class TileEntityResearchAssembler
     }
 
     public void cycleTier(boolean forward) {
-        ResearchCoreTier[] values = ResearchCoreTier.values();
-        int index = selectedTier.ordinal();
-        int next = (index + (forward ? 1 : -1) + values.length) % values.length;
-        selectedTier = values[next];
-        sync();
-        markDirty();
-    }
-
-    public boolean isAutoCreateCores() {
-        return autoCreateCores;
-    }
-
-    public void toggleAutoCreateCores() {
-        autoCreateCores = !autoCreateCores;
+        int index = 0;
+        for (int i = 0; i < TIER_ORDER.length; i++) {
+            if (TIER_ORDER[i] == selectedTier) {
+                index = i;
+                break;
+            }
+        }
+        int next =
+            (index + (forward ? 1 : -1) + TIER_ORDER.length) %
+            TIER_ORDER.length;
+        selectedTier = TIER_ORDER[next];
         sync();
         markDirty();
     }
@@ -399,8 +406,7 @@ public class TileEntityResearchAssembler
                 lastExchangeRate,
                 lastInflationModifier,
                 lastConvertedCredits,
-                lastStatus,
-                autoCreateCores
+                lastStatus
             ),
             world.provider.getDimension(),
             pos
@@ -415,8 +421,7 @@ public class TileEntityResearchAssembler
         double exchangeRate,
         double inflationModifier,
         long convertedCredits,
-        String status,
-        boolean autoCreateCores
+        String status
     ) {
         this.storedResearchCredits = Math.max(0L, storedCredits);
         this.selectedTier = ResearchCoreTier.fromOrdinal(tierOrdinal);
@@ -426,7 +431,6 @@ public class TileEntityResearchAssembler
         this.lastInflationModifier = inflationModifier;
         this.lastConvertedCredits = Math.max(0L, convertedCredits);
         this.lastStatus = status != null ? status : "";
-        this.autoCreateCores = autoCreateCores;
     }
 
     public Container createContainer(EntityPlayer player) {
@@ -519,6 +523,7 @@ public class TileEntityResearchAssembler
         }
         switch (selectedTier) {
             case T1:
+            case T1_DEPOSIT:
                 return CurrencyItemHelper.isCurrency(stack);
             case T2:
                 return stack.getItem() == ModItems.T1_CORE;
@@ -576,7 +581,6 @@ public class TileEntityResearchAssembler
         compound.setInteger("tier", selectedTier.ordinal());
         compound.setBoolean("creditsMigrated", creditsMigrated);
         compound.setLong("legacyStoredCredits", legacyStoredCredits);
-        compound.setBoolean("autoCreateCores", autoCreateCores);
         if (ownerCountryId != null) {
             compound.setString("ownerId", ownerCountryId.toString());
         }
@@ -616,9 +620,12 @@ public class TileEntityResearchAssembler
                 ownerCountryId = null;
             }
         }
-        autoCreateCores = compound.hasKey("autoCreateCores")
-            ? compound.getBoolean("autoCreateCores")
-            : true;
+        if (compound.hasKey("autoCreateCores")) {
+            boolean autoCreateCores = compound.getBoolean("autoCreateCores");
+            if (!autoCreateCores && selectedTier == ResearchCoreTier.T1) {
+                selectedTier = ResearchCoreTier.T1_DEPOSIT;
+            }
+        }
         lastCountryName = compound.getString("lastCountry");
         lastExchangeRate = compound.getDouble("lastRate");
         lastInflationModifier = compound.getDouble("lastInflation");

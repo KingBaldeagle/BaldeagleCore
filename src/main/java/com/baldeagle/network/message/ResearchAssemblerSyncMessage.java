@@ -21,7 +21,6 @@ public class ResearchAssemblerSyncMessage implements IMessage {
     private double inflationModifier;
     private long convertedCredits;
     private String status;
-    private boolean autoCreateCores;
 
     public ResearchAssemblerSyncMessage() {}
 
@@ -34,8 +33,7 @@ public class ResearchAssemblerSyncMessage implements IMessage {
         double exchangeRate,
         double inflationModifier,
         long convertedCredits,
-        String status,
-        boolean autoCreateCores
+        String status
     ) {
         this.pos = pos;
         this.storedCredits = storedCredits;
@@ -46,7 +44,6 @@ public class ResearchAssemblerSyncMessage implements IMessage {
         this.inflationModifier = inflationModifier;
         this.convertedCredits = convertedCredits;
         this.status = status != null ? status : "";
-        this.autoCreateCores = autoCreateCores;
     }
 
     @Override
@@ -65,7 +62,6 @@ public class ResearchAssemblerSyncMessage implements IMessage {
         buf.writeDouble(inflationModifier);
         buf.writeLong(convertedCredits);
         ByteBufUtils.writeUTF8String(buf, status != null ? status : "");
-        buf.writeBoolean(autoCreateCores);
     }
 
     @Override
@@ -82,7 +78,6 @@ public class ResearchAssemblerSyncMessage implements IMessage {
         inflationModifier = buf.readDouble();
         convertedCredits = buf.readLong();
         status = ByteBufUtils.readUTF8String(buf);
-        autoCreateCores = buf.readBoolean();
     }
 
     public static class Handler
@@ -112,8 +107,7 @@ public class ResearchAssemblerSyncMessage implements IMessage {
                     message.exchangeRate,
                     message.inflationModifier,
                     message.convertedCredits,
-                    message.status,
-                    message.autoCreateCores
+                    message.status
                 );
             });
             return null;
