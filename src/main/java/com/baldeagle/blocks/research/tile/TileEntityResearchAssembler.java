@@ -63,6 +63,7 @@ public class TileEntityResearchAssembler
         boolean changed = false;
         String prevStatus = lastStatus;
         lastStatus = "";
+        long prevCredits = storedResearchCredits;
 
         Country ownerCountry = getBoundCountry();
         if (ownerCountry != null) {
@@ -74,6 +75,9 @@ public class TileEntityResearchAssembler
                 changed = true;
             }
             storedResearchCredits = ownerCountry.getResearchCredits();
+            if (storedResearchCredits != prevCredits) {
+                changed = true;
+            }
         } else if (selectedTier == ResearchCoreTier.T1) {
             lastStatus = "Join a country";
         }
