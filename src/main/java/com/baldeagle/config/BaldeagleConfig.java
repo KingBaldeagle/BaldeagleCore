@@ -20,6 +20,7 @@ public final class BaldeagleConfig {
     public static double currencyConversionInterest = 0.02D;
     public static int currencyConversionInterestThreshold = 250;
     public static boolean allowReverseConversion = false;
+    public static long moneyFormatFullNumberThreshold = 0L;
 
     private BaldeagleConfig() {}
 
@@ -120,6 +121,14 @@ public final class BaldeagleConfig {
             "currencyConverter",
             false,
             "Allow reverse conversion (currency -> original money)."
+        );
+        moneyFormatFullNumberThreshold = config.getInt(
+            "fullNumberThreshold",
+            "display",
+            0,
+            0,
+            Integer.MAX_VALUE,
+            "Minimum amount required before abbreviations are applied."
         );
 
         if (config.hasChanged()) {

@@ -4,6 +4,7 @@ import com.baldeagle.country.Country;
 import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.country.currency.CurrencyType;
+import com.baldeagle.util.MoneyFormatUtil;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -49,7 +50,9 @@ public class ItemCoin extends Item {
             TextFormatting.GRAY +
                 I18n.format(
                     "tooltip.baldeaglecore.denomination",
-                    denomination != null ? denomination.getValue() : "?"
+                    denomination != null
+                        ? MoneyFormatUtil.format(denomination.getValue())
+                        : "?"
                 )
         );
 

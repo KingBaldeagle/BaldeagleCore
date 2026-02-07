@@ -2,6 +2,7 @@ package com.baldeagle.economy.atm;
 
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.network.message.AtmWithdrawMessage;
+import com.baldeagle.util.MoneyFormatUtil;
 import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
@@ -105,13 +106,16 @@ public class GuiAtm extends GuiContainer {
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         fontRenderer.drawString("ATM", 8, 6, 0x404040);
         fontRenderer.drawString(
-            "You: " + container.getDisplayedPlayerBalance(),
+            "You: " +
+                MoneyFormatUtil.format(container.getDisplayedPlayerBalance()),
             8,
             70,
             0x404040
         );
         fontRenderer.drawString(
-            getCountryLabel() + ": " + container.getDisplayedCountryBalance(),
+            getCountryLabel() +
+                ": " +
+                MoneyFormatUtil.format(container.getDisplayedCountryBalance()),
             92,
             70,
             0x404040

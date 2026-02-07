@@ -8,6 +8,7 @@ import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.economy.EconomyManager;
 import com.baldeagle.economy.atm.TileEntityAtm;
+import com.baldeagle.util.MoneyFormatUtil;
 import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -186,7 +187,7 @@ public class AtmWithdrawMessage implements IMessage {
             player.sendStatusMessage(
                 new net.minecraft.util.text.TextComponentString(
                     "Withdrew " +
-                        amount +
+                        MoneyFormatUtil.format(amount) +
                         " from " +
                         (source == Source.PLAYER ? "personal" : "country") +
                         " balance."
