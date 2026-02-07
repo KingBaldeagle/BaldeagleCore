@@ -1,6 +1,7 @@
 package com.baldeagle.country;
 
 import com.baldeagle.territory.TerritoryManager;
+import com.baldeagle.util.MoneyFormatUtil;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.command.CommandBase;
@@ -123,7 +124,7 @@ public class CountryCommand extends CommandBase {
                                 " | Role: " +
                                 role.name() +
                                 " | Balance: " +
-                                found.getBalance() +
+                                MoneyFormatUtil.format(found.getBalance()) +
                                 " | Members: " +
                                 membersStr
                         )
@@ -154,7 +155,7 @@ public class CountryCommand extends CommandBase {
                                     " | Chunks: " +
                                     claimCounts.getOrDefault(c.getId(), 0) +
                                     " | Balance: " +
-                                    c.getBalance()
+                                    MoneyFormatUtil.format(c.getBalance())
                             )
                         );
                     }
@@ -370,7 +371,10 @@ public class CountryCommand extends CommandBase {
                 CountryStorage.get(countryWorld).markDirty();
                 sender.sendMessage(
                     new TextComponentString(
-                        "Deposited " + amount + " to " + c.getName()
+                        "Deposited " +
+                            MoneyFormatUtil.format(amount) +
+                            " to " +
+                            c.getName()
                     )
                 );
                 break;
@@ -418,7 +422,7 @@ public class CountryCommand extends CommandBase {
                     sender.sendMessage(
                         new TextComponentString(
                             "Transferred " +
-                                amount +
+                                MoneyFormatUtil.format(amount) +
                                 " from " +
                                 from.getName() +
                                 " to " +
