@@ -5,6 +5,7 @@ import com.baldeagle.country.CountryManager;
 import com.baldeagle.country.CountryStorage;
 import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
+import com.baldeagle.util.MoneyFormatUtil;
 import com.baldeagle.economy.EconomyManager;
 import com.baldeagle.blocks.shop.TileEntityShop;
 import io.netty.buffer.ByteBuf;
@@ -150,7 +151,7 @@ public class ShopActionMessage implements IMessage {
             spawnCurrency(player, country, cash);
             player.sendStatusMessage(
                 new net.minecraft.util.text.TextComponentString(
-                    "Withdrew " + cash + "."
+                    "Withdrew " + MoneyFormatUtil.format(cash) + "."
                 ),
                 true
             );

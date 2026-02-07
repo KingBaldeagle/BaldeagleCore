@@ -7,6 +7,7 @@ import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.economy.EconomyManager;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.network.message.BankSyncMessage;
+import com.baldeagle.util.MoneyFormatUtil;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -122,7 +123,9 @@ public class ContainerBank extends Container {
             );
             player.sendStatusMessage(
                 new TextComponentString(
-                    "Deposited " + faceValue + " to your personal balance."
+                    "Deposited " +
+                        MoneyFormatUtil.format(faceValue) +
+                        " to your personal balance."
                 ),
                 true
             );
@@ -183,7 +186,11 @@ public class ContainerBank extends Container {
 
         player.sendStatusMessage(
             new TextComponentString(
-                "Deposited " + faceValue + " to " + country.getName() + "."
+                "Deposited " +
+                    MoneyFormatUtil.format(faceValue) +
+                    " to " +
+                    country.getName() +
+                    "."
             ),
             true
         );

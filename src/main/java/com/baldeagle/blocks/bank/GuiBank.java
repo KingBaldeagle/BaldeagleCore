@@ -1,5 +1,6 @@
 package com.baldeagle.blocks.bank;
 
+import com.baldeagle.util.MoneyFormatUtil;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
@@ -30,14 +31,16 @@ public class GuiBank extends GuiContainer {
         GlStateManager.scale(0.50F, 0.50F, 1.0F);
 
         fontRenderer.drawString(
-            "Player Balance: " + container.getDisplayedPlayerBalance(),
+            "Player Balance: " +
+                MoneyFormatUtil.format(container.getDisplayedPlayerBalance()),
             60,
             50,
             0x404040
         );
 
         fontRenderer.drawString(
-            "Country Balance: " + container.getDisplayedCountryBalance(),
+            "Country Balance: " +
+                MoneyFormatUtil.format(container.getDisplayedCountryBalance()),
             200,
             50,
             0x404040
