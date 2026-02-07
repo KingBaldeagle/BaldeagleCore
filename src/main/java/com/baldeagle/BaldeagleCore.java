@@ -3,14 +3,14 @@ package com.baldeagle;
 import com.baldeagle.blocks.bank.TileEntityBank;
 import com.baldeagle.blocks.currency_exchange.tile.TileEntityCurrencyExchange;
 import com.baldeagle.blocks.mint.tile.TileEntityMint;
-import com.baldeagle.country.BountyEventHandler;
+import com.baldeagle.blocks.research.tile.TileEntityResearchAssembler;
+import com.baldeagle.blocks.shop.TileEntityShop;
 import com.baldeagle.blocks.vault.tile.TileEntityVault;
+import com.baldeagle.country.BountyEventHandler;
 import com.baldeagle.economy.EconomyTickHandler;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.oc.gov.TileEntityGovernmentComputer;
-import com.baldeagle.blocks.research.tile.TileEntityResearchAssembler;
-import com.baldeagle.blocks.shop.TileEntityShop;
 import com.baldeagle.territory.TerritoryIncomeTickHandler;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -27,7 +27,14 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
     modid = BaldeagleCore.MODID,
     name = BaldeagleCore.NAME,
     version = BaldeagleCore.VERSION,
-    acceptableRemoteVersions = "*"
+    acceptableRemoteVersions = "*",
+    dependencies = "required-after:forge@[14.23.5.2859,);" +
+        "after:ftblib;" +
+        "after:ftbutilities;" +
+        "after:crafttweaker;" +
+        "after:kubejs;" +
+        "after:advancedrocketry;" +
+        "after:libvulpes"
 )
 public class BaldeagleCore {
 
@@ -93,6 +100,9 @@ public class BaldeagleCore {
         if (Loader.isModLoaded("opencomputers")) {
             com.baldeagle.oc.OCIntegration.init();
         }
+        if (Loader.isModLoaded("advancedrocketry")) {
+            com.baldeagle.integration.ar.AdvancedRocketryIntegration.init();
+        }
     }
 
     @Mod.EventHandler
@@ -126,6 +136,11 @@ public class BaldeagleCore {
         }
         if (migrated) {
             overworldStorage.markDirty();
+        }
+        if (Loader.isModLoaded("advancedrocketry")) {
+            com.baldeagle.integration.ar.AdvancedRocketryIntegration.onServerLoad(
+                event
+            );
         }
         proxy.serverLoad(event);
     }
