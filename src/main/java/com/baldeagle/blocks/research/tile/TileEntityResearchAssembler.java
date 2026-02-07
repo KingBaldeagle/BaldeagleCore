@@ -602,9 +602,13 @@ public class TileEntityResearchAssembler
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
         storedResearchCredits = Math.max(0L, compound.getLong("storedCredits"));
-        selectedTier = ResearchCoreTier.fromOrdinal(
-            compound.getInteger("tier")
-        );
+        if (compound.hasKey("tier")) {
+            selectedTier = ResearchCoreTier.fromOrdinal(
+                compound.getInteger("tier")
+            );
+        } else {
+            selectedTier = ResearchCoreTier.T1_DEPOSIT;
+        }
         creditsMigrated = compound.getBoolean("creditsMigrated");
         if (compound.hasKey("legacyStoredCredits")) {
             legacyStoredCredits = Math.max(
