@@ -491,6 +491,7 @@ public class CountryCommand extends CommandBase {
                     return;
                 }
                 int currentCap = country.getStationCap();
+                long upgradeCost = tier == 1 ? 100_000L : 70_000L;
                 if (tier == 1) {
                     if (currentCap >= 1) {
                         sender.sendMessage(
@@ -504,6 +505,16 @@ public class CountryCommand extends CommandBase {
                         sender.sendMessage(
                             new TextComponentString(
                                 "Station cap tiers must be unlocked in order."
+                            )
+                        );
+                        return;
+                    }
+                    if (!country.consumeResearchCredits(upgradeCost)) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Not enough research credits. Need " +
+                                    upgradeCost +
+                                    " RC."
                             )
                         );
                         return;
@@ -526,6 +537,16 @@ public class CountryCommand extends CommandBase {
                         );
                         return;
                     }
+                    if (!country.consumeResearchCredits(upgradeCost)) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Not enough research credits. Need " +
+                                    upgradeCost +
+                                    " RC."
+                            )
+                        );
+                        return;
+                    }
                     country.setStationCap(2);
                 }
                 CountryStorage.get(countryWorld).markDirty();
@@ -535,7 +556,9 @@ public class CountryCommand extends CommandBase {
                             country.getStationCap() +
                             " for " +
                             country.getName() +
-                            "."
+                            ". Spent " +
+                            upgradeCost +
+                            " RC."
                     )
                 );
                 break;
