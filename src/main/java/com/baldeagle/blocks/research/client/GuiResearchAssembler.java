@@ -79,6 +79,14 @@ public class GuiResearchAssembler extends GuiContainer {
                 58,
                 0x404040
             );
+        } else if (tier == ResearchCoreTier.T1_DEPOSIT) {
+            fontRenderer.drawString("Deposit only", 8, 46, 0x404040);
+            fontRenderer.drawString(
+                "Country: " + stored + " RC",
+                8,
+                58,
+                0x404040
+            );
         } else {
             fontRenderer.drawString("Cost: 9x lower cores", 8, 46, 0x404040);
         }
@@ -93,7 +101,10 @@ public class GuiResearchAssembler extends GuiContainer {
             country = "-";
         }
 
-        if (tier == ResearchCoreTier.T1) {
+        if (
+            tier == ResearchCoreTier.T1 ||
+            tier == ResearchCoreTier.T1_DEPOSIT
+        ) {
             fontRenderer.drawString(
                 String.format(
                     "Modifier: %.3f",

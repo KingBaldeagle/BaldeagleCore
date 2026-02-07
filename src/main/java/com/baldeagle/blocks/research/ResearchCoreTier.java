@@ -6,7 +6,8 @@ import net.minecraft.item.Item;
 public enum ResearchCoreTier {
     T1(ModItems.T1_CORE, 900L, "T1 Core"),
     T2(ModItems.T2_CORE, 8100L, "T2 Core"),
-    T3(ModItems.T3_CORE, 72900L, "T3 Core");
+    T3(ModItems.T3_CORE, 72900L, "T3 Core"),
+    T1_DEPOSIT(null, 900L, "Deposit Only");
 
     private final Item item;
     private final long cost;

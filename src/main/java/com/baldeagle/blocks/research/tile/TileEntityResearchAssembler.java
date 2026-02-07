@@ -29,6 +29,12 @@ public class TileEntityResearchAssembler
 
     private static final int SLOT_INPUT = 0;
     private static final int SLOT_OUTPUT = 1;
+    private static final ResearchCoreTier[] TIER_ORDER = new ResearchCoreTier[] {
+        ResearchCoreTier.T1_DEPOSIT,
+        ResearchCoreTier.T1,
+        ResearchCoreTier.T2,
+        ResearchCoreTier.T3,
+    };
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(
         2,
@@ -36,7 +42,7 @@ public class TileEntityResearchAssembler
     );
 
     private long storedResearchCredits = 0L;
-    private ResearchCoreTier selectedTier = ResearchCoreTier.T1;
+    private ResearchCoreTier selectedTier = ResearchCoreTier.T1_DEPOSIT;
     private String ownerCountryName = "";
     private UUID ownerCountryId;
     private boolean creditsMigrated = false;
@@ -57,6 +63,7 @@ public class TileEntityResearchAssembler
         boolean changed = false;
         String prevStatus = lastStatus;
         lastStatus = "";
+        long prevCredits = storedResearchCredits;
 
         Country ownerCountry = getBoundCountry();
         if (ownerCountry != null) {
@@ -68,16 +75,24 @@ public class TileEntityResearchAssembler
                 changed = true;
             }
             storedResearchCredits = ownerCountry.getResearchCredits();
+            if (storedResearchCredits != prevCredits) {
+                changed = true;
+            }
         } else if (selectedTier == ResearchCoreTier.T1) {
             lastStatus = "Join a country";
         }
 
-        if (selectedTier == ResearchCoreTier.T1) {
+        if (
+            selectedTier == ResearchCoreTier.T1 ||
+            selectedTier == ResearchCoreTier.T1_DEPOSIT
+        ) {
             if (handleCurrencyInput()) {
                 changed = true;
             }
-            if (tryOutputCore()) {
-                changed = true;
+            if (selectedTier == ResearchCoreTier.T1) {
+                if (tryOutputCore()) {
+                    changed = true;
+                }
             }
         } else if (selectedTier == ResearchCoreTier.T2) {
             if (handleCoreUpgrade(ModItems.T1_CORE, ModItems.T2_CORE)) {
@@ -132,9 +147,11 @@ public class TileEntityResearchAssembler
             lastStatus = "Insert currency";
             return false;
         }
-        if (!canAcceptOutput(selectedTier.getItem(), 1)) {
-            lastStatus = "Output full";
-            return false;
+        if (selectedTier == ResearchCoreTier.T1) {
+            if (!canAcceptOutput(selectedTier.getItem(), 1)) {
+                lastStatus = "Output full";
+                return false;
+            }
         }
 
         Country ownerCountry = getBoundCountry();
@@ -310,10 +327,17 @@ public class TileEntityResearchAssembler
     }
 
     public void cycleTier(boolean forward) {
-        ResearchCoreTier[] values = ResearchCoreTier.values();
-        int index = selectedTier.ordinal();
-        int next = (index + (forward ? 1 : -1) + values.length) % values.length;
-        selectedTier = values[next];
+        int index = 0;
+        for (int i = 0; i < TIER_ORDER.length; i++) {
+            if (TIER_ORDER[i] == selectedTier) {
+                index = i;
+                break;
+            }
+        }
+        int next =
+            (index + (forward ? 1 : -1) + TIER_ORDER.length) %
+            TIER_ORDER.length;
+        selectedTier = TIER_ORDER[next];
         sync();
         markDirty();
     }
@@ -503,6 +527,7 @@ public class TileEntityResearchAssembler
         }
         switch (selectedTier) {
             case T1:
+            case T1_DEPOSIT:
                 return CurrencyItemHelper.isCurrency(stack);
             case T2:
                 return stack.getItem() == ModItems.T1_CORE;
@@ -597,6 +622,12 @@ public class TileEntityResearchAssembler
                 ownerCountryId = UUID.fromString(compound.getString("ownerId"));
             } catch (IllegalArgumentException ignored) {
                 ownerCountryId = null;
+            }
+        }
+        if (compound.hasKey("autoCreateCores")) {
+            boolean autoCreateCores = compound.getBoolean("autoCreateCores");
+            if (!autoCreateCores && selectedTier == ResearchCoreTier.T1) {
+                selectedTier = ResearchCoreTier.T1_DEPOSIT;
             }
         }
         lastCountryName = compound.getString("lastCountry");
