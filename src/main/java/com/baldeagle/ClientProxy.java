@@ -8,5 +8,6 @@ public class ClientProxy extends ServerProxy {
     @Override
     public void preInit() {
         MinecraftForge.EVENT_BUS.register(new InventoryMapButtonHandler());
+        MinecraftForge.EVENT_BUS.register(new CustomSplashHandler());
     }
 }
