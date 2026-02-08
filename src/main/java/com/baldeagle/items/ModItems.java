@@ -70,6 +70,11 @@ public class ModItems {
         .setTranslationKey("baldeaglecore.bill_100")
         .setCreativeTab(BaldeagleCoreTab.INSTANCE);
 
+    public static final Item CLAIM_MAP = (Item) new ItemClaimMap()
+        .setRegistryName("baldeaglecore", "claim_map")
+        .setTranslationKey("baldeaglecore.claim_map")
+        .setCreativeTab(BaldeagleCoreTab.INSTANCE);
+
     public static Item getCurrencyItem(CurrencyDenomination denomination) {
         if (denomination == null) {
             return null;
@@ -104,7 +109,8 @@ public class ModItems {
                 COIN_5,
                 COIN_10,
                 BILL_50,
-                BILL_100
+                BILL_100,
+                CLAIM_MAP
             );
     }
 }
