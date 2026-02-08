@@ -19,5 +19,6 @@ item.baldeaglecore.t2_core.name=Tier 2 Core
 item.baldeaglecore.t3_core.name=Tier 3 Core
 item.baldeaglecore.t4_core.name=Tier 4 Core
 item.baldeaglecore.t5_core.name=Tier 5 Core
+item.baldeaglecore.claim_map.name=Claim Map
 
 key.baldeaglecore.chunkmap.open=Open Chunk Map
