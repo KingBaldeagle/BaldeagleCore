@@ -5,8 +5,6 @@ import com.baldeagle.network.message.AtmBalanceSyncMessage;
 import com.baldeagle.network.message.AtmSyncMessage;
 import com.baldeagle.network.message.AtmWithdrawMessage;
 import com.baldeagle.network.message.BankSyncMessage;
-import com.baldeagle.network.message.ClaimMapRequestMessage;
-import com.baldeagle.network.message.ClaimOwnershipRequestMessage;
 import com.baldeagle.network.message.ChunkMapRequestMessage;
 import com.baldeagle.network.message.ChunkMapSnapshotMessage;
 import com.baldeagle.network.message.ChunkOwnershipRequestMessage;
@@ -133,19 +131,6 @@ public final class NetworkHandler {
             Side.CLIENT
         );
 
-        INSTANCE.registerMessage(
-            ClaimMapRequestMessage.Handler.class,
-            ClaimMapRequestMessage.class,
-            id++,
-            Side.SERVER
-        );
-
-        INSTANCE.registerMessage(
-            ClaimOwnershipRequestMessage.Handler.class,
-            ClaimOwnershipRequestMessage.class,
-            id++,
-            Side.SERVER
-        );
     }
 
     public static void sendToAllAround(
