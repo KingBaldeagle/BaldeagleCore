@@ -125,13 +125,13 @@ public class ItemClaimMap extends ItemMap {
     public void onUpdate(
         ItemStack stack,
         World world,
-        EntityPlayer player,
+        net.minecraft.entity.Entity entity,
         int slot,
         boolean selected
     ) {
-        super.onUpdate(stack, world, player, slot, selected);
-        if (!world.isRemote) {
-            updateClaimOverlay(stack, player);
+        super.onUpdate(stack, world, entity, slot, selected);
+        if (!world.isRemote && entity instanceof EntityPlayer) {
+            updateClaimOverlay(stack, (EntityPlayer) entity);
         }
     }
 
@@ -241,7 +241,7 @@ public class ItemClaimMap extends ItemMap {
     }
 
     private static MapData getMapData(World world, int mapId) {
-        return world
+        return (MapData) world
             .getMapStorage()
             .getOrLoadData(MapData.class, "claim_map_" + mapId);
     }
