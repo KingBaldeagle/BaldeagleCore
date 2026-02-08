@@ -13,6 +13,7 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -237,7 +238,12 @@ public class ItemClaimMap extends ItemMap {
         }
 
         System.arraycopy(colors, 0, data.colors, 0, colors.length);
-        data.updateMapData(player, stack);
+        if (player instanceof EntityPlayerMP) {
+            EntityPlayerMP mp = (EntityPlayerMP) player;
+            mp.connection.sendPacket(
+                data.getMapPacket(stack, world, player)
+            );
+        }
         data.markDirty();
     }
 
