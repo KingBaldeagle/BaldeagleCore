@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "pattern": ["GGG", "GCG", "GGG"],
   "key": {
-    "I": {
+    "G": {
       "item": "minecraft:gold_ingot"
     },
-    "V": {
+    "C": {
       "item": "baldeaglecore:vault"
     }
   },

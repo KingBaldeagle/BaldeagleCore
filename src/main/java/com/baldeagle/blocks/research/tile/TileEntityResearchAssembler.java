@@ -34,6 +34,8 @@ public class TileEntityResearchAssembler
         ResearchCoreTier.T1,
         ResearchCoreTier.T2,
         ResearchCoreTier.T3,
+        ResearchCoreTier.T4,
+        ResearchCoreTier.T5,
     };
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(
@@ -100,6 +102,14 @@ public class TileEntityResearchAssembler
             }
         } else if (selectedTier == ResearchCoreTier.T3) {
             if (handleCoreUpgrade(ModItems.T2_CORE, ModItems.T3_CORE)) {
+                changed = true;
+            }
+        } else if (selectedTier == ResearchCoreTier.T4) {
+            if (handleCoreUpgrade(ModItems.T3_CORE, ModItems.T4_CORE)) {
+                changed = true;
+            }
+        } else if (selectedTier == ResearchCoreTier.T5) {
+            if (handleCoreUpgrade(ModItems.T4_CORE, ModItems.T5_CORE)) {
                 changed = true;
             }
         }
@@ -533,6 +543,10 @@ public class TileEntityResearchAssembler
                 return stack.getItem() == ModItems.T1_CORE;
             case T3:
                 return stack.getItem() == ModItems.T2_CORE;
+            case T4:
+                return stack.getItem() == ModItems.T3_CORE;
+            case T5:
+                return stack.getItem() == ModItems.T4_CORE;
             default:
                 return false;
         }

@@ -7,6 +7,8 @@ public enum ResearchCoreTier {
     T1(ModItems.T1_CORE, 900L, "T1 Core"),
     T2(ModItems.T2_CORE, 8100L, "T2 Core"),
     T3(ModItems.T3_CORE, 72900L, "T3 Core"),
+    T4(ModItems.T4_CORE, 656100L, "T4 Core"),
+    T5(ModItems.T5_CORE, 5904900L, "T5 Core"),
     T1_DEPOSIT(null, 900L, "Deposit");
 
     private final Item item;

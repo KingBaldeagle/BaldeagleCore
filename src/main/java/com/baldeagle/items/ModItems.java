@@ -25,6 +25,16 @@ public class ModItems {
         .setTranslationKey("baldeaglecore.t3_core")
         .setCreativeTab(BaldeagleCoreTab.INSTANCE);
 
+    public static final Item T4_CORE = (Item) new T4Core()
+        .setRegistryName("baldeaglecore", "t4_core")
+        .setTranslationKey("baldeaglecore.t4_core")
+        .setCreativeTab(BaldeagleCoreTab.INSTANCE);
+
+    public static final Item T5_CORE = (Item) new T5Core()
+        .setRegistryName("baldeaglecore", "t5_core")
+        .setTranslationKey("baldeaglecore.t5_core")
+        .setCreativeTab(BaldeagleCoreTab.INSTANCE);
+
     public static final ItemCoin COIN_1 = (ItemCoin) new ItemCoin(
         CurrencyDenomination.COIN_1
     )
@@ -88,6 +98,8 @@ public class ModItems {
                 T1_CORE,
                 T2_CORE,
                 T3_CORE,
+                T4_CORE,
+                T5_CORE,
                 COIN_1,
                 COIN_5,
                 COIN_10,
