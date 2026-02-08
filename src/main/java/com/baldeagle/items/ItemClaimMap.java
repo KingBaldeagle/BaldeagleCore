@@ -237,6 +237,7 @@ public class ItemClaimMap extends ItemMap {
         }
 
         System.arraycopy(colors, 0, data.colors, 0, colors.length);
+        data.updateMapData(player, stack);
         data.markDirty();
     }
 
