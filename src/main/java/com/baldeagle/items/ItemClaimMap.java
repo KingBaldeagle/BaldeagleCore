@@ -240,9 +240,11 @@ public class ItemClaimMap extends ItemMap {
         System.arraycopy(colors, 0, data.colors, 0, colors.length);
         if (player instanceof EntityPlayerMP) {
             EntityPlayerMP mp = (EntityPlayerMP) player;
-            mp.connection.sendPacket(
-                data.getMapPacket(stack, world, player)
-            );
+            net.minecraft.network.Packet<?> packet =
+                data.getMapPacket(stack, world, player);
+            if (packet != null) {
+                mp.connection.sendPacket(packet);
+            }
         }
         data.markDirty();
     }
