@@ -10,6 +10,7 @@ public class Country {
     public enum Role {
         PRESIDENT,
         MINISTER,
+        TREASURER,
         MEMBER,
     }
 
@@ -448,7 +449,7 @@ public class Country {
 
     public boolean isAuthorized(UUID player) {
         Role role = getRole(player);
-        return role == Role.PRESIDENT || role == Role.MINISTER;
+        return role == Role.PRESIDENT || role == Role.MINISTER || role == Role.TREASURER;
     }
 
     public void deposit(UUID byPlayer, long amount) {
@@ -517,16 +518,26 @@ public class Country {
         joinRequests.remove(applicant);
     }
 
-    public boolean promote(UUID byPlayer, UUID target) {
+    public boolean promote(UUID byPlayer, UUID target, Role role) {
         if (getRole(byPlayer) != Role.PRESIDENT) return false;
         if (!members.containsKey(target)) return false;
-        members.put(target, Role.MINISTER);
+        if (role == Role.PRESIDENT) return false; // Cannot promote to President
+        members.put(target, role);
         return true;
+    }
+
+    public boolean promote(UUID byPlayer, UUID target) {
+        return promote(byPlayer, target, Role.MINISTER);
     }
 
     public boolean isHighAuthority(UUID player) {
         Role role = getRole(player);
         return role == Role.PRESIDENT || role == Role.MINISTER;
+    }
+
+    public boolean isTreasurerAuthority(UUID player) {
+        Role role = getRole(player);
+        return role == Role.PRESIDENT || role == Role.MINISTER || role == Role.TREASURER;
     }
 
     public NBTTagCompound writeToNBT() {

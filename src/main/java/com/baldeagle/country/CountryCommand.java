@@ -7,6 +7,7 @@ import java.util.UUID;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
@@ -558,21 +559,24 @@ public class CountryCommand extends CommandBase {
             }
             // --- PROMOTE ---
             case "promote": {
-                if (args.length < 3) {
+                if (args.length < 2) {
                     sender.sendMessage(
                         new TextComponentString(
-                            "Usage: /country promote <countryName> <playerUUID>"
+                            "Usage: /country promote <playerName> [role]"
                         )
                     );
                     return;
                 }
-                Country c = CountryManager.getCountryByName(world, args[1]);
+                
+                // Find the president's country
+                Country c = CountryManager.getCountryForPlayer(world, playerUUID);
                 if (c == null) {
                     sender.sendMessage(
-                        new TextComponentString("Country not found")
+                        new TextComponentString("You are not part of any country")
                     );
                     return;
                 }
+                
                 if (c.getRole(playerUUID) != Country.Role.PRESIDENT) {
                     sender.sendMessage(
                         new TextComponentString(
@@ -581,20 +585,41 @@ public class CountryCommand extends CommandBase {
                     );
                     return;
                 }
-                UUID member;
-                try {
-                    member = UUID.fromString(args[2]);
-                } catch (IllegalArgumentException e) {
-                    sender.sendMessage(new TextComponentString("Invalid UUID"));
+                
+                // Get target player by name
+                String playerName = args[1];
+                EntityPlayer targetPlayer = world.getPlayerEntityByName(playerName);
+                if (targetPlayer == null) {
+                    sender.sendMessage(new TextComponentString("Player not found: " + playerName));
                     return;
                 }
-                if (c.promote(playerUUID, member)) {
+                
+                UUID member = targetPlayer.getUniqueID();
+                
+                Country.Role targetRole = Country.Role.MINISTER;
+                if (args.length >= 3) {
+                    try {
+                        String roleName = args[2].toUpperCase();
+                        targetRole = Country.Role.valueOf(roleName);
+                        if (targetRole == Country.Role.PRESIDENT) {
+                            sender.sendMessage(new TextComponentString("Cannot promote to President"));
+                            return;
+                        }
+                    } catch (IllegalArgumentException e) {
+                        sender.sendMessage(new TextComponentString("Invalid role. Available roles: MINISTER, TREASURER, MEMBER"));
+                        return;
+                    }
+                }
+                
+                if (c.promote(playerUUID, member, targetRole)) {
                     CountryStorage.get(countryWorld).markDirty();
                     sender.sendMessage(
                         new TextComponentString(
                             "Promoted " +
-                                member +
-                                " to Minister in " +
+                                playerName +
+                                " to " +
+                                targetRole +
+                                " in " +
                                 c.getName()
                         )
                     );

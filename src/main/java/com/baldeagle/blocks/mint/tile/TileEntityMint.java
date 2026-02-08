@@ -97,7 +97,7 @@ public class TileEntityMint
 
     public boolean isAuthorized(EntityPlayer player) {
         Country country = getCountry();
-        return country != null && country.isHighAuthority(player.getUniqueID());
+        return country != null && country.isTreasurerAuthority(player.getUniqueID());
     }
 
     public CurrencyType getSelectedType() {
