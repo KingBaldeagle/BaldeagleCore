@@ -12,6 +12,8 @@ public class CustomSplashHandler {
         "The Eagle has landed!",
         "Join the Elite",
         "Baldeagle is King!",
+        "Yo no se!",
+        "Beware of doom!",
     };
     private static final Random RANDOM = new Random();
 
