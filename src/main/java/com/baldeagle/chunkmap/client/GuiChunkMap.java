@@ -282,19 +282,19 @@ public class GuiChunkMap extends GuiScreen {
             );
             List<String> lines = new ArrayList<>();
             lines.add("Chunk: (" + hx + ", " + hz + ")");
-            if (
+            boolean isSpawnProtected =
                 spawnChunkRadius > 0 &&
                 Math.abs(hx - spawnChunkX) <= spawnChunkRadius &&
-                Math.abs(hz - spawnChunkZ) <= spawnChunkRadius
-            ) {
+                Math.abs(hz - spawnChunkZ) <= spawnChunkRadius;
+
+            if (isSpawnProtected) {
                 lines.add("Spawn");
                 lines.add(
                     "Claiming disabled within " +
                     BaldeagleConfig.spawnProtectionBlockRadius +
                     " blocks"
                 );
-            }
-            if (info == null || info.ownerCountryId == null) {
+            } else if (info == null || info.ownerCountryId == null) {
                 lines.add("Owner: Unclaimed");
                 lines.add("Relation: Neutral");
             } else {
