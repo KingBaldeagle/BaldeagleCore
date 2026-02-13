@@ -207,13 +207,28 @@ public class GuiChunkMap extends GuiScreen {
                         );
                     }
                 }
-                if (
-                    spawnChunkRadius > 0 &&
-                    Math.abs(cx - spawnChunkX) <= spawnChunkRadius &&
-                    Math.abs(cz - spawnChunkZ) <= spawnChunkRadius
-                ) {
-                    drawOutline(x, y, tileSize, tileSize, 0x88A0A0A0);
-                }
+            }
+        }
+
+        if (spawnChunkRadius > 0) {
+            int minSpawnChunkX = spawnChunkX - spawnChunkRadius;
+            int maxSpawnChunkX = spawnChunkX + spawnChunkRadius;
+            int minSpawnChunkZ = spawnChunkZ - spawnChunkRadius;
+            int maxSpawnChunkZ = spawnChunkZ + spawnChunkRadius;
+
+            int spawnLeft = x0 + ((minSpawnChunkX - centerX) + RADIUS) * tileSize;
+            int spawnTop = y0 + ((minSpawnChunkZ - centerZ) + RADIUS) * tileSize;
+            int spawnRight = x0 + ((maxSpawnChunkX - centerX) + RADIUS + 1) * tileSize;
+            int spawnBottom = y0 + ((maxSpawnChunkZ - centerZ) + RADIUS + 1) * tileSize;
+
+            int clipLeft = Math.max(spawnLeft, x0);
+            int clipTop = Math.max(spawnTop, y0);
+            int clipRight = Math.min(spawnRight, x0 + mapW);
+            int clipBottom = Math.min(spawnBottom, y0 + mapH);
+
+            if (clipLeft < clipRight && clipTop < clipBottom) {
+                drawRect(clipLeft, clipTop, clipRight, clipBottom, 0x44B0B0B0);
+                drawOutline(clipLeft, clipTop, clipRight - clipLeft, clipBottom - clipTop, 0xB0C8C8C8);
             }
         }
 
