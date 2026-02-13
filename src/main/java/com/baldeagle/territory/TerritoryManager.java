@@ -1,6 +1,7 @@
 package com.baldeagle.territory;
 
 import com.baldeagle.ModBlocks;
+import com.baldeagle.config.BaldeagleConfig;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -118,6 +119,9 @@ public final class TerritoryManager {
         if (world.isRemote) {
             return false;
         }
+        if (isChunkInSpawnProtection(world, chunk)) {
+            return false;
+        }
 
         TerritoryData data = TerritoryData.get(world);
         DimChunkKey key = chunkKey(world, chunk);
@@ -140,6 +144,29 @@ public final class TerritoryManager {
             .put(key, new TerritoryData.ClaimEntry(countryId, flagPos));
         data.markDirty();
         return true;
+    }
+
+    public static int getSpawnProtectionChunkRadius() {
+        return (int) Math.ceil(BaldeagleConfig.spawnProtectionBlockRadius / 16.0D);
+    }
+
+    public static boolean isChunkInSpawnProtection(World world, ChunkPos chunkPos) {
+        if (world == null || chunkPos == null) {
+            return false;
+        }
+
+        int chunkRadius = getSpawnProtectionChunkRadius();
+        if (chunkRadius <= 0) {
+            return false;
+        }
+
+        BlockPos spawn = world.getSpawnPoint();
+        int spawnChunkX = spawn.getX() >> 4;
+        int spawnChunkZ = spawn.getZ() >> 4;
+
+        int dx = chunkPos.x - spawnChunkX;
+        int dz = chunkPos.z - spawnChunkZ;
+        return Math.abs(dx) <= chunkRadius && Math.abs(dz) <= chunkRadius;
     }
 
     public static void unclaimChunk(World world, ChunkPos chunk) {

@@ -61,6 +61,19 @@ public class BlockClaimFlag extends Block {
         }
 
         ChunkPos chunk = new ChunkPos(pos);
+        if (TerritoryManager.isChunkInSpawnProtection(worldIn, chunk)) {
+            player.sendStatusMessage(
+                new TextComponentString(
+                    "You cannot claim land within " +
+                    com.baldeagle.config.BaldeagleConfig.spawnProtectionBlockRadius +
+                    " blocks of spawn."
+                ),
+                true
+            );
+            refundAndRemove(worldIn, pos, player);
+            return;
+        }
+
         TerritoryData data = TerritoryData.get(worldIn);
         TerritoryManager.DimChunkKey key = TerritoryManager.chunkKey(
             worldIn,

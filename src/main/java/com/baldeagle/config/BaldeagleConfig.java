@@ -21,6 +21,7 @@ public final class BaldeagleConfig {
     public static int currencyConversionInterestThreshold = 250;
     public static boolean allowReverseConversion = false;
     public static long moneyFormatFullNumberThreshold = 0L;
+    public static int spawnProtectionBlockRadius = 180;
 
     private BaldeagleConfig() {}
 
@@ -129,6 +130,15 @@ public final class BaldeagleConfig {
             0,
             Integer.MAX_VALUE,
             "Minimum amount required before abbreviations are applied."
+        );
+
+        spawnProtectionBlockRadius = config.getInt(
+            "spawnProtectionBlockRadius",
+            "territory",
+            180,
+            0,
+            Integer.MAX_VALUE,
+            "Number of blocks from world spawn where chunk claiming is disabled."
         );
 
         if (config.hasChanged()) {

@@ -66,6 +66,19 @@ public class TerritoryProtectionHandler {
                 }
             }
 
+            if (TerritoryManager.isChunkInSpawnProtection(world, chunk)) {
+                event.setCanceled(true);
+                player.sendStatusMessage(
+                    new TextComponentString(
+                        "You cannot claim land within " +
+                        com.baldeagle.config.BaldeagleConfig.spawnProtectionBlockRadius +
+                        " blocks of spawn."
+                    ),
+                    true
+                );
+                return;
+            }
+
             TerritoryData.ClaimEntry claim = TerritoryManager.getClaim(
                 world,
                 chunk
