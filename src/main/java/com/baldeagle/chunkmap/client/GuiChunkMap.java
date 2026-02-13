@@ -6,6 +6,8 @@ import com.baldeagle.chunkmap.ChunkRelation;
 import com.baldeagle.chunkmap.ChunkTerrainSnapshot;
 import com.baldeagle.chunkmap.ClientChunkMapCache;
 import com.baldeagle.chunkmap.ClientChunkOwnershipCache;
+import com.baldeagle.config.BaldeagleConfig;
+import com.baldeagle.territory.TerritoryManager;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.network.message.ChunkMapRequestMessage;
 import com.baldeagle.network.message.ChunkOwnershipRequestMessage;
@@ -94,6 +96,10 @@ public class GuiChunkMap extends GuiScreen {
         int mapH = chunksWide * tileSize;
         int x0 = (width - mapW) / 2;
         int y0 = (height - mapH) / 2;
+
+        int spawnChunkX = mc.world.getSpawnPoint().getX() >> 4;
+        int spawnChunkZ = mc.world.getSpawnPoint().getZ() >> 4;
+        int spawnChunkRadius = TerritoryManager.getSpawnProtectionChunkRadius();
 
         HeightRange range = computeHeightRange(dim, centerX, centerZ);
 
@@ -201,6 +207,13 @@ public class GuiChunkMap extends GuiScreen {
                         );
                     }
                 }
+                if (
+                    spawnChunkRadius > 0 &&
+                    Math.abs(cx - spawnChunkX) <= spawnChunkRadius &&
+                    Math.abs(cz - spawnChunkZ) <= spawnChunkRadius
+                ) {
+                    drawOutline(x, y, tileSize, tileSize, 0x88A0A0A0);
+                }
             }
         }
 
@@ -254,6 +267,18 @@ public class GuiChunkMap extends GuiScreen {
             );
             List<String> lines = new ArrayList<>();
             lines.add("Chunk: (" + hx + ", " + hz + ")");
+            if (
+                spawnChunkRadius > 0 &&
+                Math.abs(hx - spawnChunkX) <= spawnChunkRadius &&
+                Math.abs(hz - spawnChunkZ) <= spawnChunkRadius
+            ) {
+                lines.add("Spawn");
+                lines.add(
+                    "Claiming disabled within " +
+                    BaldeagleConfig.spawnProtectionBlockRadius +
+                    " blocks"
+                );
+            }
             if (info == null || info.ownerCountryId == null) {
                 lines.add("Owner: Unclaimed");
                 lines.add("Relation: Neutral");
