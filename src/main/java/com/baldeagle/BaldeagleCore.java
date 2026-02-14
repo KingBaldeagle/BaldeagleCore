@@ -41,7 +41,7 @@ public class BaldeagleCore {
 
     public static final String MODID = "baldeaglecore";
     public static final String NAME = "BaldEagle Core";
-    public static final String VERSION = "1.15";
+    public static final String VERSION = "1.17";
 
     @Mod.Instance
     public static BaldeagleCore instance;

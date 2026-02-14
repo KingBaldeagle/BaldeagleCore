@@ -1,13 +1,8 @@
 package com.baldeagle.territory;
 
+import com.baldeagle.config.BaldeagleConfig;
+
 public final class TerritoryEconomy {
-
-    // Base income per claimed chunk, paid each interval.
-    public static final long BASE_CHUNK_INCOME = 100L;
-
-    // Territory bonus multiplier: each additional chunk increases income by 5%.
-    // Example: 1 chunk => 1.00x, 2 chunks => 1.05x, 3 chunks => 1.1025x, ...
-    public static final double PER_ADDITIONAL_CHUNK_MULTIPLIER = 1.05D;
 
     private TerritoryEconomy() {}
 
@@ -16,14 +11,14 @@ public final class TerritoryEconomy {
             return 0L;
         }
 
-        double multiplier = Math.pow(
-            PER_ADDITIONAL_CHUNK_MULTIPLIER,
-            Math.max(0, claimedChunks - 1)
-        );
-        double income = BASE_CHUNK_INCOME * (double) claimedChunks * multiplier;
-        if (Double.isNaN(income) || Double.isInfinite(income)) {
+        // Each additional chunk adds a bonus to ALL chunks
+        // Example with base=100, bonus=0.05: 3 chunks = 3 * 100 * (1 + 2*0.05) = 330
+        double bonusMultiplier = 1.0D + (claimedChunks - 1) * (BaldeagleConfig.territoryChunkMultiplier - 1.0D);
+        double incomePerChunk = BaldeagleConfig.territoryBaseChunkIncome * bonusMultiplier;
+        double totalIncome = incomePerChunk * claimedChunks;
+        if (Double.isNaN(totalIncome) || Double.isInfinite(totalIncome)) {
             return 0L;
         }
-        return Math.max(0L, Math.round(income));
+        return Math.max(0L, Math.round(totalIncome));
     }
 }

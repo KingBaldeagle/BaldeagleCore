@@ -23,6 +23,9 @@ public final class BaldeagleConfig {
     public static long moneyFormatFullNumberThreshold = 0L;
     public static int spawnProtectionBlockRadius = 180;
 
+    public static long territoryBaseChunkIncome = 100L;
+    public static double territoryChunkMultiplier = 1.05D;
+
     private BaldeagleConfig() {}
 
     public static void init(FMLPreInitializationEvent event) {
@@ -139,6 +142,23 @@ public final class BaldeagleConfig {
             0,
             Integer.MAX_VALUE,
             "Number of blocks from world spawn where chunk claiming is disabled."
+        );
+
+        territoryBaseChunkIncome = config.getInt(
+            "territoryBaseChunkIncome",
+            "territory",
+            100,
+            0,
+            Integer.MAX_VALUE,
+            "Base amount of money added per claimed chunk per payout interval."
+        );
+        territoryChunkMultiplier = config.getFloat(
+            "territoryChunkMultiplier",
+            "territory",
+            1.05F,
+            0.0F,
+            Float.MAX_VALUE,
+            "Multiplier applied to territory income. 1.0 = no multiplier, 1.05 = 5% bonus, etc."
         );
 
         if (config.hasChanged()) {
