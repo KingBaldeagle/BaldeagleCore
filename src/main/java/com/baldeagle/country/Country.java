@@ -249,6 +249,16 @@ public class Country {
         return true;
     }
 
+    public void setTreasury(long amount) {
+        if (amount < 0) {
+            amount = 0;
+        }
+        long beforeTreasury = treasury;
+        treasury = amount;
+        applyReservePressure(treasury - beforeTreasury, beforeTreasury);
+        recalculateBaseValue();
+    }
+
     public void adjustTreasury(long delta) {
         if (delta == 0) {
             return;

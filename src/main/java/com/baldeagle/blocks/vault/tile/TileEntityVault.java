@@ -30,6 +30,7 @@ public class TileEntityVault
     private static final long GOLD_VALUE = 1;
     private static final long DIAMOND_VALUE = 4;
     private static final long EMERALD_VALUE = 2;
+    private static final long DILITHIUM_VALUE = 667;
     private static final int BLOCK_MULTIPLIER = 9;
 
     private static final int[] NO_SLOTS = new int[0];
@@ -95,6 +96,12 @@ public class TileEntityVault
     }
 
     public long getCountryReserveUnits() {
+        // On client, also check computed value to handle sync delays
+        if (world != null && world.isRemote) {
+            long computed = computeReserveUnits();
+            // Use the larger of computed or cached to avoid showing stale low values
+            return Math.max(computed, countryReserveUnits);
+        }
         return countryReserveUnits;
     }
 
@@ -183,6 +190,8 @@ public class TileEntityVault
             net.minecraft.item.Item.getItemFromBlock(Blocks.DIAMOND_BLOCK);
         net.minecraft.item.Item emeraldBlockItem =
             net.minecraft.item.Item.getItemFromBlock(Blocks.EMERALD_BLOCK);
+        net.minecraft.item.Item dilithiumItem =
+            net.minecraft.item.Item.getByNameOrId("libvulpes:productgem");
         for (ItemStack stack : items) {
             if (stack.isEmpty()) continue;
             if (stack.getItem() == Items.GOLD_INGOT) {
@@ -200,6 +209,10 @@ public class TileEntityVault
             } else if (stack.getItem() == emeraldBlockItem) {
                 total +=
                     (long) stack.getCount() * BLOCK_MULTIPLIER * EMERALD_VALUE;
+            } else if (
+                dilithiumItem != null && stack.getItem() == dilithiumItem
+            ) {
+                total += (long) stack.getCount() * DILITHIUM_VALUE;
             }
         }
         return total;
@@ -246,20 +259,23 @@ public class TileEntityVault
         }
 
         long actual = computeReserveUnits();
-        long delta = actual - trackedReserveUnits;
-        trackedReserveUnits = actual;
 
-        if (delta == 0) {
-            return;
-        }
+        // Ensure trackedReserveUnits reflects actual items before calculating delta
+        // This prevents desync issues when chunks reload or packets arrive out of order
+        trackedReserveUnits = actual;
 
         Country country = getCountry();
         if (country == null) {
             return;
         }
-        country.adjustTreasury(delta);
-        updateCountryReserveCache();
-        CountryStorage.get(world).markDirty();
+
+        // Sync vault reserves with country's treasury
+        long treasury = country.getTreasury();
+        if (treasury != actual) {
+            country.setTreasury(actual);
+            updateCountryReserveCache();
+            CountryStorage.get(world).markDirty();
+        }
     }
 
     public void prepareForDropAndUntrack() {
@@ -392,6 +408,8 @@ public class TileEntityVault
             return false;
         }
         net.minecraft.item.Item item = stack.getItem();
+        net.minecraft.item.Item dilithiumItem =
+            net.minecraft.item.Item.getByNameOrId("libvulpes:productgem");
         return (
             item == Items.GOLD_INGOT ||
             item == Items.DIAMOND ||
@@ -401,7 +419,8 @@ public class TileEntityVault
             item ==
             net.minecraft.item.Item.getItemFromBlock(Blocks.DIAMOND_BLOCK) ||
             item ==
-            net.minecraft.item.Item.getItemFromBlock(Blocks.EMERALD_BLOCK)
+            net.minecraft.item.Item.getItemFromBlock(Blocks.EMERALD_BLOCK) ||
+            (dilithiumItem != null && item == dilithiumItem)
         );
     }
 

@@ -95,6 +95,13 @@ public class ContainerVault extends Container {
             return;
         }
         long reserves = country.getTreasury();
+        // Also check tile's computed value to catch desyncs
+        long tileReserves = tile.getReserveUnits();
+        if (reserves != tileReserves) {
+            // Force update if tile and country are out of sync
+            country.setTreasury(tileReserves);
+            reserves = tileReserves;
+        }
         if (reserves == cachedCountryReserves) {
             return;
         }
@@ -143,6 +150,12 @@ public class ContainerVault extends Container {
                 slot.putStack(ItemStack.EMPTY);
             } else {
                 slot.onSlotChanged();
+            }
+            
+            // Force sync when vault contents change
+            if (index < vaultSlots || (index >= vaultSlots && tile.isItemValidForSlot(0, itemstack))) {
+                cachedCountryReserves = Long.MIN_VALUE;
+                syncCountryReserves();
             }
         }
 
