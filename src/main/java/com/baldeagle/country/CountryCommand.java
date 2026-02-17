@@ -31,6 +31,11 @@ public class CountryCommand extends CommandBase {
     }
 
     @Override
+    public int getRequiredPermissionLevel() {
+        return 0;
+    }
+
+    @Override
     public void execute(
         MinecraftServer server,
         ICommandSender sender,
@@ -572,16 +577,21 @@ public class CountryCommand extends CommandBase {
                     );
                     return;
                 }
-                
+
                 // Find the president's country
-                Country c = CountryManager.getCountryForPlayer(world, playerUUID);
+                Country c = CountryManager.getCountryForPlayer(
+                    world,
+                    playerUUID
+                );
                 if (c == null) {
                     sender.sendMessage(
-                        new TextComponentString("You are not part of any country")
+                        new TextComponentString(
+                            "You are not part of any country"
+                        )
                     );
                     return;
                 }
-                
+
                 if (c.getRole(playerUUID) != Country.Role.PRESIDENT) {
                     sender.sendMessage(
                         new TextComponentString(
@@ -590,32 +600,46 @@ public class CountryCommand extends CommandBase {
                     );
                     return;
                 }
-                
+
                 // Get target player by name
                 String playerName = args[1];
-                EntityPlayer targetPlayer = world.getPlayerEntityByName(playerName);
+                EntityPlayer targetPlayer = world.getPlayerEntityByName(
+                    playerName
+                );
                 if (targetPlayer == null) {
-                    sender.sendMessage(new TextComponentString("Player not found: " + playerName));
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Player not found: " + playerName
+                        )
+                    );
                     return;
                 }
-                
+
                 UUID member = targetPlayer.getUniqueID();
-                
+
                 Country.Role targetRole = Country.Role.MINISTER;
                 if (args.length >= 3) {
                     try {
                         String roleName = args[2].toUpperCase();
                         targetRole = Country.Role.valueOf(roleName);
                         if (targetRole == Country.Role.PRESIDENT) {
-                            sender.sendMessage(new TextComponentString("Cannot promote to President"));
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "Cannot promote to President"
+                                )
+                            );
                             return;
                         }
                     } catch (IllegalArgumentException e) {
-                        sender.sendMessage(new TextComponentString("Invalid role. Available roles: MINISTER, TREASURER, MEMBER"));
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Invalid role. Available roles: MINISTER, TREASURER, MEMBER"
+                            )
+                        );
                         return;
                     }
                 }
-                
+
                 if (c.promote(playerUUID, member, targetRole)) {
                     CountryStorage.get(countryWorld).markDirty();
                     sender.sendMessage(
@@ -1110,7 +1134,10 @@ public class CountryCommand extends CommandBase {
                     );
                     return;
                 }
-                Country target = CountryManager.getCountryByName(world, args[1]);
+                Country target = CountryManager.getCountryByName(
+                    world,
+                    args[1]
+                );
                 if (target == null) {
                     sender.sendMessage(
                         new TextComponentString("Country not found")

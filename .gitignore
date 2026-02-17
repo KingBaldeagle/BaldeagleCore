@@ -22,3 +22,5 @@ run/
 
 # Dependencies
 libs/*
+
+secconfig.cfg
