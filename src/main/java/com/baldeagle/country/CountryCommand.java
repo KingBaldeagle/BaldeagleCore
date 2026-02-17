@@ -16,6 +16,11 @@ import net.minecraft.world.World;
 public class CountryCommand extends CommandBase {
 
     @Override
+    public int getRequiredPermissionLevel() {
+        return 0;
+    }
+
+    @Override
     public String getName() {
         return "country";
     }
