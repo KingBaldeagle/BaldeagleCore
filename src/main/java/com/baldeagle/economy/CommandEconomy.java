@@ -57,16 +57,6 @@ public class CommandEconomy extends CommandBase {
                 UUID uuid = targetPlayer.getUniqueID();
                 if (action.equalsIgnoreCase("get")) {
                     long balance = EconomyManager.getPlayerBalance(world, uuid);
-<<<<<<< Updated upstream
-                    sender.sendMessage(new TextComponentString(targetPlayer.getName() + " balance: " + MoneyFormatUtil.format(balance)));
-                } else if (action.equalsIgnoreCase("resetbalance")) {
-                    if (!sender.canUseCommand(4, getName())) {
-                        sender.sendMessage(new TextComponentString("Only server operators can use resetbalance."));
-                        return;
-                    }
-                    EconomyManager.setPlayerBalance(world, uuid, 0L);
-                    sender.sendMessage(new TextComponentString("Reset balance for " + targetPlayer.getName()));
-=======
                     sender.sendMessage(
                         new TextComponentString(
                             targetPlayer.getName() +
@@ -74,7 +64,21 @@ public class CommandEconomy extends CommandBase {
                                 MoneyFormatUtil.format(balance)
                         )
                     );
->>>>>>> Stashed changes
+                } else if (action.equalsIgnoreCase("resetbalance")) {
+                    if (!sender.canUseCommand(4, getName())) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Only server operators can use resetbalance."
+                            )
+                        );
+                        return;
+                    }
+                    EconomyManager.setPlayerBalance(world, uuid, 0L);
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Reset balance for " + targetPlayer.getName()
+                        )
+                    );
                 } else if (args.length >= 4) {
                     long amount = Long.parseLong(args[3]);
                     if (action.equalsIgnoreCase("deposit")) {
@@ -109,17 +113,6 @@ public class CommandEconomy extends CommandBase {
             } else if (type.equalsIgnoreCase("country")) {
                 String country = args[2];
                 if (action.equalsIgnoreCase("get")) {
-<<<<<<< Updated upstream
-                    long balance = EconomyManager.getCountryBalance(world, country);
-                    sender.sendMessage(new TextComponentString(country + " balance: " + MoneyFormatUtil.format(balance)));
-                } else if (action.equalsIgnoreCase("resetbalance")) {
-                    if (!sender.canUseCommand(4, getName())) {
-                        sender.sendMessage(new TextComponentString("Only server operators can use resetbalance."));
-                        return;
-                    }
-                    EconomyManager.setCountryBalance(world, country, 0L);
-                    sender.sendMessage(new TextComponentString("Reset balance for " + country));
-=======
                     long balance = EconomyManager.getCountryBalance(
                         world,
                         country
@@ -131,7 +124,21 @@ public class CommandEconomy extends CommandBase {
                                 MoneyFormatUtil.format(balance)
                         )
                     );
->>>>>>> Stashed changes
+                } else if (action.equalsIgnoreCase("resetbalance")) {
+                    if (!sender.canUseCommand(4, getName())) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Only server operators can use resetbalance."
+                            )
+                        );
+                        return;
+                    }
+                    EconomyManager.setCountryBalance(world, country, 0L);
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Reset balance for " + country
+                        )
+                    );
                 } else if (args.length >= 4) {
                     long amount = Long.parseLong(args[3]);
                     if (action.equalsIgnoreCase("deposit")) {
