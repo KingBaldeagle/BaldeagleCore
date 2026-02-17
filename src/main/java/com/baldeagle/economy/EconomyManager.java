@@ -42,6 +42,17 @@ public class EconomyManager {
         return false;
     }
 
+
+    public static void setPlayerBalance(World world, UUID player, long amount) {
+        if (world == null || player == null) {
+            return;
+        }
+        EconomyData data = getData(world);
+        Map<UUID, Long> balances = data.getPlayerBalances();
+        balances.put(player, Math.max(0L, amount));
+        data.markDirty();
+    }
+
     public static long getCountryBalance(World world, String country) {
         if (world == null || country == null) {
             return 0L;
@@ -63,6 +74,23 @@ public class EconomyManager {
             return;
         }
         c.setBalance(c.getBalance() + amount);
+        CountryStorage.get(world).markDirty();
+    }
+
+
+    public static void setCountryBalance(
+        World world,
+        String country,
+        long amount
+    ) {
+        if (world == null || country == null) {
+            return;
+        }
+        Country c = CountryManager.getCountryByName(world, country);
+        if (c == null) {
+            return;
+        }
+        c.setBalance(Math.max(0L, amount));
         CountryStorage.get(world).markDirty();
     }
 
