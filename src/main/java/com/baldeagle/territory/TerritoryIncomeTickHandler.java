@@ -43,6 +43,7 @@ public class TerritoryIncomeTickHandler {
         }
 
         long intervals = elapsed / PAYOUT_INTERVAL_TICKS;
+        System.out.println("[DEBUG] Territory tick: elapsed=" + elapsed + " intervals=" + intervals + " last=" + last + " now=" + now);
         MinecraftServer server = world.getMinecraftServer();
         if (server != null) {
             for (long i = 0; i < intervals; i++) {
@@ -72,11 +73,16 @@ public class TerritoryIncomeTickHandler {
             if (country == null) {
                 continue;
             }
-            long income = TerritoryEconomy.calculateIncome(entry.getValue());
+            int chunks = entry.getValue();
+            long income = TerritoryEconomy.calculateIncome(chunks);
+            System.out.println("[DEBUG] Territory payout: Country=" + country.getName() + 
+                             " Chunks=" + chunks + " Income=" + income);
             if (income <= 0) {
                 continue;
             }
-            country.setBalance(country.getBalance() + income);
+            long oldBalance = country.getBalance();
+            country.setBalance(oldBalance + income);
+            System.out.println("[DEBUG] Balance update: " + oldBalance + " + " + income + " = " + country.getBalance());
             changed = true;
         }
 

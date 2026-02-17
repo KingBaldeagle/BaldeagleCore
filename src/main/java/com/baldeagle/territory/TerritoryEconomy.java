@@ -11,14 +11,25 @@ public final class TerritoryEconomy {
             return 0L;
         }
 
-        // Each additional chunk adds a bonus to ALL chunks
-        // Example with base=100, bonus=0.05: 3 chunks = 3 * 100 * (1 + 2*0.05) = 330
-        double bonusMultiplier = 1.0D + (claimedChunks - 1) * (BaldeagleConfig.territoryChunkMultiplier - 1.0D);
-        double incomePerChunk = BaldeagleConfig.territoryBaseChunkIncome * bonusMultiplier;
+        // Calculate per-chunk amount with bonus applied once per chunk count
+        // Formula: chunks * base * (1 + (chunks-1) * bonusPercent)
+        // Example: 4 chunks, base=100, bonus=5%
+        // Per chunk: 100 * (1 + 3*0.05) = 100 * 1.15 = 115
+        // Total: 115 * 4 = 460
+        double bonusPercent = BaldeagleConfig.territoryChunkMultiplier - 1.0D;
+        double perChunkMultiplier = 1.0D + (claimedChunks - 1) * bonusPercent;
+        double incomePerChunk = BaldeagleConfig.territoryBaseChunkIncome * perChunkMultiplier;
         double totalIncome = incomePerChunk * claimedChunks;
+        
         if (Double.isNaN(totalIncome) || Double.isInfinite(totalIncome)) {
             return 0L;
         }
+        
+        // Cap at reasonable maximum to prevent config errors from breaking economy
+        if (totalIncome > Long.MAX_VALUE) {
+            return Long.MAX_VALUE;
+        }
+        
         return Math.max(0L, Math.round(totalIncome));
     }
 }

@@ -12,19 +12,30 @@ import net.minecraft.world.World;
 public class CommandEconomy extends CommandBase {
 
     @Override
+    public int getRequiredPermissionLevel() {
+        return 0;
+    }
+
+    @Override
     public String getName() {
         return "economy";
     }
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "/economy <player|country> <get|deposit|withdraw> <target> <amount>";
+        return "/economy <player|country> <get|deposit|withdraw|resetbalance> <target> [amount]";
     }
 
     @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+    public void execute(
+        MinecraftServer server,
+        ICommandSender sender,
+        String[] args
+    ) {
         if (args.length < 3) {
-            sender.sendMessage(new TextComponentString("Usage: " + getUsage(sender)));
+            sender.sendMessage(
+                new TextComponentString("Usage: " + getUsage(sender))
+            );
             return;
         }
 
@@ -34,51 +45,146 @@ public class CommandEconomy extends CommandBase {
 
         try {
             if (type.equalsIgnoreCase("player")) {
-                EntityPlayerMP targetPlayer = server.getPlayerList().getPlayerByUsername(args[2]);
+                EntityPlayerMP targetPlayer = server
+                    .getPlayerList()
+                    .getPlayerByUsername(args[2]);
                 if (targetPlayer == null) {
-                    sender.sendMessage(new TextComponentString("Player not found!"));
+                    sender.sendMessage(
+                        new TextComponentString("Player not found!")
+                    );
                     return;
                 }
                 UUID uuid = targetPlayer.getUniqueID();
                 if (action.equalsIgnoreCase("get")) {
                     long balance = EconomyManager.getPlayerBalance(world, uuid);
-                    sender.sendMessage(new TextComponentString(targetPlayer.getName() + " balance: " + MoneyFormatUtil.format(balance)));
+                    sender.sendMessage(
+                        new TextComponentString(
+                            targetPlayer.getName() +
+                                " balance: " +
+                                MoneyFormatUtil.format(balance)
+                        )
+                    );
+                } else if (action.equalsIgnoreCase("resetbalance")) {
+                    if (!sender.canUseCommand(4, getName())) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Only server operators can use resetbalance."
+                            )
+                        );
+                        return;
+                    }
+                    EconomyManager.setPlayerBalance(world, uuid, 0L);
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Reset balance for " + targetPlayer.getName()
+                        )
+                    );
                 } else if (args.length >= 4) {
                     long amount = Long.parseLong(args[3]);
                     if (action.equalsIgnoreCase("deposit")) {
                         EconomyManager.depositPlayer(world, uuid, amount);
-                        sender.sendMessage(new TextComponentString("Deposited " + MoneyFormatUtil.format(amount) + " to " + targetPlayer.getName()));
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Deposited " +
+                                    MoneyFormatUtil.format(amount) +
+                                    " to " +
+                                    targetPlayer.getName()
+                            )
+                        );
                     } else if (action.equalsIgnoreCase("withdraw")) {
-                        if (EconomyManager.withdrawPlayer(world, uuid, amount)) {
-                            sender.sendMessage(new TextComponentString("Withdrew " + MoneyFormatUtil.format(amount) + " from " + targetPlayer.getName()));
+                        if (
+                            EconomyManager.withdrawPlayer(world, uuid, amount)
+                        ) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "Withdrew " +
+                                        MoneyFormatUtil.format(amount) +
+                                        " from " +
+                                        targetPlayer.getName()
+                                )
+                            );
                         } else {
-                            sender.sendMessage(new TextComponentString("Insufficient funds!"));
+                            sender.sendMessage(
+                                new TextComponentString("Insufficient funds!")
+                            );
                         }
                     }
                 }
             } else if (type.equalsIgnoreCase("country")) {
                 String country = args[2];
                 if (action.equalsIgnoreCase("get")) {
-                    long balance = EconomyManager.getCountryBalance(world, country);
-                    sender.sendMessage(new TextComponentString(country + " balance: " + MoneyFormatUtil.format(balance)));
+                    long balance = EconomyManager.getCountryBalance(
+                        world,
+                        country
+                    );
+                    sender.sendMessage(
+                        new TextComponentString(
+                            country +
+                                " balance: " +
+                                MoneyFormatUtil.format(balance)
+                        )
+                    );
+                } else if (action.equalsIgnoreCase("resetbalance")) {
+                    if (!sender.canUseCommand(4, getName())) {
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Only server operators can use resetbalance."
+                            )
+                        );
+                        return;
+                    }
+                    EconomyManager.setCountryBalance(world, country, 0L);
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Reset balance for " + country
+                        )
+                    );
                 } else if (args.length >= 4) {
                     long amount = Long.parseLong(args[3]);
                     if (action.equalsIgnoreCase("deposit")) {
                         EconomyManager.depositCountry(world, country, amount);
-                        sender.sendMessage(new TextComponentString("Deposited " + MoneyFormatUtil.format(amount) + " to " + country));
+                        sender.sendMessage(
+                            new TextComponentString(
+                                "Deposited " +
+                                    MoneyFormatUtil.format(amount) +
+                                    " to " +
+                                    country
+                            )
+                        );
                     } else if (action.equalsIgnoreCase("withdraw")) {
-                        if (EconomyManager.withdrawCountry(world, country, amount)) {
-                            sender.sendMessage(new TextComponentString("Withdrew " + MoneyFormatUtil.format(amount) + " from " + country));
+                        if (
+                            EconomyManager.withdrawCountry(
+                                world,
+                                country,
+                                amount
+                            )
+                        ) {
+                            sender.sendMessage(
+                                new TextComponentString(
+                                    "Withdrew " +
+                                        MoneyFormatUtil.format(amount) +
+                                        " from " +
+                                        country
+                                )
+                            );
                         } else {
-                            sender.sendMessage(new TextComponentString("Insufficient funds!"));
+                            sender.sendMessage(
+                                new TextComponentString("Insufficient funds!")
+                            );
                         }
                     }
                 }
             } else {
-                sender.sendMessage(new TextComponentString("Invalid type! Use player or country."));
+                sender.sendMessage(
+                    new TextComponentString(
+                        "Invalid type! Use player or country."
+                    )
+                );
             }
         } catch (NumberFormatException e) {
-            sender.sendMessage(new TextComponentString("Amount must be a number!"));
+            sender.sendMessage(
+                new TextComponentString("Amount must be a number!")
+            );
         }
     }
 }

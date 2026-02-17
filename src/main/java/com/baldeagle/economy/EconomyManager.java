@@ -42,6 +42,17 @@ public class EconomyManager {
         return false;
     }
 
+
+    public static void setPlayerBalance(World world, UUID player, long amount) {
+        if (world == null || player == null) {
+            return;
+        }
+        EconomyData data = getData(world);
+        Map<UUID, Long> balances = data.getPlayerBalances();
+        balances.put(player, Math.max(0L, amount));
+        data.markDirty();
+    }
+
     public static long getCountryBalance(World world, String country) {
         if (world == null || country == null) {
             return 0L;
@@ -66,6 +77,23 @@ public class EconomyManager {
         CountryStorage.get(world).markDirty();
     }
 
+
+    public static void setCountryBalance(
+        World world,
+        String country,
+        long amount
+    ) {
+        if (world == null || country == null) {
+            return;
+        }
+        Country c = CountryManager.getCountryByName(world, country);
+        if (c == null) {
+            return;
+        }
+        c.setBalance(Math.max(0L, amount));
+        CountryStorage.get(world).markDirty();
+    }
+
     public static boolean withdrawCountry(
         World world,
         String country,
@@ -87,7 +115,7 @@ public class EconomyManager {
         return true;
     }
 
-    public static void applyInterest(World world, double rate) {
+    public static void applyInterest(World world, double countryRate, double playerRate) {
         EconomyData data = getData(world);
         boolean dataChanged = false;
 
@@ -97,7 +125,7 @@ public class EconomyManager {
             if (current <= 0) {
                 continue;
             }
-            long interest = Math.round(current * rate);
+            long interest = Math.round(current * playerRate);
             if (interest > 0) {
                 entry.setValue(current + interest);
                 dataChanged = true;
@@ -112,7 +140,7 @@ public class EconomyManager {
         boolean storageChanged = false;
         for (Country country : storage.getCountriesMap().values()) {
             long before = country.getBalance();
-            country.applyInterest(rate);
+            country.applyInterest(countryRate);
             if (country.getBalance() != before) {
                 storageChanged = true;
             }
