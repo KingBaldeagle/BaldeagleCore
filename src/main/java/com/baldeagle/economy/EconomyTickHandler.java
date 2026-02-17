@@ -1,13 +1,13 @@
 package com.baldeagle.economy;
 
+import com.baldeagle.config.BaldeagleConfig;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class EconomyTickHandler {
 
-    private static final long INTEREST_INTERVAL_TICKS = 20L * 60L;
-    private static final double INTEREST_RATE = 0.03D;
+    private static final long TICKS_PER_MINUTE = 20L * 60L;
 
     @SubscribeEvent
     public void onWorldTick(TickEvent.WorldTickEvent event) {
@@ -22,6 +22,7 @@ public class EconomyTickHandler {
             return;
         }
 
+        long intervalTicks = BaldeagleConfig.interestIntervalMinutes * TICKS_PER_MINUTE;
         EconomyData data = EconomyData.get(world);
         long now = world.getTotalWorldTime();
         long last = data.getLastInterestTime();
@@ -33,16 +34,16 @@ public class EconomyTickHandler {
         }
 
         long elapsed = now - last;
-        if (elapsed < INTEREST_INTERVAL_TICKS) {
+        if (elapsed < intervalTicks) {
             return;
         }
 
-        long intervals = elapsed / INTEREST_INTERVAL_TICKS;
+        long intervals = elapsed / intervalTicks;
         for (long i = 0; i < intervals; i++) {
-            EconomyManager.applyInterest(world, INTEREST_RATE);
+            EconomyManager.applyInterest(world, BaldeagleConfig.countryInterestRate, BaldeagleConfig.playerInterestRate);
         }
 
-        data.setLastInterestTime(last + intervals * INTEREST_INTERVAL_TICKS);
+        data.setLastInterestTime(last + intervals * intervalTicks);
         data.markDirty();
     }
 }

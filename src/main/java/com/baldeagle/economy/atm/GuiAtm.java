@@ -116,7 +116,7 @@ public class GuiAtm extends GuiContainer {
             getCountryLabel() +
                 ": " +
                 MoneyFormatUtil.format(container.getDisplayedCountryBalance()),
-            92,
+            76,
             70,
             0x404040
         );

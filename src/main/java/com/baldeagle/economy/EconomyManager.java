@@ -87,7 +87,7 @@ public class EconomyManager {
         return true;
     }
 
-    public static void applyInterest(World world, double rate) {
+    public static void applyInterest(World world, double countryRate, double playerRate) {
         EconomyData data = getData(world);
         boolean dataChanged = false;
 
@@ -97,7 +97,7 @@ public class EconomyManager {
             if (current <= 0) {
                 continue;
             }
-            long interest = Math.round(current * rate);
+            long interest = Math.round(current * playerRate);
             if (interest > 0) {
                 entry.setValue(current + interest);
                 dataChanged = true;
@@ -112,7 +112,7 @@ public class EconomyManager {
         boolean storageChanged = false;
         for (Country country : storage.getCountriesMap().values()) {
             long before = country.getBalance();
-            country.applyInterest(rate);
+            country.applyInterest(countryRate);
             if (country.getBalance() != before) {
                 storageChanged = true;
             }

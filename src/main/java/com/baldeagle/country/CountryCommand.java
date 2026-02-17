@@ -22,7 +22,7 @@ public class CountryCommand extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally|war|bounty|station> [...]";
+        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally|war|bounty|resetbalance> [...]";
     }
 
     @Override
@@ -1085,6 +1085,45 @@ public class CountryCommand extends CommandBase {
                                 reward
                         )
                     );
+                return;
+            }
+            // --- RESET BALANCE (ADMIN) ---
+            case "resetbalance": {
+                if (!sender.canUseCommand(4, "country.resetbalance")) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You do not have permission to use this command"
+                        )
+                    );
+                    return;
+                }
+                if (args.length < 2) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Usage: /country resetbalance <countryName>"
+                        )
+                    );
+                    return;
+                }
+                Country target = CountryManager.getCountryByName(world, args[1]);
+                if (target == null) {
+                    sender.sendMessage(
+                        new TextComponentString("Country not found")
+                    );
+                    return;
+                }
+                long oldBalance = target.getBalance();
+                target.setBalance(0);
+                CountryStorage.get(countryWorld).markDirty();
+                sender.sendMessage(
+                    new TextComponentString(
+                        "Reset balance of " +
+                            target.getName() +
+                            " from " +
+                            MoneyFormatUtil.format(oldBalance) +
+                            " to 0"
+                    )
+                );
                 return;
             }
             default:

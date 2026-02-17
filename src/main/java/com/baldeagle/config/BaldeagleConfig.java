@@ -26,6 +26,10 @@ public final class BaldeagleConfig {
     public static long territoryBaseChunkIncome = 100L;
     public static double territoryChunkMultiplier = 1.05D;
 
+    public static double countryInterestRate = 0.03D;
+    public static double playerInterestRate = 0.03D;
+    public static long interestIntervalMinutes = 1L;
+
     private BaldeagleConfig() {}
 
     public static void init(FMLPreInitializationEvent event) {
@@ -159,6 +163,31 @@ public final class BaldeagleConfig {
             0.0F,
             Float.MAX_VALUE,
             "Multiplier applied to territory income. 1.0 = no multiplier, 1.05 = 5% bonus, etc."
+        );
+
+        countryInterestRate = config.getFloat(
+            "countryInterestRate",
+            "interest",
+            0.03F,
+            0.0F,
+            1.0F,
+            "Interest rate applied to country balances per interval. 0.03 = 3% interest."
+        );
+        playerInterestRate = config.getFloat(
+            "playerInterestRate",
+            "interest",
+            0.03F,
+            0.0F,
+            1.0F,
+            "Interest rate applied to player balances per interval. 0.03 = 3% interest."
+        );
+        interestIntervalMinutes = config.getInt(
+            "interestIntervalMinutes",
+            "interest",
+            1,
+            1,
+            Integer.MAX_VALUE,
+            "Time in minutes between interest applications."
         );
 
         if (config.hasChanged()) {
