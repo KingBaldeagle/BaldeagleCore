@@ -42,7 +42,6 @@ public class EconomyManager {
         return false;
     }
 
-
     public static void setPlayerBalance(World world, UUID player, long amount) {
         if (world == null || player == null) {
             return;
@@ -76,7 +75,6 @@ public class EconomyManager {
         c.setBalance(c.getBalance() + amount);
         CountryStorage.get(world).markDirty();
     }
-
 
     public static void setCountryBalance(
         World world,
@@ -115,7 +113,11 @@ public class EconomyManager {
         return true;
     }
 
-    public static void applyInterest(World world, double countryRate, double playerRate) {
+    public static void applyInterest(
+        World world,
+        double countryRate,
+        double playerRate
+    ) {
         EconomyData data = getData(world);
         boolean dataChanged = false;
 
