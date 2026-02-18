@@ -15,6 +15,19 @@ public class EconomyManager {
         return EconomyData.get(world);
     }
 
+    private static double normalizeInterestRate(double rate) {
+        if (Double.isNaN(rate) || Double.isInfinite(rate)) {
+            return 0.0D;
+        }
+
+        // Backward-compatible fallback: treat 3 as 3% if configured as whole percent.
+        if (rate > 1.0D && rate <= 100.0D) {
+            rate = rate / 100.0D;
+        }
+
+        return Math.max(0.0D, Math.min(1.0D, rate));
+    }
+
     public static long getPlayerBalance(World world, UUID player) {
         return getData(world).getPlayerBalances().getOrDefault(player, 0L);
     }
@@ -116,6 +129,9 @@ public class EconomyManager {
     }
 
     public static void applyInterest(World world, double countryRate, double playerRate) {
+        double safeCountryRate = normalizeInterestRate(countryRate);
+        double safePlayerRate = normalizeInterestRate(playerRate);
+
         EconomyData data = getData(world);
         boolean dataChanged = false;
 
@@ -125,7 +141,7 @@ public class EconomyManager {
             if (current <= 0) {
                 continue;
             }
-            long interest = Math.round(current * playerRate);
+            long interest = Math.round(current * safePlayerRate);
             if (interest > 0) {
                 entry.setValue(current + interest);
                 dataChanged = true;
@@ -140,7 +156,7 @@ public class EconomyManager {
         boolean storageChanged = false;
         for (Country country : storage.getCountriesMap().values()) {
             long before = country.getBalance();
-            country.applyInterest(countryRate);
+            country.applyInterest(safeCountryRate);
             if (country.getBalance() != before) {
                 storageChanged = true;
             }
