@@ -13,15 +13,7 @@ public class CommandEconomy extends CommandBase {
 
     @Override
     public int getRequiredPermissionLevel() {
-        return 0;
-    }
-
-    @Override
-    public boolean checkPermission(
-        MinecraftServer server,
-        ICommandSender sender
-    ) {
-        return true;
+        return 4;
     }
 
     @Override
@@ -73,14 +65,6 @@ public class CommandEconomy extends CommandBase {
                         )
                     );
                 } else if (action.equalsIgnoreCase("resetbalance")) {
-                    if (!sender.canUseCommand(4, getName())) {
-                        sender.sendMessage(
-                            new TextComponentString(
-                                "Only server operators can use resetbalance."
-                            )
-                        );
-                        return;
-                    }
                     EconomyManager.setPlayerBalance(world, uuid, 0L);
                     sender.sendMessage(
                         new TextComponentString(
@@ -133,14 +117,6 @@ public class CommandEconomy extends CommandBase {
                         )
                     );
                 } else if (action.equalsIgnoreCase("resetbalance")) {
-                    if (!sender.canUseCommand(4, getName())) {
-                        sender.sendMessage(
-                            new TextComponentString(
-                                "Only server operators can use resetbalance."
-                            )
-                        );
-                        return;
-                    }
                     EconomyManager.setCountryBalance(world, country, 0L);
                     sender.sendMessage(
                         new TextComponentString(
