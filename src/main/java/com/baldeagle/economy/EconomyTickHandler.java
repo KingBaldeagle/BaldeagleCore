@@ -22,7 +22,8 @@ public class EconomyTickHandler {
             return;
         }
 
-        long intervalTicks = BaldeagleConfig.interestIntervalMinutes * TICKS_PER_MINUTE;
+        long intervalTicks =
+            BaldeagleConfig.interestIntervalMinutes * TICKS_PER_MINUTE;
         EconomyData data = EconomyData.get(world);
         long now = world.getTotalWorldTime();
         long last = data.getLastInterestTime();
@@ -40,7 +41,11 @@ public class EconomyTickHandler {
 
         long intervals = elapsed / intervalTicks;
         for (long i = 0; i < intervals; i++) {
-            EconomyManager.applyInterest(world, BaldeagleConfig.countryInterestRate, BaldeagleConfig.playerInterestRate);
+            EconomyManager.applyInterest(
+                world,
+                BaldeagleConfig.countryInterestRate,
+                BaldeagleConfig.playerInterestRate
+            );
         }
 
         data.setLastInterestTime(last + intervals * intervalTicks);

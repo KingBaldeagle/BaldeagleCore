@@ -459,7 +459,11 @@ public class Country {
 
     public boolean isAuthorized(UUID player) {
         Role role = getRole(player);
-        return role == Role.PRESIDENT || role == Role.MINISTER || role == Role.TREASURER;
+        return (
+            role == Role.PRESIDENT ||
+            role == Role.MINISTER ||
+            role == Role.TREASURER
+        );
     }
 
     public void deposit(UUID byPlayer, long amount) {
@@ -547,7 +551,11 @@ public class Country {
 
     public boolean isTreasurerAuthority(UUID player) {
         Role role = getRole(player);
-        return role == Role.PRESIDENT || role == Role.MINISTER || role == Role.TREASURER;
+        return (
+            role == Role.PRESIDENT ||
+            role == Role.MINISTER ||
+            role == Role.TREASURER
+        );
     }
 
     public NBTTagCompound writeToNBT() {
