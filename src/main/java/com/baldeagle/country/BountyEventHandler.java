@@ -3,6 +3,7 @@ package com.baldeagle.country;
 import com.baldeagle.country.currency.CurrencyDenomination;
 import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.economy.EconomyManager;
+import com.baldeagle.blocks.mint.MintingConstants;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -76,6 +77,7 @@ public class BountyEventHandler {
                 );
             } else {
                 spawnCurrency(killer, bountyCountry, reward);
+                bountyCountry.applyMinting(reward, MintingConstants.MINT_INFLATION_FACTOR);
             }
 
             bountyCountry.removeBounty(victimId);
@@ -119,7 +121,8 @@ public class BountyEventHandler {
                 ItemStack stack = CurrencyItemHelper.createCurrencyStack(
                     country,
                     denom,
-                    give
+                    give,
+                    true
                 );
                 if (!stack.isEmpty()) {
                     if (!player.inventory.addItemStackToInventory(stack)) {

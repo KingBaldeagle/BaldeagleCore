@@ -11,6 +11,8 @@ itemGroup.baldeaglecore=Baldeagle Core
 tooltip.baldeaglecore.denomination=Denomination: %s
 tooltip.baldeaglecore.inflation=Inflation: %s
 tooltip.baldeaglecore.unbound=Unminted currency
+tooltip.baldeaglecore.minted=Minted
+tooltip.baldeaglecore.unminted=Unminted
 
 item.baldeaglecore.currency_bill=%s Bill (%s)
 item.baldeaglecore.currency_coin=%s Coin (%s)

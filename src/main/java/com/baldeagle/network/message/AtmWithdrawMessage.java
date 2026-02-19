@@ -163,7 +163,8 @@ public class AtmWithdrawMessage implements IMessage {
                     ItemStack stack = CurrencyItemHelper.createCurrencyStack(
                         country,
                         denom,
-                        give
+                        give,
+                        true
                     );
                     if (!stack.isEmpty()) {
                         if (!player.inventory.addItemStackToInventory(stack)) {

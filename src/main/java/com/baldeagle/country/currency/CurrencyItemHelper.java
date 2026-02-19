@@ -18,10 +18,10 @@ public final class CurrencyItemHelper {
 
     // Legacy UUID-based identifier (kept for backwards compatibility)
     public static final String NBT_COUNTRY = "country_id";
-    // New identifier: country name
     public static final String NBT_COUNTRY_NAME = "country_name";
     public static final String NBT_DENOMINATION = "denomination";
     public static final String NBT_TYPE = "type";
+    public static final String NBT_MINTED = "minted";
 
     private CurrencyItemHelper() {}
 
@@ -38,6 +38,15 @@ public final class CurrencyItemHelper {
         CurrencyDenomination denomination,
         int amount
     ) {
+        return createCurrencyStack(country, denomination, amount, false);
+    }
+
+    public static ItemStack createCurrencyStack(
+        Country country,
+        CurrencyDenomination denomination,
+        int amount,
+        boolean minted
+    ) {
         if (country == null || denomination == null || amount <= 0) {
             return ItemStack.EMPTY;
         }
@@ -51,7 +60,7 @@ public final class CurrencyItemHelper {
         }
         ItemStack stack = new ItemStack(item, amount);
 
-        applyCurrencyData(stack, country, denomination);
+        applyCurrencyData(stack, country, denomination, minted);
         return stack;
     }
 
@@ -59,6 +68,15 @@ public final class CurrencyItemHelper {
         ItemStack stack,
         Country country,
         CurrencyDenomination denomination
+    ) {
+        applyCurrencyData(stack, country, denomination, false);
+    }
+
+    public static void applyCurrencyData(
+        ItemStack stack,
+        Country country,
+        CurrencyDenomination denomination,
+        boolean minted
     ) {
         if (stack.isEmpty() || country == null || denomination == null) {
             return;
@@ -69,8 +87,10 @@ public final class CurrencyItemHelper {
             stack.setTagCompound(tag);
         }
         tag.setString(NBT_COUNTRY_NAME, country.getName());
+        tag.setString(NBT_COUNTRY, country.getId().toString());
         tag.setString(NBT_DENOMINATION, denomination.getId());
         tag.setString(NBT_TYPE, denomination.getType().getNbtKey());
+        tag.setBoolean(NBT_MINTED, minted);
     }
 
     public static UUID getCountryId(ItemStack stack) {
@@ -151,6 +171,13 @@ public final class CurrencyItemHelper {
     public static CurrencyType getType(ItemStack stack) {
         CurrencyDenomination denomination = getDenomination(stack);
         return denomination != null ? denomination.getType() : null;
+    }
+
+    public static boolean isMinted(ItemStack stack) {
+        if (stack.isEmpty() || stack.getTagCompound() == null) {
+            return false;
+        }
+        return stack.getTagCompound().getBoolean(NBT_MINTED);
     }
 
     public static long getFaceValue(ItemStack stack) {

@@ -241,7 +241,8 @@ public class TileEntityMint
         ItemStack currency = CurrencyItemHelper.createCurrencyStack(
             country,
             selectedDenomination,
-            amount
+            amount,
+            true
         );
         if (currency.isEmpty()) {
             player.sendStatusMessage(
@@ -392,7 +393,8 @@ public class TileEntityMint
                 ItemStack currency = CurrencyItemHelper.createCurrencyStack(
                     country,
                     denom,
-                    give
+                    give,
+                    true
                 );
                 if (!currency.isEmpty()) {
                     if (!player.inventory.addItemStackToInventory(currency)) {

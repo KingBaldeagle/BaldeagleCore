@@ -251,7 +251,8 @@ public class TileEntityCurrencyExchange
                 ItemStack output = CurrencyItemHelper.createCurrencyStack(
                     targetCountry,
                     denom,
-                    give
+                    give,
+                    true
                 );
                 if (!output.isEmpty()) {
                     if (!player.inventory.addItemStackToInventory(output)) {

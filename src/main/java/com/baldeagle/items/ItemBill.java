@@ -67,11 +67,11 @@ public class ItemBill extends Item {
                             String.format("%.3f", country.getInflation())
                         )
                 );
+            }
+            if (CurrencyItemHelper.isMinted(stack)) {
+                tooltip.add(TextFormatting.GREEN + I18n.format("tooltip.baldeaglecore.minted"));
             } else {
-                tooltip.add(
-                    TextFormatting.DARK_GRAY +
-                        I18n.format("tooltip.baldeaglecore.unbound")
-                );
+                tooltip.add(TextFormatting.DARK_GRAY + I18n.format("tooltip.baldeaglecore.unminted"));
             }
         }
     }

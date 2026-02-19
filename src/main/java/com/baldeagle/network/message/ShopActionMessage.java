@@ -8,6 +8,7 @@ import com.baldeagle.country.currency.CurrencyItemHelper;
 import com.baldeagle.util.MoneyFormatUtil;
 import com.baldeagle.economy.EconomyManager;
 import com.baldeagle.blocks.shop.TileEntityShop;
+import com.baldeagle.blocks.mint.MintingConstants;
 import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -149,6 +150,8 @@ public class ShopActionMessage implements IMessage {
             }
 
             spawnCurrency(player, country, cash);
+            country.applyMinting(cash, MintingConstants.MINT_INFLATION_FACTOR);
+            CountryStorage.get(player.world).markDirty();
             player.sendStatusMessage(
                 new net.minecraft.util.text.TextComponentString(
                     "Withdrew " + MoneyFormatUtil.format(cash) + "."
@@ -307,7 +310,8 @@ public class ShopActionMessage implements IMessage {
                     ItemStack stack = CurrencyItemHelper.createCurrencyStack(
                         country,
                         denom,
-                        give
+                        give,
+                        true
                     );
                     if (!stack.isEmpty()) {
                         if (!player.inventory.addItemStackToInventory(stack)) {

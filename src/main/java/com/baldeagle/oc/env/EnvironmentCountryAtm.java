@@ -124,7 +124,8 @@ public class EnvironmentCountryAtm extends EnvironmentBase {
                     ItemStack stack = CurrencyItemHelper.createCurrencyStack(
                         country,
                         denom,
-                        give
+                        give,
+                        true
                     );
 
                     if (!player.inventory.addItemStackToInventory(stack)) {
