@@ -1,5 +1,6 @@
 package com.baldeagle.country;
 
+import com.baldeagle.territory.TerritoryData;
 import com.baldeagle.territory.TerritoryManager;
 import com.baldeagle.util.MoneyFormatUtil;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class CountryCommand extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally|war|bounty|resetbalance> [...]";
+        return "/country <create|info|list|requestjoin|approve|deny|listrequests|deposit|transfer|promote|ally|war|bounty|resetbalance|delete> [...]";
     }
 
     @Override
@@ -1157,6 +1158,80 @@ public class CountryCommand extends CommandBase {
                             " from " +
                             MoneyFormatUtil.format(oldBalance) +
                             " to 0"
+                    )
+                );
+                return;
+            }
+            // --- DELETE COUNTRY (ADMIN) ---
+            case "delete": {
+                if (!sender.canUseCommand(4, "country.delete")) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "You do not have permission to use this command"
+                        )
+                    );
+                    return;
+                }
+                if (args.length < 2) {
+                    sender.sendMessage(
+                        new TextComponentString(
+                            "Usage: /country delete <countryName>"
+                        )
+                    );
+                    return;
+                }
+                Country target = CountryManager.getCountryByName(
+                    world,
+                    args[1]
+                );
+                if (target == null) {
+                    sender.sendMessage(
+                        new TextComponentString("Country not found")
+                    );
+                    return;
+                }
+
+                int memberCount = target.getMembers().size();
+                String countryName = target.getName();
+                UUID countryId = target.getId();
+
+                com.baldeagle.territory.TerritoryData territoryData =
+                    com.baldeagle.territory.TerritoryData.get(countryWorld);
+                int territoryClaimsRemoved = 0;
+                java.util.Iterator<
+                    java.util.Map.Entry<
+                        com.baldeagle.territory.TerritoryManager.DimChunkKey,
+                        com.baldeagle.territory.TerritoryData.ClaimEntry
+                    >
+                > iter =
+                    territoryData.getClaims().entrySet().iterator();
+                while (iter.hasNext()) {
+                    java.util.Map.Entry<
+                        com.baldeagle.territory.TerritoryManager.DimChunkKey,
+                        com.baldeagle.territory.TerritoryData.ClaimEntry
+                    > entry =
+                        iter.next();
+                    if (countryId.equals(entry.getValue().countryId)) {
+                        iter.remove();
+                        territoryClaimsRemoved++;
+                    }
+                }
+                if (territoryClaimsRemoved > 0) {
+                    territoryData.markDirty();
+                }
+
+                countries.remove(countryId);
+                CountryStorage.get(countryWorld).markDirty();
+
+                sender.sendMessage(
+                    new TextComponentString(
+                        "Country '" +
+                            countryName +
+                            "' deleted. " +
+                            memberCount +
+                            " member(s) are now without a country. " +
+                            territoryClaimsRemoved +
+                            " territory claim(s) removed."
                     )
                 );
                 return;
