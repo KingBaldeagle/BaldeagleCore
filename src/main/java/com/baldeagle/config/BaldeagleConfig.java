@@ -28,6 +28,7 @@ public final class BaldeagleConfig {
 
     public static double countryInterestRate = 0.03D;
     public static double playerInterestRate = 0.03D;
+    public static int playerInterestThreshold = 0;
     public static long interestIntervalMinutes = 1L;
 
     private BaldeagleConfig() {}
@@ -180,6 +181,14 @@ public final class BaldeagleConfig {
             0.0F,
             1.0F,
             "Interest rate applied to player balances per interval. 0.03 = 3% interest."
+        );
+        playerInterestThreshold = config.getInt(
+            "playerInterestThreshold",
+            "interest",
+            0,
+            0,
+            Integer.MAX_VALUE,
+            "Minimum player balance required before interest is applied. 0 = no minimum."
         );
         interestIntervalMinutes = config.getInt(
             "interestIntervalMinutes",

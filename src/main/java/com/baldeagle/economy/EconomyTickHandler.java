@@ -40,7 +40,7 @@ public class EconomyTickHandler {
         }
 
         long intervals = elapsed / intervalTicks;
-        for (long i = 0; i < intervals; i++) {
+        if (intervals > 0) {
             EconomyManager.applyInterest(
                 world,
                 BaldeagleConfig.countryInterestRate,
