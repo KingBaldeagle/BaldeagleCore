@@ -3,6 +3,7 @@ package com.baldeagle.economy;
 import com.baldeagle.country.Country;
 import com.baldeagle.country.CountryManager;
 import com.baldeagle.country.CountryStorage;
+import com.baldeagle.config.BaldeagleConfig;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.world.World;
@@ -122,9 +123,10 @@ public class EconomyManager {
         boolean dataChanged = false;
 
         Map<UUID, Long> playerBalances = data.getPlayerBalances();
+        int playerThreshold = BaldeagleConfig.playerInterestThreshold;
         for (Map.Entry<UUID, Long> entry : playerBalances.entrySet()) {
             long current = entry.getValue();
-            if (current <= 0) {
+            if (current <= playerThreshold) {
                 continue;
             }
             long interest = Math.round(current * playerRate);
