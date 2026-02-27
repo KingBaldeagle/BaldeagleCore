@@ -11,6 +11,7 @@ import com.baldeagle.economy.EconomyTickHandler;
 import com.baldeagle.economy.atm.TileEntityAtm;
 import com.baldeagle.network.NetworkHandler;
 import com.baldeagle.oc.gov.TileEntityGovernmentComputer;
+import com.baldeagle.territory.CaptureTickHandler;
 import com.baldeagle.territory.TerritoryIncomeTickHandler;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -41,7 +42,7 @@ public class BaldeagleCore {
 
     public static final String MODID = "baldeaglecore";
     public static final String NAME = "BaldEagle Core";
-    public static final String VERSION = "1.24";
+    public static final String VERSION = "1.30";
 
     @Mod.Instance
     public static BaldeagleCore instance;
@@ -63,6 +64,7 @@ public class BaldeagleCore {
         MinecraftForge.EVENT_BUS.register(new BountyEventHandler());
         MinecraftForge.EVENT_BUS.register(new EconomyTickHandler());
         MinecraftForge.EVENT_BUS.register(new TerritoryIncomeTickHandler());
+        MinecraftForge.EVENT_BUS.register(new CaptureTickHandler());
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
         NetworkHandler.register();
         GameRegistry.registerTileEntity(

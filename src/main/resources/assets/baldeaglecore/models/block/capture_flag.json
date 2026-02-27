@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "particle": "baldeaglecore:blocks/capture_flag",
+    "all": "baldeaglecore:blocks/capture_flag"
+  }
+}

@@ -37,6 +37,7 @@ public class ClientModelRegistry {
         registerItem(Item.getItemFromBlock(ModBlocks.GOVERNMENT_COMPUTER));
         registerItem(Item.getItemFromBlock(ModBlocks.CLAIM_FLAG));
         registerItem(Item.getItemFromBlock(ModBlocks.RESEARCH_ASSEMBLER));
+        registerItem(Item.getItemFromBlock(ModBlocks.CAPTURE_FLAG));
     }
 
     private static void registerItem(Item item) {

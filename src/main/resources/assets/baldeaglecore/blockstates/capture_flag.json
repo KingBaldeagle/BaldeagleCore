@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "normal": { "model": "baldeaglecore:block/capture_flag" },
+    "inventory": { "model": "baldeaglecore:block/capture_flag" }
+  }
+}

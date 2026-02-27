@@ -28,6 +28,10 @@ public class TerritoryData extends WorldSavedData {
     private final Map<TerritoryManager.DimChunkKey, ClaimEntry> claims =
         new HashMap<>();
 
+    // dimension+chunk -> capture entry
+    private final Map<TerritoryManager.DimChunkKey, CaptureSystem.CaptureEntry> captureData =
+        new HashMap<>();
+
     // Used by the income tick handler (only read/written on overworld instance).
     private long lastPayoutTime = 0L;
 
@@ -54,6 +58,10 @@ public class TerritoryData extends WorldSavedData {
         return claims;
     }
 
+    public Map<TerritoryManager.DimChunkKey, CaptureSystem.CaptureEntry> getCaptureData() {
+        return captureData;
+    }
+
     public long getLastPayoutTime() {
         return lastPayoutTime;
     }
@@ -65,6 +73,7 @@ public class TerritoryData extends WorldSavedData {
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         claims.clear();
+        captureData.clear();
 
         lastPayoutTime = nbt.getLong("LastPayoutTime");
 
@@ -87,6 +96,41 @@ public class TerritoryData extends WorldSavedData {
                 TerritoryManager.chunkKey(dimension, chunkX, chunkZ),
                 new ClaimEntry(countryId, flagPos)
             );
+        }
+
+        if (nbt.hasKey("Captures")) {
+            NBTTagList captureList = nbt.getTagList("Captures", 10);
+            for (int i = 0; i < captureList.tagCount(); i++) {
+                NBTTagCompound tag = captureList.getCompoundTagAt(i);
+                int chunkX = tag.getInteger("ChunkX");
+                int chunkZ = tag.getInteger("ChunkZ");
+                int dimension = tag.hasKey("Dimension") ? tag.getInteger("Dimension") : 0;
+                UUID attackerId = UUID.fromString(tag.getString("AttackerId"));
+                UUID defenderId = UUID.fromString(tag.getString("DefenderId"));
+                long startTime = tag.getLong("StartTime");
+                long progress = tag.getLong("Progress");
+                String stageName = tag.getString("Stage");
+                
+                int fx = tag.getInteger("FlagX");
+                int fy = tag.getInteger("FlagY");
+                int fz = tag.getInteger("FlagZ");
+                BlockPos flagPos = new BlockPos(fx, fy, fz);
+
+                CaptureSystem.CaptureEntry entry = new CaptureSystem.CaptureEntry(
+                    attackerId, defenderId, flagPos, startTime
+                );
+                entry.captureProgressTicks = progress;
+                try {
+                    entry.stage = CaptureSystem.CaptureStage.valueOf(stageName);
+                } catch (Exception e) {
+                    entry.stage = CaptureSystem.CaptureStage.CONTESTED;
+                }
+
+                captureData.put(
+                    TerritoryManager.chunkKey(dimension, chunkX, chunkZ),
+                    entry
+                );
+            }
         }
     }
 
@@ -113,6 +157,31 @@ public class TerritoryData extends WorldSavedData {
             list.appendTag(tag);
         }
         nbt.setTag("Claims", list);
+
+        NBTTagList captureList = new NBTTagList();
+        for (Map.Entry<
+            TerritoryManager.DimChunkKey,
+            CaptureSystem.CaptureEntry
+        > entry : captureData.entrySet()) {
+            TerritoryManager.DimChunkKey key = entry.getKey();
+            CaptureSystem.CaptureEntry capture = entry.getValue();
+
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setInteger("Dimension", key.dimension);
+            tag.setInteger("ChunkX", key.chunkX);
+            tag.setInteger("ChunkZ", key.chunkZ);
+            tag.setString("AttackerId", capture.attackerId.toString());
+            tag.setString("DefenderId", capture.defenderId.toString());
+            tag.setLong("StartTime", capture.startTime);
+            tag.setLong("Progress", capture.captureProgressTicks);
+            tag.setString("Stage", capture.stage.name());
+            tag.setInteger("FlagX", capture.captureBlockPos.getX());
+            tag.setInteger("FlagY", capture.captureBlockPos.getY());
+            tag.setInteger("FlagZ", capture.captureBlockPos.getZ());
+            captureList.appendTag(tag);
+        }
+        nbt.setTag("Captures", captureList);
+
         return nbt;
     }
 }
